@@ -5,34 +5,53 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZarządzanieFinansami"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="TZF Lite" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
+        
+        
+        <!-- Lewy gorny -->
+        <!-- <Menu DockPanel.Dock="Top"> -->
+        <!--     <MenuItem Header="_File"> -->
+        <!--         <MenuItem Header="_Exit"> -->
+        <!--             <MenuItem Header="_Open" /> -->
+        <!--             <MenuItem Header="_Save" /> -->
+        <!--         </MenuItem> -->
+        <!--         <MenuItem Header="_Open" /> -->
+        <!--         <MenuItem Header="_Save" /> -->
+        <!--         <Separator /> -->
+        <!--         <MenuItem Header="_Exit" /> -->
+        <!--     </MenuItem> -->
+        <!-- </Menu> -->
         
         <!-- Prawy gorny -->
         <TextBlock Grid.Column="1" Grid.Row="0" x:Name="SystemClock" />
         
         <!-- Lewy dolny -->
-        <ListView Grid.Column="0" Grid.Row="1" Name="TransactionsListView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <ListView Grid.Row="1" Grid.Column="0" x:Name="MyListView" HorizontalAlignment="Stretch" SizeChanged="ListView_SizeChanged">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Saldo" DisplayMemberBinding="{Binding Amount}" Width="100"/>
-                    <GridViewColumn Header="Zmiana" DisplayMemberBinding="{Binding Date}" Width="100"/>
-                    <GridViewColumn Header="Data" DisplayMemberBinding="{Binding Date}" Width="100"/>
-                    <GridViewColumn Header="Uwagi" DisplayMemberBinding="{Binding Description}" Width="300"/>
+                    <GridViewColumn Header="Saldo" DisplayMemberBinding="{Binding Amount}" />
+                    <GridViewColumn Header="Zmiana" DisplayMemberBinding="{Binding Change}" />
+                    <GridViewColumn Header="Data" DisplayMemberBinding="{Binding Date}" />
+                    <GridViewColumn Header="Uwagi" DisplayMemberBinding="{Binding Description}" />
                 </GridView>
             </ListView.View>
         </ListView>
+
         <!-- Prawa dolna  -->
         <StackPanel Grid.Column="1" Grid.Row="1">
-            <TextBlock x:Name="ResultTextDisplay" />
+            <StackPanel  Orientation="Horizontal">
+                <TextBlock x:Name="ResultTextDisplay"/>
+            </StackPanel>
+            <Button Click="Button_OnClick" Height="20" Content="UwU Free Man" Margin="10"/>
         </StackPanel>
         
     </Grid>
