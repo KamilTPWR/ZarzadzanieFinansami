@@ -36,7 +36,6 @@ public partial class IncreaseSaldo : Window
                 command.Parameters.AddWithValue("$uwagi",uwagi);
                 command.ExecuteNonQuery();
             }
-            
         }
         else
         {

@@ -1,4 +1,6 @@
-﻿using System.Media;
+﻿using Microsoft.Data.Sqlite;
+using System.Media;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,11 +21,13 @@ namespace ZarządzanieFinansami;
 public partial class MainWindow : Window
 {
     Core core = new Core();
+    public List<Transaction> transactions = new List<Transaction>();
     public MainWindow()
     {   
         InitializeComponent();
         StartClock();
-
+        UpdateDataGrid();
+        InitializeDataGridView();
         ChangeSaldoEvent(0);
         
         ResultTextDisplay.Text = $"Saldo: {core.saldo} $";
@@ -44,17 +48,42 @@ public partial class MainWindow : Window
             SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
         }
     }
+
+    private void InitializeDataGridView()
+    {
+        UpdateDataGrid();
+        var scaleRation = 0.20;
+        var gridView = MyListView as DataGrid;
+        double totalWidth = MyListView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+        if (4 == gridView.Columns.Count)
+        {
+            UpdateDataGrid();
+            gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
+            gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
+            gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
+            gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+        }
+        else
+        {
+            UpdateDataGrid();
+        }
+    }
+
     private void ListView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
+        UpdateDataGrid();
         var scaleRation = 0.20;
-        var gridView = MyListView.View as GridView;
+        var gridView = MyListView as DataGrid;
 
         double totalWidth = MyListView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-
-        gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-        gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-        gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-        gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+        if (4 == gridView.Columns.Count)
+        {
+            UpdateDataGrid();
+            gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
+            gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
+            gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
+            gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+        }
         
     }
     private void Button_OnClick(object sender, RoutedEventArgs e)
@@ -62,7 +91,8 @@ public partial class MainWindow : Window
         // ChangeSaldoEvent(core.saldo+1);
         
         IncreaseSaldo increaseSaldo = new IncreaseSaldo();
-        increaseSaldo.Show();
+        increaseSaldo.ShowDialog();
+        UpdateDataGrid();
         
     }
     private void ChangeSaldoEvent(double newSaldo)
@@ -70,7 +100,32 @@ public partial class MainWindow : Window
         core.ChangeSaldo(newSaldo);
         ResultTextDisplay.Text = $"Saldo: {core.saldo} $";
     }
+
+    private void UpdateDataGrid() {
+        transactions.Clear();
+        this.DataContext = null;
+        SQLitePCL.Batteries.Init();
+        using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = @"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji";
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var Nazwa = reader.GetString(0);
+                    var Kwota = reader.GetDouble(1);
+                    var Data = reader.GetString(2);
+                    var Uwagi = reader.GetString(3);
+                    transactions.Add(new Transaction(Nazwa, Kwota, Data, Uwagi));
+                }
+            }
+        }
+        this.DataContext = transactions;
+    }
 }
+
 
 public class Core
 {
