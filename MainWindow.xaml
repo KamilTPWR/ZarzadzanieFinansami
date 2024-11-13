@@ -5,35 +5,93 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZarządzanieFinansami"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="TZF Lite" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
+        
+        <!-- Lewy gorny -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="Navigate">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="Find">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="Settings">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+        </Menu>
         
         <!-- Prawy gorny -->
         <TextBlock Grid.Column="1" Grid.Row="0" x:Name="SystemClock" />
         
         <!-- Lewy dolny -->
-        <ListView Grid.Column="0" Grid.Row="1" Name="TransactionsListView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Saldo" DisplayMemberBinding="{Binding Amount}" Width="100"/>
-                    <GridViewColumn Header="Zmiana" DisplayMemberBinding="{Binding Date}" Width="100"/>
-                    <GridViewColumn Header="Data" DisplayMemberBinding="{Binding Date}" Width="100"/>
-                    <GridViewColumn Header="Uwagi" DisplayMemberBinding="{Binding Description}" Width="300"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
+        <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MyDataGridView" HorizontalAlignment="Stretch" SizeChanged="MyDataGridView_SizeChanged" Loaded="MyDataGridView_Loaded"/>
+        
         <!-- Prawa dolna  -->
         <StackPanel Grid.Column="1" Grid.Row="1">
-            <TextBlock x:Name="ResultTextDisplay" />
+            <StackPanel  Orientation="Horizontal">
+                <TextBlock x:Name="ResultTextDisplay"/>
+            </StackPanel>
+            <Button Click="Button_OnClick" Height="20" Content="Dodaj Pozycję" Margin="10"/>
         </StackPanel>
-        
     </Grid>
 </Window>
