@@ -18,18 +18,20 @@ namespace ZarządzanieFinansami;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+
+// ReSharper disable once RedundantExtendsListEntry
+public partial class MainWindow : Window 
 {
-    Core core = new Core();
-    public List<Transaction> transactions = new List<Transaction>();
+    Core _core = new Core();
+    public List<Transaction> Transactions = new List<Transaction>();
     public MainWindow()
     {   
         InitializeComponent();
         StartClock();
         UpdateDataGrid();
-        ChangeSaldoEvent(0);
+        ChangeSaldoEvent(GetSaldoFromDatabase());
         
-        ResultTextDisplay.Text = $"Saldo: {core.saldo} $";
+        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
         
         //Napisy domyśne
         SystemClock.Text = "00/00/0000 00:00:00";
@@ -42,17 +44,34 @@ public partial class MainWindow : Window
             timer.Tick += TickEvent;
             timer.Start();
         }
-        void TickEvent(object sender, EventArgs e)
+        void TickEvent(object? sender, EventArgs e) //Nie mam pojęcia dlaczego tam ma być znak zapytania : P
         {
             SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
         }
     }
-    private void ListView_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void UpdateWindow()
     {
-        //UpdateDataGrid(); Może być potrzebne
+        ChangeSaldoEvent(GetSaldoFromDatabase());
+        UpdateDataGrid();
+        UpdateDataGridView();
+    }
+    private void UpdateDataGridView()
+    {
         var scaleRation = 0.20;
-        var gridView = MyListView as DataGrid;
-        double totalWidth = MyListView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+        var gridView = MyDataGridView;
+
+        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+        
+        gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
+        gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
+        gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
+        gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+    }
+    private void MyDataGridView_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var scaleRation = 0.20;
+        var gridView = MyDataGridView;
+        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
         if (4 == gridView.Columns.Count)
         {
             gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
@@ -63,19 +82,17 @@ public partial class MainWindow : Window
     }
     private void Button_OnClick(object sender, RoutedEventArgs e)
     {
-        // ChangeSaldoEvent(core.saldo+1);
-        
         IncreaseSaldo increaseSaldo = new IncreaseSaldo();
         increaseSaldo.ShowDialog();
-        UpdateDataGrid();
+        UpdateWindow();
     }
     private void ChangeSaldoEvent(double newSaldo)
     {
-        core.ChangeSaldo(newSaldo);
-        ResultTextDisplay.Text = $"Saldo: {core.saldo} $";
+        _core.ChangeSaldo(newSaldo);
+        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
     }
     private void UpdateDataGrid() {
-        transactions.Clear();
+        Transactions.Clear();
         this.DataContext = null;
         SQLitePCL.Batteries.Init();
         using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
@@ -87,23 +104,23 @@ public partial class MainWindow : Window
             {
                 while (reader.Read())
                 {
-                    var Nazwa = reader.GetString(0);
-                    var Kwota = reader.GetDouble(1);
-                    var Data = reader.GetString(2);
-                    var Uwagi = reader.GetString(3);
-                    transactions.Add(new Transaction(Nazwa, Kwota, Data, Uwagi));
+                    var nazwa = reader.GetString(0);
+                    var kwota = reader.GetDouble(1);
+                    var data = reader.GetString(2);
+                    var uwagi = reader.GetString(3);
+                    Transactions.Add(new Transaction(nazwa, kwota, data, uwagi));
                 }
             }
         }
-        this.DataContext = transactions;
+        this.DataContext = Transactions;
     }
-    private void MyListView_Loaded(object sender, RoutedEventArgs e)
+    private void MyDataGridView_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateDataGrid();
         var scaleRation = 0.20;
-        var gridView = MyListView as DataGrid;
+        var gridView = MyDataGridView;
 
-        double totalWidth = MyListView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
 
         UpdateDataGrid();
         gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
@@ -111,18 +128,27 @@ public partial class MainWindow : Window
         gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
         gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
     }
-}
-public class Core
-{
-    public double saldo { get; set; }
-
-    public Core()
+    private double GetSaldoFromDatabase()
     {
-        saldo = 0;
+        double returnValue = 0.0;
+        Transactions.Clear();
+        this.DataContext = null;
+        SQLitePCL.Batteries.Init();
+        using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = @"SELECT Kwota FROM ListaTranzakcji";
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var kwota = reader.GetDouble(0);
+                    returnValue += kwota;
+                }
+            }
+        }
+        this.DataContext = Transactions;
+        return returnValue;
     }
-    public void ChangeSaldo(double newValue)
-    {
-        saldo = newValue;
-    }
-
 }

@@ -17,52 +17,81 @@
         </Grid.RowDefinitions>
         
         <!-- Lewy gorny -->
-        
-        <!-- <Menu DockPanel.Dock="Top"> -->
-        <!--     <MenuItem Header="_File"> -->
-        <!--         <MenuItem Header="_Exit"> -->
-        <!--             <MenuItem Header="_Open" /> -->
-        <!--             <MenuItem Header="_Save" /> -->
-        <!--         </MenuItem> -->
-        <!--         <MenuItem Header="_Open" /> -->
-        <!--         <MenuItem Header="_Save" /> -->
-        <!--         <Separator /> -->
-        <!--         <MenuItem Header="_Exit" /> -->
-        <!--     </MenuItem> -->
-        <!-- </Menu> -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="Navigate">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="Find">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="Settings">
+                <MenuItem Header="_Exit">
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                </MenuItem>
+                <MenuItem Header="_Open" />
+                <MenuItem Header="_Save" />
+                <Separator />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+        </Menu>
         
         <!-- Prawy gorny -->
-        
         <TextBlock Grid.Column="1" Grid.Row="0" x:Name="SystemClock" />
         
         <!-- Lewy dolny -->
+        <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MyDataGridView" HorizontalAlignment="Stretch" SizeChanged="MyDataGridView_SizeChanged" Loaded="MyDataGridView_Loaded"/>
         
-        <!--<ListView Grid.Row="1" Grid.Column="0" x:Name="MyListView" HorizontalAlignment="Stretch" SizeChanged="ListView_SizeChanged">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Saldo" DisplayMemberBinding="{Binding Amount}" />
-                    <GridViewColumn Header="Zmiana" DisplayMemberBinding="{Binding Change}" />
-                    <GridViewColumn Header="Data" DisplayMemberBinding="{Binding Date}" />
-                    <GridViewColumn Header="Uwagi" DisplayMemberBinding="{Binding Description}" />
-                </GridView>
-            </ListView.View>
-            
-        </ListView>--><!-- SizeChanged="ListView_SizeChanged"-->
-        <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MyListView" HorizontalAlignment="Stretch" SizeChanged="ListView_SizeChanged" Loaded="MyListView_Loaded">
-            <!--<DataGrid.Columns>
-                <DataGridTextColumn Header="Nazwa" Binding="{Binding Nazwa}" />
-                <DataGridTextColumn Header="Kwota" Binding="{Binding Kwota}" />
-                <DataGridTextColumn Header="Data" Binding="{Binding Data}" />
-                <DataGridTextColumn Header="Uwagi" Binding="{Binding Uwagi}" />
-            </DataGrid.Columns>      --> 
-        </DataGrid>
-
         <!-- Prawa dolna  -->
         <StackPanel Grid.Column="1" Grid.Row="1">
             <StackPanel  Orientation="Horizontal">
                 <TextBlock x:Name="ResultTextDisplay"/>
             </StackPanel>
-            <Button Click="Button_OnClick" Height="20" Content="UwU Free Man" Margin="10"/>
+            <Button Click="Button_OnClick" Height="20" Content="Dodaj Pozycję" Margin="10"/>
         </StackPanel>
     </Grid>
 </Window>
