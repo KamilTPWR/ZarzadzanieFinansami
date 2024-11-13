@@ -48,7 +48,7 @@
             </ListView.View>
             
         </ListView>--><!-- SizeChanged="ListView_SizeChanged"-->
-        <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MyListView" HorizontalAlignment="Stretch" SizeChanged="ListView_SizeChanged">
+        <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MyListView" HorizontalAlignment="Stretch" SizeChanged="ListView_SizeChanged" Loaded="MyListView_Loaded">
             <!--<DataGrid.Columns>
                 <DataGridTextColumn Header="Nazwa" Binding="{Binding Nazwa}" />
                 <DataGridTextColumn Header="Kwota" Binding="{Binding Kwota}" />

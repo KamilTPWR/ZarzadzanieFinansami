@@ -27,7 +27,6 @@ public partial class MainWindow : Window
         InitializeComponent();
         StartClock();
         UpdateDataGrid();
-        InitializeDataGridView();
         ChangeSaldoEvent(0);
         
         ResultTextDisplay.Text = $"Saldo: {core.saldo} $";
@@ -48,43 +47,19 @@ public partial class MainWindow : Window
             SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
         }
     }
-
-    private void InitializeDataGridView()
-    {
-        UpdateDataGrid();
-        var scaleRation = 0.20;
-        var gridView = MyListView as DataGrid;
-        double totalWidth = MyListView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-        if (4 == gridView.Columns.Count)
-        {
-            UpdateDataGrid();
-            gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-            gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-            gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-            gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
-        }
-        else
-        {
-            UpdateDataGrid();
-        }
-    }
-
     private void ListView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        UpdateDataGrid();
+        //UpdateDataGrid(); Może być potrzebne
         var scaleRation = 0.20;
         var gridView = MyListView as DataGrid;
-
         double totalWidth = MyListView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
         if (4 == gridView.Columns.Count)
         {
-            UpdateDataGrid();
             gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
             gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
             gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
             gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
         }
-        
     }
     private void Button_OnClick(object sender, RoutedEventArgs e)
     {
@@ -93,14 +68,12 @@ public partial class MainWindow : Window
         IncreaseSaldo increaseSaldo = new IncreaseSaldo();
         increaseSaldo.ShowDialog();
         UpdateDataGrid();
-        
     }
     private void ChangeSaldoEvent(double newSaldo)
     {
         core.ChangeSaldo(newSaldo);
         ResultTextDisplay.Text = $"Saldo: {core.saldo} $";
     }
-
     private void UpdateDataGrid() {
         transactions.Clear();
         this.DataContext = null;
@@ -124,9 +97,21 @@ public partial class MainWindow : Window
         }
         this.DataContext = transactions;
     }
+    private void MyListView_Loaded(object sender, RoutedEventArgs e)
+    {
+        UpdateDataGrid();
+        var scaleRation = 0.20;
+        var gridView = MyListView as DataGrid;
+
+        double totalWidth = MyListView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+
+        UpdateDataGrid();
+        gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
+        gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
+        gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
+        gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+    }
 }
-
-
 public class Core
 {
     public double saldo { get; set; }
