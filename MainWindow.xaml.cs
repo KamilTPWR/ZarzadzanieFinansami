@@ -31,7 +31,8 @@ public partial class MainWindow : Window
         UpdateDataGrid();
         ChangeSaldoEvent(GetSaldoFromDatabase());
         
-        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
+        ResultTextDisplay.Text = $"Suma: {_core.Saldo} $";
+        
         
         //Napisy domyśne
         SystemClock.Text = "00/00/0000 00:00:00";
@@ -80,7 +81,7 @@ public partial class MainWindow : Window
             gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
         }
     }
-    private void Button_OnClick(object sender, RoutedEventArgs e)
+    private void DodajRekord_OnClick(object sender, RoutedEventArgs e)
     {
         IncreaseSaldo increaseSaldo = new IncreaseSaldo();
         increaseSaldo.ShowDialog();
@@ -132,7 +133,7 @@ public partial class MainWindow : Window
     {
         double returnValue = 0.0;
         Transactions.Clear();
-        this.DataContext = null;
+        DataContext = null;
         SQLitePCL.Batteries.Init();
         using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
         {
@@ -148,7 +149,45 @@ public partial class MainWindow : Window
                 }
             }
         }
-        this.DataContext = Transactions;
+        DataContext = Transactions;
         return returnValue;
     }
-}
+
+
+    private void UsunRekord_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
+
+    private List<Transaction> GetFromDatabase(string dataBaseName, string command = "SELECT * FROM ListaTranzakcji")
+    {
+        List<Transaction> transactions = new List<Transaction>();
+        SQLitePCL.Batteries.Init();
+
+        // Determine columns from the command string
+        string columnSection = command.Substring(7, command.IndexOf("FROM") - 7).Trim();
+        var columns = columnSection == "*" ? new List<string> { "Name", "Amount", "Date", "Remarks" } 
+            : columnSection.Split(',').Select(c => c.Trim()).ToList();
+
+        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+        {
+            connection.Open();
+            var _command = connection.CreateCommand();
+            _command.CommandText = command;
+
+            using (var reader = _command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    string name = columns.Contains("Name") ? reader.GetString(columns.IndexOf("Name")) : null;
+                    double? amount = columns.Contains("Amount") ? reader.GetDouble(columns.IndexOf("Amount")) : (double?)null;
+                    string date = columns.Contains("Date") ? reader.GetString(columns.IndexOf("Date")) : null;
+                    string remarks = columns.Contains("Remarks") ? reader.GetString(columns.IndexOf("Remarks")) : null;
+
+                    transactions.Add(new Transaction(name, amount, date, remarks));
+                }
+            }
+        }
+        return transactions;
+    }
