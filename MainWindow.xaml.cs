@@ -32,11 +32,7 @@ public partial class MainWindow : Window
         UpdateDataGrid();
         ChangeSaldoEvent(GetSaldoFromDatabase());
         
-        ResultTextDisplay.Text = $"Suma: {_core.Saldo} $";
-        
-        
-        //Napisy domyśne
-        SystemClock.Text = "00/00/0000 00:00:00";
+        SystemClock.Text = Constants.DEFAULTCLOCK;
         
         //Zarządzanie zegarem w prawym górnym rogu
         void StartClock()
@@ -96,24 +92,6 @@ public partial class MainWindow : Window
     private void UpdateDataGrid() {
         Transactions.Clear();
         DataContext = null;
-        /*SQLitePCL.Batteries.Init();
-        using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = @"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji";
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    var nazwa = reader.GetString(0);
-                    var kwota = reader.GetDouble(1);
-                    var data = reader.GetString(2);
-                    var uwagi = reader.GetString(3);
-                    Transactions.Add(new Transaction(nazwa, kwota, data, uwagi));
-                }
-            }
-        }*/
         Transactions = DbUtility.GetFromDatabase(@"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji");
         DataContext = Transactions;
     }
