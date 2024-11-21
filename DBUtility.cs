@@ -72,4 +72,11 @@ public abstract class DbUtility
         }
         return transactions;
     }
+
+    public static int GetNumberOfTransactions(string command = "SELECT * FROM ListaTranzakcji", string dataBaseName = $"FinanseDataBase.db")
+    {
+        List<Transaction> transactions = GetFromDatabase(command, dataBaseName);
+        int i = transactions.Count();
+        return i;
+    }
 }

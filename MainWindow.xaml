@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="TZF Lite" Height="450" Width="800">
+        Title="TZF Lite" Height="450" Width="800"
+        WindowState="Maximized">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*" />
@@ -85,10 +86,10 @@
 
             </Menu>
             <StackPanel Grid.Column="1" Orientation="Horizontal" FlowDirection="RightToLeft">
-                <Button Width="20" Content="&lt;"/>
+                <Button Width="20" Content="&lt;" Click="ButtonRight_OnClick"/>
                 <TextBlock x:Name="PageTextBlock" Width="40" TextAlignment="Center" TextWrapping="NoWrap"/>
-                <Button Width="20" Content="&gt;"/>
-                <Button x:Name="ButtonNonclick" Background="White" BorderBrush="White">10/20 </Button>
+                <Button Width="20" Content="&gt;" Click="ButtonLeft_OnClick"/>
+                <Button x:Name="ButtonNumberControll" Background="White" BorderBrush="White" Click="ButtonNumberControll_OnClick"/> 
             </StackPanel>
         </Grid>
 

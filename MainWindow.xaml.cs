@@ -23,7 +23,7 @@ namespace ZarządzanieFinansami;
 // ReSharper disable once RedundantExtendsListEntry
 public partial class MainWindow : Window
 {
-    Core _core = new Core();
+    Core MainCore = new Core();
     public List<Transaction> Transactions = new List<Transaction>();
 
     public MainWindow()
@@ -32,24 +32,29 @@ public partial class MainWindow : Window
         StartClock();
         UpdateDataGrid();
         ChangeSaldoEvent(GetSaldoFromDatabase());
-
-        SystemClock.Text = Constants.DEFAULTCLOCK;
-        PageTextBlock.Text = Constants.NULLPAGE;
+        SetConstants();
     }
-
 /***********************************************************************************************************************/
 /*                                                Private Methods                                                      */
 /***********************************************************************************************************************/
+    private void SetConstants()
+    {
+        SystemClock.Text = Constants.DEFAULTCLOCK;
+        PageTextBlock.Text = Constants.NULLPAGE;
+        ButtonNumberControll.Content = Constants.NULLROWNUMBER;
+    }
     private void UpdateWindow()
     {
+        PageTextBlock.Text = " " + Core.Page + "-" + Core.PagesNumber() + " ";
         ChangeSaldoEvent(GetSaldoFromDatabase());
         UpdateDataGrid();
         DataGridUtility.UpdateDataGridView(MyDataGridView);
+        ButtonNumberControll.Content = Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
     }
     private void ChangeSaldoEvent(double newSaldo)
     {
-        _core.ChangeSaldo(newSaldo);
-        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
+        MainCore.SetSaldo(newSaldo);
+        ResultTextDisplay.Text = $"Saldo: {MainCore.Saldo} $";
     }
     private void UpdateDataGrid()
     {
@@ -103,10 +108,26 @@ public partial class MainWindow : Window
     {
         UpdateDataGrid();
         DataGridUtility.UpdateDataGridView(MyDataGridView);
+        UpdateWindow();
     }
     private void UsunRekord_OnClick(object sender, RoutedEventArgs e)
     {
         
     }
-
+    private void ButtonNumberControll_OnClick(object sender, RoutedEventArgs e)
+    {
+        NumberOfRecordsOnPage numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
+        numberOfRecordsOnPage.ShowDialog();
+        UpdateWindow();
+    }
+    private void ButtonRight_OnClick(object sender, RoutedEventArgs e)
+    {
+        Core.Page = Core.Page <= Core.PagesNumber() ? ++Core.Page : Core.Page;
+        UpdateWindow();
+    }
+    private void ButtonLeft_OnClick(object sender, RoutedEventArgs e)
+    {
+        Core.Page = Core.Page > 1 ? --Core.Page : Core.Page;
+        UpdateWindow();
+    }
 }
