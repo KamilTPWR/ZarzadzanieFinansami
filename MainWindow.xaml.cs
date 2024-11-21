@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System.Data;
+using Microsoft.Data.Sqlite;
 using System.Media;
 using System.Reflection;
 using System.Text;
@@ -94,8 +95,8 @@ public partial class MainWindow : Window
     }
     private void UpdateDataGrid() {
         Transactions.Clear();
-        this.DataContext = null;
-        SQLitePCL.Batteries.Init();
+        DataContext = null;
+        /*SQLitePCL.Batteries.Init();
         using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
         {
             connection.Open();
@@ -112,8 +113,9 @@ public partial class MainWindow : Window
                     Transactions.Add(new Transaction(nazwa, kwota, data, uwagi));
                 }
             }
-        }
-        this.DataContext = Transactions;
+        }*/
+        Transactions = DbUtility.GetFromDatabase(@"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji");
+        DataContext = Transactions;
     }
     private void MyDataGridView_Loaded(object sender, RoutedEventArgs e)
     {
@@ -158,36 +160,5 @@ public partial class MainWindow : Window
     {
         throw new NotImplementedException();
     }
-
-
-    private List<Transaction> GetFromDatabase(string dataBaseName, string command = "SELECT * FROM ListaTranzakcji")
-    {
-        List<Transaction> transactions = new List<Transaction>();
-        SQLitePCL.Batteries.Init();
-
-        // Determine columns from the command string
-        string columnSection = command.Substring(7, command.IndexOf("FROM") - 7).Trim();
-        var columns = columnSection == "*" ? new List<string> { "Name", "Amount", "Date", "Remarks" } 
-            : columnSection.Split(',').Select(c => c.Trim()).ToList();
-
-        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
-        {
-            connection.Open();
-            var _command = connection.CreateCommand();
-            _command.CommandText = command;
-
-            using (var reader = _command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    string name = columns.Contains("Name") ? reader.GetString(columns.IndexOf("Name")) : null;
-                    double? amount = columns.Contains("Amount") ? reader.GetDouble(columns.IndexOf("Amount")) : (double?)null;
-                    string date = columns.Contains("Date") ? reader.GetString(columns.IndexOf("Date")) : null;
-                    string remarks = columns.Contains("Remarks") ? reader.GetString(columns.IndexOf("Remarks")) : null;
-
-                    transactions.Add(new Transaction(name, amount, date, remarks));
-                }
-            }
-        }
-        return transactions;
+    
     }
