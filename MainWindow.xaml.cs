@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System.Data;
+using Microsoft.Data.Sqlite;
 using System.Media;
 using System.Reflection;
 using System.Text;
@@ -31,10 +32,7 @@ public partial class MainWindow : Window
         UpdateDataGrid();
         ChangeSaldoEvent(GetSaldoFromDatabase());
         
-        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
-        
-        //Napisy domyśne
-        SystemClock.Text = "00/00/0000 00:00:00";
+        SystemClock.Text = Constants.DEFAULTCLOCK;
         
         //Zarządzanie zegarem w prawym górnym rogu
         void StartClock()
@@ -80,7 +78,7 @@ public partial class MainWindow : Window
             gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
         }
     }
-    private void Button_OnClick(object sender, RoutedEventArgs e)
+    private void DodajRekord_OnClick(object sender, RoutedEventArgs e)
     {
         IncreaseSaldo increaseSaldo = new IncreaseSaldo();
         increaseSaldo.ShowDialog();
@@ -93,26 +91,9 @@ public partial class MainWindow : Window
     }
     private void UpdateDataGrid() {
         Transactions.Clear();
-        this.DataContext = null;
-        SQLitePCL.Batteries.Init();
-        using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = @"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji";
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    var nazwa = reader.GetString(0);
-                    var kwota = reader.GetDouble(1);
-                    var data = reader.GetString(2);
-                    var uwagi = reader.GetString(3);
-                    Transactions.Add(new Transaction(nazwa, kwota, data, uwagi));
-                }
-            }
-        }
-        this.DataContext = Transactions;
+        DataContext = null;
+        Transactions = DbUtility.GetFromDatabase(@"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji");
+        DataContext = Transactions;
     }
     private void MyDataGridView_Loaded(object sender, RoutedEventArgs e)
     {
@@ -132,7 +113,7 @@ public partial class MainWindow : Window
     {
         double returnValue = 0.0;
         Transactions.Clear();
-        this.DataContext = null;
+        DataContext = null;
         SQLitePCL.Batteries.Init();
         using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
         {
@@ -148,7 +129,14 @@ public partial class MainWindow : Window
                 }
             }
         }
-        this.DataContext = Transactions;
+        DataContext = Transactions;
         return returnValue;
     }
-}
+
+
+    private void UsunRekord_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+    
+    }
