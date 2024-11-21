@@ -21,61 +21,76 @@ namespace ZarządzanieFinansami;
 /// </summary>
 
 // ReSharper disable once RedundantExtendsListEntry
-public partial class MainWindow : Window 
+public partial class MainWindow : Window
 {
     Core _core = new Core();
     public List<Transaction> Transactions = new List<Transaction>();
+
     public MainWindow()
-    {   
+    {
         InitializeComponent();
         StartClock();
         UpdateDataGrid();
         ChangeSaldoEvent(GetSaldoFromDatabase());
-        
+
         SystemClock.Text = Constants.DEFAULTCLOCK;
-        
-        //Zarządzanie zegarem w prawym górnym rogu
-        void StartClock()
-        {
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(1);
-            timer.Tick += TickEvent;
-            timer.Start();
-        }
-        void TickEvent(object? sender, EventArgs e) //Nie mam pojęcia dlaczego tam ma być znak zapytania : P
-        {
-            SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-        }
+        PageTextBlock.Text = Constants.NULLPAGE;
     }
+
+/***********************************************************************************************************************/
+/*                                                Private Methods                                                      */
+/***********************************************************************************************************************/
     private void UpdateWindow()
     {
         ChangeSaldoEvent(GetSaldoFromDatabase());
         UpdateDataGrid();
-        UpdateDataGridView();
+        DataGridUtility.UpdateDataGridView(MyDataGridView);
     }
-    private void UpdateDataGridView()
+    private void ChangeSaldoEvent(double newSaldo)
     {
-        var scaleRation = 0.20;
-        var gridView = MyDataGridView;
-
-        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-        
-        gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-        gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-        gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-        gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+        _core.ChangeSaldo(newSaldo);
+        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
     }
+    private void UpdateDataGrid()
+    {
+        Transactions.Clear();
+        DataContext = null;
+        Transactions = DbUtility.GetFromDatabase(@"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji");
+        DataContext = Transactions;
+    }
+    private double GetSaldoFromDatabase()
+    {
+        double returnValue = 0.0;
+        Transactions.Clear();
+        DataContext = null;
+        Transactions = DbUtility.GetFromDatabase(@"SELECT Kwota FROM ListaTranzakcji");
+        foreach (var transaction in Transactions)
+        {
+            returnValue += transaction.Kwota;
+        }
+
+        DataContext = Transactions;
+        return returnValue;
+    }
+    private void StartClock()
+    {
+        DispatcherTimer timer = new DispatcherTimer();
+        timer.Interval = TimeSpan.FromSeconds(1);
+        timer.Tick += TickEvent;
+        timer.Start();
+    }
+    private void TickEvent(object? sender, EventArgs e)
+    {
+        SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+    }
+/***********************************************************************************************************************/
+/*                                              Events Handlers                                                        */
+/***********************************************************************************************************************/
     private void MyDataGridView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        var scaleRation = 0.20;
-        var gridView = MyDataGridView;
-        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-        if (4 == gridView.Columns.Count)
+        if (4 == MyDataGridView.Columns.Count)
         {
-            gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-            gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-            gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-            gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+            DataGridUtility.UpdateDataGridView(MyDataGridView);
         }
     }
     private void DodajRekord_OnClick(object sender, RoutedEventArgs e)
@@ -84,59 +99,14 @@ public partial class MainWindow : Window
         increaseSaldo.ShowDialog();
         UpdateWindow();
     }
-    private void ChangeSaldoEvent(double newSaldo)
-    {
-        _core.ChangeSaldo(newSaldo);
-        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
-    }
-    private void UpdateDataGrid() {
-        Transactions.Clear();
-        DataContext = null;
-        Transactions = DbUtility.GetFromDatabase(@"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji");
-        DataContext = Transactions;
-    }
     private void MyDataGridView_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateDataGrid();
-        var scaleRation = 0.20;
-        var gridView = MyDataGridView;
-
-        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-
-        UpdateDataGrid();
-        gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-        gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-        gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-        gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+        DataGridUtility.UpdateDataGridView(MyDataGridView);
     }
-    private double GetSaldoFromDatabase()
-    {
-        double returnValue = 0.0;
-        Transactions.Clear();
-        DataContext = null;
-        SQLitePCL.Batteries.Init();
-        using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = @"SELECT Kwota FROM ListaTranzakcji";
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    var kwota = reader.GetDouble(0);
-                    returnValue += kwota;
-                }
-            }
-        }
-        DataContext = Transactions;
-        return returnValue;
-    }
-
-
     private void UsunRekord_OnClick(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        
     }
-    
-    }
+
+}

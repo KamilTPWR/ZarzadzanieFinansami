@@ -86,6 +86,7 @@
             </Menu>
             <StackPanel Grid.Column="1" Orientation="Horizontal" FlowDirection="RightToLeft">
                 <Button Width="20" Content="&lt;"/>
+                <TextBlock x:Name="PageTextBlock" Width="40" TextAlignment="Center" TextWrapping="NoWrap"/>
                 <Button Width="20" Content="&gt;"/>
                 <Button x:Name="ButtonNonclick" Background="White" BorderBrush="White">10/20 </Button>
             </StackPanel>
