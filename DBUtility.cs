@@ -29,7 +29,7 @@ public abstract class DbUtility
         { 
            fullTableName += column + ",";
         }
-        MessageBox.Show(fullTableName);
+
         
         using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
         {
@@ -38,7 +38,7 @@ public abstract class DbUtility
                 connection.Open();
                 var _command = connection.CreateCommand();
                 _command.CommandText = command;
-                MessageBox.Show(command);
+
 
                 using (var reader = _command.ExecuteReader())
                 {
