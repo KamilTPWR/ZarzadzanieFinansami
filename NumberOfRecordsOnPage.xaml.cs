@@ -17,26 +17,17 @@ public partial class NumberOfRecordsOnPage
     private void AcceptButton_Click(object sender, RoutedEventArgs e)
     {
         if (-1 == RowsComboBox.SelectedIndex) return;
-        var rowValues = new Dictionary<int, int>
-        {
-            { 0, 10 },
-            { 1, 20 },
-            { 2, 50 },
-            { 3, 100 },
-            { 4, 200 },
-            { 5, 500 },
-            { 6, 1000 }
-        };
-        if (Core.NumberOfRows != rowValues.GetValueOrDefault(RowsComboBox.SelectedIndex))Core.Page = 1;
+        var rowValues = Constants.RAWVALUES;
+        if (Core.NumberOfRows != rowValues.GetValueOrDefault(RowsComboBox.SelectedIndex)) Core.Page = 1;
         Core.NumberOfRows = rowValues.GetValueOrDefault(RowsComboBox.SelectedIndex);
         _isAccepted = true;
         Close();
     }
     private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            _isClosing = true;
-            Close();
-        }
+    {
+        _isClosing = true;
+        Close();
+    }
     
 /***********************************************************************************************************************/
 /*                                              Back Events Handlers                                                   */
