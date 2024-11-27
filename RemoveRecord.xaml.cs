@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace ZarządzanieFinansami;
+namespace ZarzadzanieFinansami;
 
 public partial class RemoveRecord : Window
 {

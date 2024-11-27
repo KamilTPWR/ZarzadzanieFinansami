@@ -1,9 +1,9 @@
-﻿<Window x:Class="ZarządzanieFinansami.RemoveRecord"
+﻿<Window x:Class="ZarzadzanieFinansami.RemoveRecord"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:ZarządzanieFinansami"
+        xmlns:local="clr-namespace:ZarzadzanieFinansami"
         mc:Ignorable="d"
         Title="RemoveRecord" Height="450" Width="800">
     <Grid>

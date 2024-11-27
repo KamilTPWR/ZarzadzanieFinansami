@@ -1,5 +1,5 @@
 ﻿
-namespace ZarządzanieFinansami;
+namespace ZarzadzanieFinansami;
 
 public class Transaction
 {

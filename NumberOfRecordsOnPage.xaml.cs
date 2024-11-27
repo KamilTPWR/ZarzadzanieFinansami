@@ -1,7 +1,7 @@
 ﻿using System.Media;
 using System.Windows;
 
-namespace ZarządzanieFinansami;
+namespace ZarzadzanieFinansami;
 
 public partial class NumberOfRecordsOnPage
 {

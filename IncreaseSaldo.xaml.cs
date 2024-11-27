@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using Microsoft.Data.Sqlite;
 
-namespace ZarządzanieFinansami;
+namespace ZarzadzanieFinansami;
 
 public partial class IncreaseSaldo : Window
 {

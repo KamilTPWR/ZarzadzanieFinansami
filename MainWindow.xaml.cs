@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace ZarządzanieFinansami;
+namespace ZarzadzanieFinansami;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
@@ -25,7 +25,6 @@ public partial class MainWindow : Window
 {
     Core MainCore = new Core();
     public List<Transaction> Transactions = new List<Transaction>();
-
     public MainWindow()
     {
         InitializeComponent();
@@ -61,7 +60,12 @@ public partial class MainWindow : Window
         Transactions.Clear();
         DataContext = null;
         Transactions = DbUtility.GetFromDatabase(@"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji");
-        DataContext = Transactions;
+        //Transactions.Slice(Core.Page - 1 * Core.NumberOfRows, Core.NumberOfRows);
+        var paginatedTransactions = Transactions
+            .Skip((Core.Page - 1) * Core.NumberOfRows)
+            .Take(Core.NumberOfRows)
+            .ToList();
+        DataContext = paginatedTransactions;
     }
     private double GetSaldoFromDatabase()
     {
@@ -122,7 +126,7 @@ public partial class MainWindow : Window
     }
     private void ButtonRight_OnClick(object sender, RoutedEventArgs e)
     {
-        Core.Page = Core.Page <= Core.PagesNumber() ? ++Core.Page : Core.Page;
+        Core.Page = Core.Page < Core.PagesNumber() ? ++Core.Page : Core.Page;
         UpdateWindow();
     }
     private void ButtonLeft_OnClick(object sender, RoutedEventArgs e)
