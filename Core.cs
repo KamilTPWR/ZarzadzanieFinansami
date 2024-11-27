@@ -10,12 +10,14 @@ public class Core
     {
         Saldo = 0;
     }
+
     public void SetSaldo(double newValue)
     {
         Saldo = newValue;
     }
+
     public static int PagesNumber()
     {
-        return (int)Math.Ceiling((double)DbUtility.GetNumberOfTransactions() / Core.NumberOfRows);
+        return (int)Math.Ceiling((double)DbUtility.GetNumberOfTransactions() / NumberOfRows);
     }
 }

@@ -5,19 +5,18 @@ namespace ZarzadzanieFinansami;
 
 public abstract class DataGridUtility
 {
-    public static void UpdateDataGridView(DataGrid MyDataGridView)
+    public static void UpdateDataGridView(DataGrid myDataGridView)
     {
         var scaleRation = 0.20;
-        var gridView = MyDataGridView;
+        var gridView = myDataGridView;
 
-        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+        var totalWidth = myDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
         if (gridView.Columns.Count == 4)
         {
-            gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-            gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-            gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-            gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+            gridView.Columns[0].Width = totalWidth * scaleRation; // "Saldo"
+            gridView.Columns[1].Width = totalWidth * scaleRation; // "Zmiana"
+            gridView.Columns[2].Width = totalWidth * scaleRation; // "Data"
+            gridView.Columns[3].Width = totalWidth * 2 * (scaleRation + 0.01); // "Uwagi"
         }
     }
-    
 }

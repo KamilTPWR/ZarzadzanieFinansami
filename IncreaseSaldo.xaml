@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:ZarzadzanieFinansami"
         mc:Ignorable="d"
         Title="IncreaseSaldo" Height="350" Width="420">
     <Grid Margin="10">
@@ -11,44 +10,42 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
+
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Label Content="Nazwa:"/>
-            <TextBox x:Name="NazwaTextBox" Width="320" Height="30" FontSize="20"/>
+                <Label Content="Nazwa:" />
+                <TextBox x:Name="NazwaTextBox" Width="320" Height="30" FontSize="20" />
             </StackPanel>
         </Grid>
 
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Label  Content="Kwota:"/>
+                <Label Content="Kwota:" />
                 <TextBox x:Name="KwotaTextBox" Width="320" Height="30" FontSize="20" />
             </StackPanel>
         </Grid>
-        
+
         <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Label  Content="Uwagi:"/>
+                <Label Content="Uwagi:" />
                 <TextBox x:Name="UwagiTextBox" AcceptsReturn="True" TextWrapping="Wrap" Width="320" />
             </StackPanel>
         </Grid>
-        
-        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
-            <StackPanel Orientation="Horizontal">
 
-            </StackPanel>
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+            <StackPanel Orientation="Horizontal" />
         </Grid>
 
-        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" >
-            <Button Content="Anuluj" Margin="0,5,5,0" Click="AnulujButton_Click"/>
-            <Button Content="Dodaj" Margin="0,5,5,0" Click="DodajButton_Click"/>
+        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Anuluj" Margin="0,5,5,0" Click="AnulujButton_Click" />
+            <Button Content="Dodaj" Margin="0,5,5,0" Click="DodajButton_Click" />
         </StackPanel>
     </Grid>
 </Window>

@@ -19,8 +19,8 @@
         <!-- Lewy gorny -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File">
@@ -86,10 +86,11 @@
 
             </Menu>
             <StackPanel Grid.Column="1" Orientation="Horizontal" FlowDirection="RightToLeft">
-                <Button Width="20" Content="&lt;" Click="ButtonRight_OnClick"/>
-                <TextBlock x:Name="PageTextBlock" Width="40" TextAlignment="Center" TextWrapping="NoWrap"/>
-                <Button Width="20" Content="&gt;" Click="ButtonLeft_OnClick"/>
-                <Button x:Name="ButtonNumberControll" Background="White" BorderBrush="White" Click="ButtonNumberControll_OnClick"/> 
+                <Button Width="20" Content="&lt;" Click="ButtonRight_OnClick" />
+                <TextBlock x:Name="PageTextBlock" Width="40" TextAlignment="Center" TextWrapping="NoWrap" />
+                <Button Width="20" Content="&gt;" Click="ButtonLeft_OnClick" />
+                <Button x:Name="ButtonNumberControll" Background="White" BorderBrush="White"
+                        Click="ButtonNumberControll_OnClick" />
             </StackPanel>
         </Grid>
 

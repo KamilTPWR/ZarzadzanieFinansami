@@ -8,33 +8,29 @@ namespace ZarzadzanieFinansami;
 
 public abstract class DbUtility
 {
-    public static List<Transaction> GetFromDatabase(string command = "SELECT * FROM ListaTranzakcji", string dataBaseName = $"FinanseDataBase.db")
+    public static List<Transaction> GetFromDatabase(string command = "SELECT * FROM ListaTranzakcji",
+        string dataBaseName = $"FinanseDataBase.db")
     {
-        List<Transaction> transactions = new List<Transaction>();
+        List<Transaction> transactions = new();
         SQLitePCL.Batteries.Init();
-        
-        string columnSection = command.Substring(7, command.IndexOf("FROM") - 8).Trim();
+
+        var columnSection = command.Substring(7, command.IndexOf("FROM") - 8).Trim();
 
         List<string> columns;
         if (columnSection.Trim() == "*")
-        {
             columns = new List<string> { "Nazwa", "Kwota", "Data", "Uwagi" };
-        }
         else
-        {
             columns = columnSection.Split(',').Select(c => c.Trim()).ToList();
-        }
-        
+
         using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
         {
             try
             {
                 connection.Open();
-                var _command = connection.CreateCommand();
-                _command.CommandText = command;
+                var sqliteCommand = connection.CreateCommand();
+                sqliteCommand.CommandText = command;
 
-
-                using (var reader = _command.ExecuteReader())
+                using (var reader = sqliteCommand.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -52,33 +48,37 @@ public abstract class DbUtility
                 connection.Close();
             }
         }
+
         return transactions;
     }
 
-    public static int GetNumberOfTransactions(string command = "SELECT * FROM ListaTranzakcji", string dataBaseName = $"FinanseDataBase.db")
+    public static int GetNumberOfTransactions(string command = "SELECT * FROM ListaTranzakcji",
+        string dataBaseName = $"FinanseDataBase.db")
     {
         List<Transaction> transactions = GetFromDatabase(command, dataBaseName);
-        int i = transactions.Count;
+        var i = transactions.Count;
         return i;
     }
 
     private static dynamic IfNotNull<T>(string condition, List<string> columns, SqliteDataReader? reader)
-    { 
+    {
         if (reader == null) throw new NullReferenceException();
         if (typeof(T) == typeof(double))
         {
-                double temp = columns.Contains(condition) && !reader.IsDBNull(columns.IndexOf(condition))? 
-                    reader.GetDouble(columns.IndexOf(condition)) 
-                    : 0;
-                return temp;
+            var temp = columns.Contains(condition) && !reader.IsDBNull(columns.IndexOf(condition))
+                ? reader.GetDouble(columns.IndexOf(condition))
+                : 0;
+            return temp;
         }
+
         if (typeof(T) == typeof(string))
         {
-                string temp = (columns.Contains(condition) && !reader.IsDBNull(columns.IndexOf(condition))?
-                    reader.GetString(columns.IndexOf(condition))
-                    : null) ?? string.Empty;
-                return temp;
+            var temp = (columns.Contains(condition) && !reader.IsDBNull(columns.IndexOf(condition))
+                ? reader.GetString(columns.IndexOf(condition))
+                : null) ?? string.Empty;
+            return temp;
         }
+
         throw new NotSupportedException($"The type {typeof(T).Name} is not supported.");
     }
 }

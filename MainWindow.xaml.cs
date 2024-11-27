@@ -23,8 +23,9 @@ namespace ZarzadzanieFinansami;
 // ReSharper disable once RedundantExtendsListEntry
 public partial class MainWindow : Window
 {
-    Core MainCore = new Core();
-    public List<Transaction> Transactions = new List<Transaction>();
+    private Core _mainCore = new();
+    public List<Transaction> Transactions = new();
+
     public MainWindow()
     {
         InitializeComponent();
@@ -33,6 +34,7 @@ public partial class MainWindow : Window
         ChangeSaldoEvent(GetSaldoFromDatabase());
         SetConstants();
     }
+
 /***********************************************************************************************************************/
 /*                                                Private Methods                                                      */
 /***********************************************************************************************************************/
@@ -42,6 +44,7 @@ public partial class MainWindow : Window
         PageTextBlock.Text = Constants.NULLPAGE;
         ButtonNumberControll.Content = Constants.NULLROWNUMBER;
     }
+
     private void UpdateWindow()
     {
         PageTextBlock.Text = " " + Core.Page + "-" + Core.PagesNumber() + " ";
@@ -50,85 +53,89 @@ public partial class MainWindow : Window
         DataGridUtility.UpdateDataGridView(MyDataGridView);
         ButtonNumberControll.Content = Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
     }
+
     private void ChangeSaldoEvent(double newSaldo)
     {
-        MainCore.SetSaldo(newSaldo);
-        ResultTextDisplay.Text = $"Saldo: {MainCore.Saldo} $";
+        _mainCore.SetSaldo(newSaldo);
+        ResultTextDisplay.Text = $"Saldo: {_mainCore.Saldo} $";
     }
+
     private void UpdateDataGrid()
     {
         Transactions.Clear();
         DataContext = null;
         Transactions = DbUtility.GetFromDatabase(@"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji");
-        //Transactions.Slice(Core.Page - 1 * Core.NumberOfRows, Core.NumberOfRows);
         var paginatedTransactions = Transactions
             .Skip((Core.Page - 1) * Core.NumberOfRows)
             .Take(Core.NumberOfRows)
             .ToList();
         DataContext = paginatedTransactions;
     }
+
     private double GetSaldoFromDatabase()
     {
-        double returnValue = 0.0;
+        var returnValue = 0.0;
         Transactions.Clear();
         DataContext = null;
         Transactions = DbUtility.GetFromDatabase(@"SELECT Kwota FROM ListaTranzakcji");
-        foreach (var transaction in Transactions)
-        {
-            returnValue += transaction.Kwota;
-        }
+        foreach (var transaction in Transactions) returnValue += transaction.Kwota;
 
         DataContext = Transactions;
         return returnValue;
     }
+
     private void StartClock()
     {
-        DispatcherTimer timer = new DispatcherTimer();
+        var timer = new DispatcherTimer();
         timer.Interval = TimeSpan.FromSeconds(1);
         timer.Tick += TickEvent;
         timer.Start();
     }
+
     private void TickEvent(object? sender, EventArgs e)
     {
         SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
     }
+
 /***********************************************************************************************************************/
 /*                                              Events Handlers                                                        */
 /***********************************************************************************************************************/
     private void MyDataGridView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (4 == MyDataGridView.Columns.Count)
-        {
-            DataGridUtility.UpdateDataGridView(MyDataGridView);
-        }
+        if (4 == MyDataGridView.Columns.Count) DataGridUtility.UpdateDataGridView(MyDataGridView);
     }
+
     private void DodajRekord_OnClick(object sender, RoutedEventArgs e)
     {
-        IncreaseSaldo increaseSaldo = new IncreaseSaldo();
+        var increaseSaldo = new IncreaseSaldo();
         increaseSaldo.ShowDialog();
         UpdateWindow();
     }
+
     private void MyDataGridView_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateDataGrid();
         DataGridUtility.UpdateDataGridView(MyDataGridView);
         UpdateWindow();
     }
+
     private void UsunRekord_OnClick(object sender, RoutedEventArgs e)
     {
-        
     }
+
     private void ButtonNumberControll_OnClick(object sender, RoutedEventArgs e)
     {
-        NumberOfRecordsOnPage numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
+        var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
         numberOfRecordsOnPage.ShowDialog();
         UpdateWindow();
     }
+
     private void ButtonRight_OnClick(object sender, RoutedEventArgs e)
     {
         Core.Page = Core.Page < Core.PagesNumber() ? ++Core.Page : Core.Page;
         UpdateWindow();
     }
+
     private void ButtonLeft_OnClick(object sender, RoutedEventArgs e)
     {
         Core.Page = Core.Page > 1 ? --Core.Page : Core.Page;

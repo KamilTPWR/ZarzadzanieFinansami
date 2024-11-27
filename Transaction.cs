@@ -1,5 +1,4 @@
-﻿
-namespace ZarzadzanieFinansami;
+﻿namespace ZarzadzanieFinansami;
 
 public class Transaction
 {
@@ -7,7 +6,7 @@ public class Transaction
     public double Kwota { get; set; }
     public string Data { get; set; }
     public string Uwagi { get; set; }
-    
+
     public Transaction(string nazwa, double kwota, string data, string uwagi)
     {
         Nazwa = nazwa;
@@ -16,5 +15,3 @@ public class Transaction
         Uwagi = uwagi;
     }
 }
-
-

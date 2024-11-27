@@ -10,16 +10,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="FinanseDataBase.db" />
-      <Content Include="FinanseDataBase.db">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+        <None Remove="FinanseDataBase.db"/>
+        <Content Include="FinanseDataBase.db">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.0-rc.2.24474.1" />
-      <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
-      <PackageReference Include="SQLitePCLRaw.core" Version="2.1.10" />
+        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.0-rc.2.24474.1"/>
+        <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10"/>
+        <PackageReference Include="SQLitePCLRaw.core" Version="2.1.10"/>
     </ItemGroup>
 
 </Project>

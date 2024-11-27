@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace ZarzadzanieFinansami;
 
-public partial class RemoveRecord : Window
+public partial class RemoveRecord
 {
     public RemoveRecord()
     {
