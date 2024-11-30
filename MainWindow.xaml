@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
         Title="TZF Lite" Height="450" Width="800"
         WindowState="Maximized">
@@ -99,13 +100,22 @@
 
         <!-- Lewy dolny -->
         <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MyDataGridView"
-                  HorizontalAlignment="Stretch" SizeChanged="MyDataGridView_SizeChanged" Loaded="MyDataGridView_Loaded" />
+                  HorizontalAlignment="Stretch" SizeChanged="MyDataGridView_SizeChanged" Loaded="MyDataGridView_Loaded" MouseDoubleClick="MyDataGridView_MouseDoubleClick" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding ID}" x:Name="ID"/>
+                <DataGridTextColumn Header="Nazwa" Binding="{Binding Nazwa}" Width="Auto" />
+                <DataGridTextColumn Header="Kwota" Binding="{Binding Kwota}" Width="Auto" />
+                <DataGridTextColumn Header="Data" Binding="{Binding Data}" Width="Auto" />
+                <DataGridTextColumn Header="Uwagi" Binding="{Binding Uwagi}" Width="Auto" />
+            </DataGrid.Columns>
+        </DataGrid>
 
         <!-- Prawa dolna  -->
-        <StackPanel Grid.Column="1" Grid.Row="1">
+        <StackPanel Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom">
             <StackPanel Orientation="Horizontal">
                 <TextBlock x:Name="ResultTextDisplay" />
             </StackPanel>
+            <lvc:PieChart Series="{Binding PieSeries}" LegendLocation="Bottom" Height="191" x:Name="Pie"></lvc:PieChart>
             <Button Click="DodajRekord_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" />
             <Button Click="UsunRekord_OnClick" Height="20" Content="Usun Rekord" Margin="10" />
         </StackPanel>

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Runtime.Intrinsics.Arm;
+using System.Windows;
 using Microsoft.Data.Sqlite;
 
 namespace ZarzadzanieFinansami;
@@ -16,6 +17,12 @@ public partial class IncreaseSaldo
         var nazwa = NazwaTextBox.Text;
         var kwotaText = KwotaTextBox.Text;
         var uwagi = UwagiTextBox.Text;
+        var data = DateTime.Now.ToString("dd/MM/yyyy");
+        DateTime? selectedDate = Datepicker.SelectedDate;
+        if (selectedDate.HasValue)
+        {
+            data = selectedDate.Value.ToString("dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+        }
 
         // Try to parse the kwota input as a float
         if (double.TryParse(kwotaText, out var kwota))
@@ -23,8 +30,7 @@ public partial class IncreaseSaldo
             Close();
             MessageBox.Show($"Nazwa: {nazwa}\nKwota: {kwota}\nUwagi: {uwagi}");
             SQLitePCL.Batteries.Init();
-
-            var data = DateTime.Now.ToString("dd/MM/yyyy");
+            //var data = DateTime.Now.ToString("dd/MM/yyyy");
 
             using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
             {

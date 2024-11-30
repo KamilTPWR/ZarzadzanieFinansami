@@ -13,6 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.CodeDom;
+using LiveCharts;
+using LiveCharts.Wpf;
 
 namespace ZarzadzanieFinansami;
 
@@ -25,6 +28,7 @@ public partial class MainWindow : Window
 {
     private Core _mainCore = new();
     public List<Transaction> Transactions = new();
+    public SeriesCollection PieSeries { get; set; }
 
     public MainWindow()
     {
@@ -64,12 +68,24 @@ public partial class MainWindow : Window
     {
         Transactions.Clear();
         DataContext = null;
-        Transactions = DbUtility.GetFromDatabase(@"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji");
+        Transactions = DbUtility.GetFromDatabase(@"SELECT * FROM ListaTranzakcji");
         var paginatedTransactions = Transactions
             .Skip((Core.Page - 1) * Core.NumberOfRows)
             .Take(Core.NumberOfRows)
             .ToList();
-        DataContext = paginatedTransactions;
+        MyDataGridView.DataContext = paginatedTransactions;
+        UpdatePieChart();
+    }
+    private void UpdatePieChart()
+    {
+        double x = GetSaldoFromDatabase()*1.5;
+        double zostalo = GetSaldoFromDatabase();
+        double wydano = x - zostalo;
+        PieSeries = new SeriesCollection(){
+                new PieSeries { Title = "Wolny budzet", Values = new ChartValues<double> { wydano}, DataLabels = true },
+                new PieSeries { Title = "Wydati", Values = new ChartValues<double> {zostalo}, DataLabels = true }
+            };
+        DataContext = this;
     }
 
     private double GetSaldoFromDatabase()
@@ -140,5 +156,25 @@ public partial class MainWindow : Window
     {
         Core.Page = Core.Page > 1 ? --Core.Page : Core.Page;
         UpdateWindow();
+    }
+
+    private void MyDataGridView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        var dataGrid = sender as DataGrid;
+        object dataItem;
+        var selectedItem = dataGrid?.SelectedIndex;
+        if (selectedItem != null && Convert.ToInt32(selectedItem) >= 0)
+        {
+            if (MessageBox.Show("Czy napewno chcesz usunac tranzakcje", "Save file",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                dataItem = MyDataGridView.Items[selectedItem ?? 0]; // Retrieve the data object
+                MessageBox.Show($"Row {selectedItem} data: {(dataItem as Transaction).ID}");
+                DbUtility.DeleteFromDatabase((dataItem as Transaction).ID);
+                UpdateDataGrid();
+            }
+
+        }
     }
 }
