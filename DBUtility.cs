@@ -101,7 +101,7 @@ public abstract class DbUtility
         {
             try
             {
-                connection.Open();
+                connection.Open(); 
                 var sqliteCommand = connection.CreateCommand();
                 sqliteCommand.CommandText = command;
                 sqliteCommand.ExecuteNonQuery();
