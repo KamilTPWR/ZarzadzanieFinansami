@@ -26,7 +26,7 @@ namespace ZarzadzanieFinansami;
 // ReSharper disable once RedundantExtendsListEntry
 public partial class MainWindow : Window
 {
-    private Core _mainCore = new();
+    protected Core PCore = new();
     public List<Transaction> Transactions = new();
     public SeriesCollection PieSeries { get; set; }
 
@@ -60,12 +60,13 @@ public partial class MainWindow : Window
 
     private void ChangeSaldoEvent(double newSaldo)
     {
-        _mainCore.SetSaldo(newSaldo);
-        ResultTextDisplay.Text = $"Saldo: {_mainCore.Saldo} $";
+        PCore.SetSaldo(newSaldo);
+        ResultTextDisplay.Text = $"Saldo: {PCore.Saldo} $";
     }
 
     private void UpdateDataGrid()
     {
+        MyDataGridView.ContextMenu!.Visibility = Visibility.Visible;
         Transactions.Clear();
         DataContext = null;
         Transactions = DbUtility.GetFromDatabase(@"SELECT * FROM ListaTranzakcji");
@@ -74,6 +75,7 @@ public partial class MainWindow : Window
             .Take(Core.NumberOfRows)
             .ToList();
         MyDataGridView.DataContext = paginatedTransactions;
+        MyDataGridView.ContextMenu!.Visibility = Visibility.Hidden;
         UpdatePieChart();
     }
     private void UpdatePieChart()
@@ -134,11 +136,7 @@ public partial class MainWindow : Window
         DataGridUtility.UpdateDataGridView(MyDataGridView);
         UpdateWindow();
     }
-
-    private void UsunRekord_OnClick(object sender, RoutedEventArgs e)
-    {
-    }
-
+    
     private void ButtonNumberControll_OnClick(object sender, RoutedEventArgs e)
     {
         var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
@@ -151,30 +149,102 @@ public partial class MainWindow : Window
         Core.Page = Core.Page < Core.PagesNumber() ? ++Core.Page : Core.Page;
         UpdateWindow();
     }
-
+    
     private void ButtonLeft_OnClick(object sender, RoutedEventArgs e)
     {
         Core.Page = Core.Page > 1 ? --Core.Page : Core.Page;
         UpdateWindow();
     }
 
+
+/***********************************************************************************************************************/
+/*                                                 ContextMenuLogic                                                    */
+/***********************************************************************************************************************/
+
     private void MyDataGridView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         var dataGrid = sender as DataGrid;
-        object dataItem;
+        object? dataItem;
         var selectedItem = dataGrid?.SelectedIndex;
         if (selectedItem != null && Convert.ToInt32(selectedItem) >= 0)
         {
-            if (MessageBox.Show("Czy napewno chcesz usunac tranzakcje", "Save file",
+            if (MessageBox.Show("Czy napewno chcesz usunąć tranzakcje ?", "Usuń tranzakcję.",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 dataItem = MyDataGridView.Items[selectedItem ?? 0]; // Retrieve the data object
-                MessageBox.Show($"Row {selectedItem} data: {(dataItem as Transaction).ID}");
-                DbUtility.DeleteFromDatabase((dataItem as Transaction).ID);
+                //MessageBox.Show($"Row {selectedItem} data: {(dataItem as Transaction)!.ID}");
+                DbUtility.DeleteFromDatabase((dataItem as Transaction)!.ID);
                 UpdateDataGrid();
             }
-
+    
         }
+    }
+    
+    private void MyDataGridView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        DataGrid dataGrid = sender as DataGrid;
+        if (dataGrid.ContextMenu.Visibility == Visibility.Collapsed)
+        {
+            Point mousePosition = Mouse.GetPosition(Application.Current.MainWindow);
+            Point screenPoint = Application.Current.MainWindow.PointToScreen(mousePosition);
+            dataGrid.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Absolute;
+            dataGrid.ContextMenu.HorizontalOffset = screenPoint.X;
+            dataGrid.ContextMenu.VerticalOffset = screenPoint.Y;
+        }
+
+        if (MyDataGridView.SelectedItems != null || dataGrid.ContextMenu != null ||MyDataGridView.SelectedItems.Count > 0)
+        {
+            foreach (var selectedItem in MyDataGridView.SelectedItems)
+            {
+                var item = selectedItem as dynamic;
+                if (item != null)
+                {
+                    dataGrid.ContextMenu.Visibility = Visibility.Visible;
+                    dataGrid.ContextMenu.PlacementTarget = dataGrid;
+                    dataGrid.ContextMenu.IsOpen = true;
+                }
+            }
+        }
+    }
+    
+    private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (MyDataGridView.SelectedItems != null && MyDataGridView.SelectedItems.Count > 0)
+        {
+            var columnValues = new List<object>();
+
+            foreach (var selectedItem in MyDataGridView.SelectedItems)
+            {
+                var item = selectedItem as dynamic;
+                if (item != null)
+                {
+                    columnValues.Add(item.ID);
+                }
+            }
+            
+            string message = $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
+            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                foreach (var id in columnValues)
+                {
+                    DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
+                }
+                UpdateDataGrid();
+            }
+        }
+        else
+        {
+            MessageBox.Show("Nie wybrano żadnych tranzakcji do usunięcia.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+/***********************************************************************************************************************/
+/*                                                 State Set-up                                                        */
+/***********************************************************************************************************************/
+
+    private void MyDataGridView_OnBeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
+    {
+        e.Cancel = true;
     }
 }

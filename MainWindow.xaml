@@ -103,8 +103,11 @@
                   HorizontalAlignment="Stretch"
                   SizeChanged="MyDataGridView_SizeChanged"
                   Loaded="MyDataGridView_Loaded"
+                  AutoGenerateColumns="False"
                   MouseDoubleClick="MyDataGridView_MouseDoubleClick"
-                  AutoGenerateColumns="False">
+                  PreviewMouseRightButtonDown="MyDataGridView_PreviewMouseRightButtonDown"
+                  BeginningEdit="MyDataGridView_OnBeginningEdit"
+                  >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding ID}" x:Name="ID" Visibility="Hidden"/>
                 <DataGridTextColumn Header="Nazwa" Binding="{Binding Nazwa}" Width="Auto" />
@@ -112,6 +115,11 @@
                 <DataGridTextColumn Header="Data" Binding="{Binding Data}" Width="Auto" />
                 <DataGridTextColumn Header="Uwagi" Binding="{Binding Uwagi}" Width="Auto" />
             </DataGrid.Columns>
+            <DataGrid.ContextMenu>
+                <ContextMenu Visibility="Collapsed">
+                    <MenuItem Header="Usuń" Click="MenuItem_OnClick"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
         </DataGrid>
 
         <!-- Prawa dolna  -->
@@ -121,7 +129,6 @@
             </StackPanel>
             <lvc:PieChart Series="{Binding PieSeries}" LegendLocation="Bottom" Height="191" x:Name="Pie"></lvc:PieChart>
             <Button Click="DodajRekord_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" />
-            <Button Click="UsunRekord_OnClick" Height="20" Content="Usun Rekord" Margin="10" />
         </StackPanel>
     </Grid>
 </Window>
