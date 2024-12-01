@@ -120,7 +120,7 @@ public partial class MainWindow : Window
 /***********************************************************************************************************************/
     private void MyDataGridView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (4 == MyDataGridView.Columns.Count) DataGridUtility.UpdateDataGridView(MyDataGridView);
+        if (Constants.STATICNUMBEROFCOLUMNS == MyDataGridView.Columns.Count) DataGridUtility.UpdateDataGridView(MyDataGridView);
     }
 
     private void DodajRekord_OnClick(object sender, RoutedEventArgs e)

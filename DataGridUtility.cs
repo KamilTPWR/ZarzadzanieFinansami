@@ -11,7 +11,7 @@ public abstract class DataGridUtility
         var gridView = myDataGridView;
 
         var totalWidth = myDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-        if (gridView.Columns.Count == 5)
+        if (gridView.Columns.Count == Constants.STATICNUMBEROFCOLUMNS)
         {
             gridView.Columns[0].Width = 0.01;                                   // "ID"
             gridView.Columns[1].Width = totalWidth * scaleRation;               // "Saldo"

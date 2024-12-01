@@ -117,7 +117,11 @@
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Visibility="Collapsed">
-                    <MenuItem Header="Usuń" Click="MenuItem_OnClick"/>
+                    <MenuItem Header="Usuń" Click="MenuItem_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Trashcan.png" ></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>
