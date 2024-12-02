@@ -46,7 +46,7 @@
                 <Label Content="kategoria:" />
                 <ComboBox Width="120" Height="30" FontSize="12">
                     <ComboBoxItem>Cat.1</ComboBoxItem>
-                    <ComboBoxItem IsSelected="True">Cat.2</ComboBoxItem>
+                    <ComboBoxItem IsSelected="True">Cat.2 Here</ComboBoxItem>
                     <ComboBoxItem>Cat.3</ComboBoxItem>
                 </ComboBox>
                 <Button Width="120" Height="30" FontSize="20" Margin="5"/>
