@@ -6,6 +6,7 @@
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
         Title="TZF Lite" Height="450" Width="800"
+        Closing="Window_Closing"
         WindowState="Maximized">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -24,15 +25,12 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Menu DockPanel.Dock="Top">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Exit">
-                        <MenuItem Header="_Open" />
-                        <MenuItem Header="_Save" />
-                    </MenuItem>
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
+                <MenuItem Header="_Plik">
+                    <MenuItem Header="_Otwórz" />
+                    <MenuItem Header="_Zapisz" />
                     <Separator />
-                    <MenuItem Header="_Exit" />
+                    <MenuItem Header="_Ustawienia"/>
+                    <MenuItem Header="_Zamknij" Click="MenuItem_Plik_Zamknij_OnClick"/>
                 </MenuItem>
                 <MenuItem Header="_Edit">
                     <MenuItem Header="_Exit">
@@ -44,37 +42,10 @@
                     <Separator />
                     <MenuItem Header="_Exit" />
                 </MenuItem>
-                <MenuItem Header="_View">
-                    <MenuItem Header="_Exit">
-                        <MenuItem Header="_Open" />
-                        <MenuItem Header="_Save" />
-                    </MenuItem>
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
-                    <Separator />
-                    <MenuItem Header="_Exit" />
-                </MenuItem>
-                <MenuItem Header="Navigate">
-                    <MenuItem Header="_Exit">
-                        <MenuItem Header="_Open" />
-                        <MenuItem Header="_Save" />
-                    </MenuItem>
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
-                    <Separator />
-                    <MenuItem Header="_Exit" />
+                <MenuItem Header="_Widok">
+                    <MenuItem Header="Wybór liczby wierszy" Click="MenuItem_View_OnClick"/>
                 </MenuItem>
                 <MenuItem Header="Find">
-                    <MenuItem Header="_Exit">
-                        <MenuItem Header="_Open" />
-                        <MenuItem Header="_Save" />
-                    </MenuItem>
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
-                    <Separator />
-                    <MenuItem Header="_Exit" />
-                </MenuItem>
-                <MenuItem Header="Settings">
                     <MenuItem Header="_Exit">
                         <MenuItem Header="_Open" />
                         <MenuItem Header="_Save" />
@@ -119,7 +90,7 @@
                 <ContextMenu Visibility="Collapsed">
                     <MenuItem Header="Usuń" Click="MenuItem_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/Trashcan.png" ></Image>
+                            <Image Source="Icons/Trashcan.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
@@ -131,7 +102,7 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock x:Name="ResultTextDisplay" />
             </StackPanel>
-            <lvc:PieChart Series="{Binding PieSeries}" LegendLocation="Bottom" Height="191" x:Name="Pie"></lvc:PieChart>
+            <lvc:PieChart Series="{Binding PieSeries}" LegendLocation="Bottom" Height="191" x:Name="Pie" />
             <Button Click="DodajRekord_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" />
         </StackPanel>
     </Grid>

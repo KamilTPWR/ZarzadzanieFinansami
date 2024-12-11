@@ -26,6 +26,12 @@ namespace ZarzadzanieFinansami;
 // ReSharper disable once RedundantExtendsListEntry
 public partial class MainWindow : Window
 {
+    //flags
+    private bool _fIsClosing = false;
+    
+    
+    
+    
     protected Core PCore = new();
     public List<Transaction> Transactions = new();
     public SeriesCollection PieSeries { get; set; }
@@ -143,6 +149,12 @@ public partial class MainWindow : Window
         numberOfRecordsOnPage.ShowDialog();
         UpdateWindow();
     }
+    private void MenuItem_View_OnClick(object sender, RoutedEventArgs e)
+    {
+        var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
+        numberOfRecordsOnPage.ShowDialog();
+        UpdateWindow();
+    }
 
     private void ButtonRight_OnClick(object sender, RoutedEventArgs e)
     {
@@ -156,7 +168,24 @@ public partial class MainWindow : Window
         UpdateWindow();
     }
 
-
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (!_fIsClosing)
+        {
+            MessageBoxResult result = MessageBox.Show(
+                "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.No)
+            {
+                e.Cancel = true;
+            }
+            if (result == MessageBoxResult.Yes)
+            {
+                Application.Current.Shutdown();
+            }
+        }
+    }
+    
 /***********************************************************************************************************************/
 /*                                                 ContextMenuLogic                                                    */
 /***********************************************************************************************************************/
@@ -246,5 +275,16 @@ public partial class MainWindow : Window
     private void MyDataGridView_OnBeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
     {
         e.Cancel = true;
+    }
+
+    private void MenuItem_Plik_Zamknij_OnClick(object sender, RoutedEventArgs e)
+    {
+        MessageBoxResult result = MessageBox.Show(
+            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (result == MessageBoxResult.Yes)
+        {
+            _fIsClosing = true;
+            Application.Current.Shutdown();
+        }
     }
 }
