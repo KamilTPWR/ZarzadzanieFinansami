@@ -1,66 +1,46 @@
-﻿using System.Windows;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
+using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Data.Sqlite;
 using Microsoft.VisualBasic;
 
-namespace ZarządzanieFinansami;
+namespace ZarzadzanieFinansami;
 
 public abstract class DbUtility
 {
-    public static List<Transaction> GetFromDatabase(string command = "SELECT * FROM ListaTranzakcji", string dataBaseName = $"FinanseDataBase.db")
+    public static List<Transaction> GetFromDatabase(string command = "SELECT * FROM ListaTranzakcji",
+        string dataBaseName = $"FinanseDataBase.db")
     {
-        List<Transaction> transactions = new List<Transaction>();
+        List<Transaction> transactions = new();
         SQLitePCL.Batteries.Init();
-        
-        string columnSection = command.Substring(7, command.IndexOf("FROM") - 8).Trim();
+
+        var columnSection = command.Substring(7, command.IndexOf("FROM") - 8).Trim();
 
         List<string> columns;
         if (columnSection.Trim() == "*")
-        {
-            columns = new List<string> { "Nazwa", "Kwota", "Data", "Uwagi" };
-        }
+            columns = new List<string> {"ID", "Nazwa", "Kwota", "Data", "Uwagi" };
         else
-        {
             columns = columnSection.Split(',').Select(c => c.Trim()).ToList();
-        }
 
-        string fullTableName = "";
-        foreach (var column in columns)
-        { 
-           fullTableName += column + ",";
-        }
-
-        
         using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
         {
             try
             {
                 connection.Open();
-                var _command = connection.CreateCommand();
-                _command.CommandText = command;
+                var sqliteCommand = connection.CreateCommand();
+                sqliteCommand.CommandText = command;
 
-
-                using (var reader = _command.ExecuteReader())
+                using (var reader = sqliteCommand.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        string name = (columns.Contains("Nazwa") && !reader.IsDBNull(columns.IndexOf("Nazwa")) ? 
-                            reader.GetString(columns.IndexOf("Nazwa")) 
-                            : null) ?? string.Empty;
-                        
-                        double amount = columns.Contains("Kwota") && !reader.IsDBNull(columns.IndexOf("Kwota"))? 
-                            reader.GetDouble(columns.IndexOf("Kwota")) 
-                            : 0;
-                        
-                        string date = (columns.Contains("Data") && !reader.IsDBNull(columns.IndexOf("Data"))? 
-                            reader.GetString(columns.IndexOf("Data")) 
-                            : null) ?? string.Empty;
-                        
-                        string remarks = (columns.Contains("Uwagi") && !reader.IsDBNull(columns.IndexOf("Uwagi"))?
-                            reader.GetString(columns.IndexOf("Uwagi"))
-                            : null) ?? string.Empty;
-
-                        transactions.Add(new Transaction(name, amount, date, remarks));
+                        int ID = IfNotNull<int>("ID", columns, reader);
+                        string name = IfNotNull<string>("Nazwa", columns, reader);
+                        double amount = IfNotNull<double>("Kwota", columns, reader);
+                        string date = IfNotNull<string>("Data", columns, reader);
+                        string remarks = IfNotNull<string>("Uwagi", columns, reader);
+                        transactions.Add(new Transaction(ID,name, amount, date, remarks));
                     }
                 }
             }
@@ -70,6 +50,126 @@ public abstract class DbUtility
                 connection.Close();
             }
         }
+
+        return transactions;
+    }
+    
+    public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi, string dataBaseName = $"FinanseDataBase.db")
+    {
+        if (double.TryParse(kwotaText, out var kwota))
+        {
+            SQLitePCL.Batteries.Init();
+
+            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi) VALUES ($nazwa, $kwota, $data, $uwagi)";
+                command.Parameters.AddWithValue("$nazwa", nazwa);
+                command.Parameters.AddWithValue("$kwota", kwota);
+                command.Parameters.AddWithValue("$data", data);
+                command.Parameters.AddWithValue("$uwagi", uwagi);
+                command.ExecuteNonQuery();
+            }
+        }
+        else
+        {
+            MessageBox.Show("Invalid input for Kwota. Please enter a numeric value.");
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    public static int GetNumberOfTransactions(string command = "SELECT * FROM ListaTranzakcji",
+        string dataBaseName = $"FinanseDataBase.db")
+    {
+        List<Transaction> transactions = GetFromDatabase(command, dataBaseName);
+        var i = transactions.Count;
+        return i;
+    }
+
+    private static dynamic IfNotNull<T>(string condition, List<string> columns, SqliteDataReader? reader)
+    {
+        if (reader == null) throw new NullReferenceException();
+        if (typeof(T) == typeof(double))
+        {
+            var temp = columns.Contains(condition) && !reader.IsDBNull(columns.IndexOf(condition))
+                ? reader.GetDouble(columns.IndexOf(condition))
+                : 0;
+            return temp;
+        }
+
+        if (typeof(T) == typeof(string))
+        {
+            var temp = (columns.Contains(condition) && !reader.IsDBNull(columns.IndexOf(condition))
+                ? reader.GetString(columns.IndexOf(condition))
+                : null) ?? string.Empty;
+            return temp;
+        }
+
+        if(typeof(T) == typeof(int))
+        {
+            var temp = columns.Contains(condition) && !reader.IsDBNull(columns.IndexOf(condition))
+                ? reader.GetInt32(columns.IndexOf(condition))
+                : 0;
+            return temp;
+        }
+
+        throw new NotSupportedException($"The type {typeof(T).Name} is not supported.");
+    }
+    public static List<Transaction> DeleteFromDatabase(int index,string dataBaseName = $"FinanseDataBase.db",string tableName = $"ListaTranzakcji")
+    {
+        string command = $"DELETE FROM {tableName} WHERE ID = {index}";
+        List<Transaction> transactions = new();
+        SQLitePCL.Batteries.Init();
+
+        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+        {
+            try
+            {
+                connection.Open(); 
+                var sqliteCommand = connection.CreateCommand();
+                sqliteCommand.CommandText = command;
+                sqliteCommand.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                connection.Close();
+            }
+        }
+
         return transactions;
     }
 }
