@@ -30,7 +30,11 @@
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Label Content="Kwota:" />
-                <TextBox x:Name="KwotaTextBox" Width="320" Height="30" FontSize="20" />
+                <TextBox x:Name="KwotaTextBox" Text="0,00" Width="320" Height="30" FontSize="20" 
+                         GotFocus="KwotaTextBox_OnGotFocus"
+                         PreviewTextInput="KwotaTextBox_PreviewTextInput"
+                         TextChanged="KwotaTextBox_TextChanged"
+                         PreviewKeyDown="KwotaTextBox_PreviewKeyDown" />
             </StackPanel>
         </Grid>
         

@@ -53,6 +53,63 @@ public abstract class DbUtility
 
         return transactions;
     }
+    
+    public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi, string dataBaseName = $"FinanseDataBase.db")
+    {
+        if (double.TryParse(kwotaText, out var kwota))
+        {
+            SQLitePCL.Batteries.Init();
+
+            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi) VALUES ($nazwa, $kwota, $data, $uwagi)";
+                command.Parameters.AddWithValue("$nazwa", nazwa);
+                command.Parameters.AddWithValue("$kwota", kwota);
+                command.Parameters.AddWithValue("$data", data);
+                command.Parameters.AddWithValue("$uwagi", uwagi);
+                command.ExecuteNonQuery();
+            }
+        }
+        else
+        {
+            MessageBox.Show("Invalid input for Kwota. Please enter a numeric value.");
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     public static int GetNumberOfTransactions(string command = "SELECT * FROM ListaTranzakcji",
         string dataBaseName = $"FinanseDataBase.db")

@@ -1,6 +1,6 @@
 ﻿namespace ZarzadzanieFinansami;
 
-public class Transaction
+public class Transaction : IComparable<Transaction>
 {
     public int ID { get; set; }
     public string Nazwa { get; set; }
@@ -15,5 +15,9 @@ public class Transaction
         Kwota = kwota;
         Data = data;
         Uwagi = uwagi;
+    }
+    public int CompareTo(Transaction? other)
+    {
+        return other.Kwota.CompareTo(Kwota);
     }
 }

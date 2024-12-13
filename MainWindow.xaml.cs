@@ -28,13 +28,11 @@ public partial class MainWindow : Window
 {
     //flags
     private bool _fIsClosing = false;
-    
-    
-    
-    
     protected Core PCore = new();
+    
     public List<Transaction> Transactions = new();
     public SeriesCollection PieSeries { get; set; }
+    public SeriesCollection TransactionPieSeries { get; set; }
 
     public MainWindow()
     {
@@ -67,7 +65,8 @@ public partial class MainWindow : Window
     private void ChangeSaldoEvent(double newSaldo)
     {
         PCore.SetSaldo(newSaldo);
-        ResultTextDisplay.Text = $"Saldo: {PCore.Saldo} $";
+        Saldo.Text = $"Saldo: {(GetSaldoFromDatabase()*0.5):F2} $";
+        Wydatki.Text = $"Wydatki: {(GetSaldoFromDatabase()):F2} $";
     }
 
     private void UpdateDataGrid()
@@ -83,16 +82,37 @@ public partial class MainWindow : Window
         MyDataGridView.DataContext = paginatedTransactions;
         MyDataGridView.ContextMenu!.Visibility = Visibility.Hidden;
         UpdatePieChart();
+        UpdateTransactionPieChart();
     }
     private void UpdatePieChart()
+    {
+        double x = GetSaldoFromDatabase() * 1.5;
+        double zostalo = GetSaldoFromDatabase();
+        
+        double wydano = x - zostalo;
+        PieSeries = new SeriesCollection{
+                new PieSeries { Title = "Wydati", Values = new ChartValues<double> {Math.Round(zostalo, 2)}, DataLabels = true },
+                new PieSeries { Title = "Wolny budzet", Values = new ChartValues<double> {Math.Round(wydano, 2)}, DataLabels = true }
+            };
+        DataContext = this;
+    }
+    private void UpdateTransactionPieChart()
     {
         double x = GetSaldoFromDatabase()*1.5;
         double zostalo = GetSaldoFromDatabase();
         double wydano = x - zostalo;
-        PieSeries = new SeriesCollection(){
-                new PieSeries { Title = "Wolny budzet", Values = new ChartValues<double> { wydano}, DataLabels = true },
-                new PieSeries { Title = "Wydati", Values = new ChartValues<double> {zostalo}, DataLabels = true }
-            };
+        var _transactions = DbUtility.GetFromDatabase();
+        _transactions.Sort((x, y) => y.Kwota.CompareTo(x.Kwota));
+        TransactionPieSeries = new SeriesCollection();
+        foreach (var transaction in _transactions.Take(10)) // Pobierz maksymalnie 10 największych transakcji
+        {
+            TransactionPieSeries.Add(new PieSeries
+            {
+                Title = transaction.Nazwa, // Użyj nazwy transakcji jako tytuł
+                Values = new ChartValues<double> { transaction.Kwota },
+                DataLabels = true
+            });
+        }
         DataContext = this;
     }
 
