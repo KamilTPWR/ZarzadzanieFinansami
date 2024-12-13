@@ -23,7 +23,7 @@
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Label Content="Nazwa:" />
-                <TextBox x:Name="NazwaTextBox" Width="320" Height="30" FontSize="20" />
+                <TextBox x:Name="NazwaTextBox" Width="320" Height="30" FontSize="20" TextChanged="NazwaTextBox_OnTextChanged"/>
             </StackPanel>
         </Grid>
 
@@ -33,8 +33,7 @@
                 <TextBox x:Name="KwotaTextBox" Text="0,00" Width="320" Height="30" FontSize="20" 
                          GotFocus="KwotaTextBox_OnGotFocus"
                          PreviewTextInput="KwotaTextBox_PreviewTextInput"
-                         TextChanged="KwotaTextBox_TextChanged"
-                         PreviewKeyDown="KwotaTextBox_PreviewKeyDown" />
+                         TextChanged="KwotaTextBox_TextChanged"/>
             </StackPanel>
         </Grid>
         
@@ -61,7 +60,7 @@
         <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Label Content="Uwagi:" />
-                <TextBox x:Name="UwagiTextBox" AcceptsReturn="True" TextWrapping="Wrap" Width="320" />
+                <TextBox x:Name="UwagiTextBox" AcceptsReturn="True" TextWrapping="Wrap" Width="320" TextChanged="UwagiTextBox_OnTextChanged"/>
             </StackPanel>
         </Grid>
 
@@ -71,7 +70,7 @@
 
         <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Anuluj" Margin="0,5,5,0" Click="AnulujButton_Click" />
-            <Button Content="Dodaj" Margin="0,5,5,0" Click="DodajButton_Click" />
+            <Button Content="Dodaj" Margin="0,5,5,0" Click="DodajButton_Click" x:Name = "Dodaj_Button" />
         </StackPanel>
     </Grid>
 </Window>
