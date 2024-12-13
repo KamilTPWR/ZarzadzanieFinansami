@@ -11,7 +11,6 @@ namespace ZarzadzanieFinansami;
 public partial class IncreaseSaldo
 {
     protected string Pkwota = String.Empty;
-    
     private bool _fFirstTimeImput = true;
     private bool _fErrorInTextImput0 = false;
     private bool _fErrorInTextImput1 = false;
@@ -21,7 +20,6 @@ public partial class IncreaseSaldo
         InitializeComponent();
         Dodaj_Button.IsEnabled = false;
     }
-
     private void DodajButton_Click(object sender, RoutedEventArgs e)
     {
         // Get the values from TextBoxes
@@ -37,18 +35,15 @@ public partial class IncreaseSaldo
         DbUtility.SaveTransaction(nazwa, kwotaText, data, uwagi);
         Close();
     }
-
     private void AnulujButton_Click(object sender, RoutedEventArgs e)
     {
         Close();
     }
-    
     private void KwotaTextBox_OnGotFocus(object sender, RoutedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
         textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectAll()));
     }
-
     private void KwotaTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         if (!StrUtillity.IsNumberFormatValid(e.Text))
@@ -82,13 +77,12 @@ public partial class IncreaseSaldo
             e.Handled = true;
         }
     }
-
     private void KwotaTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
         Pkwota = textBox.Text;
         
-        if (!StrUtillity.IsNumberFormatValid(textBox.Text) || Pkwota == "" || Pkwota == null)
+        if (!StrUtillity.IsNumberFormatValid(textBox.Text) || Pkwota == "")
         {
             textBox.Text = "0,00";
             Pkwota = String.Empty;
@@ -103,7 +97,6 @@ public partial class IncreaseSaldo
             textBox.SelectionStart = temp;
         }
     }
-
     private void NazwaTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
@@ -124,7 +117,6 @@ public partial class IncreaseSaldo
             ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
         }
     }
-
     private void UwagiTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
