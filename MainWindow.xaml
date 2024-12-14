@@ -37,9 +37,9 @@
                     <MenuItem Header="_Ustawienia"/>
                     <Separator />
                     <MenuItem Header="_Zapisz i wyjdź" 
-                              Click="MenuItem_Plik_Zamknij_OnClick"/>
+                              Click="MenuItem_Wyjdz_OnClick"/>
                     <MenuItem Header="_Wyjdź" 
-                              Click="MenuItem_Plik_Zamknij_OnClick"/>
+                              Click="MenuItem_Wyjdz_OnClick"/>
                 </MenuItem>
                 <MenuItem Header="_Narzędzia">
                     <MenuItem Header="Dodaj Rekord" />

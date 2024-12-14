@@ -161,6 +161,42 @@ public partial class MainWindow : Window
         UpdateWindow();
     }
     
+    private void DataGrid_MenuItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (MyDataGridView.SelectedItems.Count <= 0)
+        {
+            MessageBox.Show("Nie wybrano żadnych tranzakcji do usunięcia.", "Błąd", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        else
+        {
+            var columnValues = new List<object>();
+
+            foreach (var selectedItem in MyDataGridView.SelectedItems)
+            {
+                var item = selectedItem as dynamic;
+                if (item != null)
+                {
+                    columnValues.Add(item.ID);
+                }
+            }
+
+            var message =
+                $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
+
+            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+                MessageBoxResult.Yes)
+            {
+                foreach (var id in columnValues)
+                {
+                    DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
+                }
+
+                UpdateDataGrid();
+            }
+        }
+    }
+    
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
         if (_fIsClosing) return;
@@ -274,6 +310,21 @@ public partial class MainWindow : Window
 /*                                           Menu Items Events Handlers                                                */
 /***********************************************************************************************************************/
 
+    private void MenuItem_Otworz_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+    
+    private void MenuItem_Zapisz_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+    
+    private void MenuItem_Zapisz_jako_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+    
     private void MenuItem_View_OnClick(object sender, RoutedEventArgs e)
     {
         var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
@@ -281,7 +332,7 @@ public partial class MainWindow : Window
         UpdateWindow();
     }
 
-    private void MenuItem_Plik_Zamknij_OnClick(object sender, RoutedEventArgs e)
+    private void MenuItem_Wyjdz_OnClick(object sender, RoutedEventArgs e)
     {
         MessageBoxResult result = MessageBox.Show(
             "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -290,56 +341,5 @@ public partial class MainWindow : Window
             _fIsClosing = true;
             Application.Current.Shutdown();
         }
-    }
-    
-    private void DataGrid_MenuItem_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (MyDataGridView.SelectedItems.Count <= 0)
-        {
-            MessageBox.Show("Nie wybrano żadnych tranzakcji do usunięcia.", "Błąd", MessageBoxButton.OK,
-                MessageBoxImage.Error);
-        }
-        else
-        {
-            var columnValues = new List<object>();
-
-            foreach (var selectedItem in MyDataGridView.SelectedItems)
-            {
-                var item = selectedItem as dynamic;
-                if (item != null)
-                {
-                    columnValues.Add(item.ID);
-                }
-            }
-
-            var message =
-                $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
-
-            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
-                MessageBoxResult.Yes)
-            {
-                foreach (var id in columnValues)
-                {
-                    DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
-                }
-
-                UpdateDataGrid();
-            }
-        }
-    }
-
-    private void MenuItem_Zapisz_jako_OnClick(object sender, RoutedEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
-
-    private void MenuItem_Zapisz_OnClick(object sender, RoutedEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
-
-    private void MenuItem_Otworz_OnClick(object sender, RoutedEventArgs e)
-    {
-        throw new NotImplementedException();
     }
 }
