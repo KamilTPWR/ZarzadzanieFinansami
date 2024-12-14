@@ -94,8 +94,6 @@ public partial class IncreaseSaldo
         
         ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
         
-        
-        
         if (_fFirstTimeImput)
         {
             textBox.Text = e.Text + ",00";
