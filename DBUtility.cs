@@ -9,9 +9,9 @@ namespace ZarzadzanieFinansami;
 
 public abstract class DbUtility
 {
-    public static List<Transaction> GetFromDatabase(string command = "SELECT * FROM ListaTranzakcji",
-        string dataBaseName = $"FinanseDataBase.db")
+    public static List<Transaction> GetFromDatabase(string dataBaseName = $"FinanseDataBase.db")
     {
+        string command = "SELECT * FROM ListaTranzakcji";
         List<string> columns = new List<string> {"ID", "Nazwa", "Kwota", "Data", "Uwagi" };
         
         List<Transaction> transactions = new();
@@ -82,10 +82,9 @@ public abstract class DbUtility
         }
     }
 
-    public static int GetNumberOfTransactions(string command = "SELECT * FROM ListaTranzakcji",
-        string dataBaseName = $"FinanseDataBase.db")
+    public static int GetNumberOfTransactions(string dataBaseName = $"FinanseDataBase.db")
     {
-        List<Transaction> transactions = GetFromDatabase(command, dataBaseName);
+        List<Transaction> transactions = GetFromDatabase(dataBaseName);
         var i = transactions.Count;
         return i;
     }
@@ -119,9 +118,10 @@ public abstract class DbUtility
 
         throw new NotSupportedException($"The type {typeof(T).Name} is not supported.");
     }
-    public static List<Transaction> DeleteFromDatabase(int index,string dataBaseName = $"FinanseDataBase.db",string tableName = $"ListaTranzakcji")
+    public static void DeleteFromDatabase(int index, string dataBaseName = $"FinanseDataBase.db",
+        string tableName = $"ListaTranzakcji")
     {
-        string command = $"DELETE FROM {tableName} WHERE ID = {index}";
+        var command = $"DELETE FROM {tableName} WHERE ID = {index}";
         List<Transaction> transactions = new();
         SQLitePCL.Batteries.Init();
 
@@ -140,7 +140,5 @@ public abstract class DbUtility
                 connection.Close();
             }
         }
-
-        return transactions;
     }
 }
