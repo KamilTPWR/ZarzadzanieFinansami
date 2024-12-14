@@ -74,7 +74,7 @@ public partial class MainWindow : Window
         MyDataGridView.ContextMenu!.Visibility = Visibility.Visible;
         Transactions.Clear();
         DataContext = null;
-        Transactions = DbUtility.GetFromDatabase(@"SELECT * FROM ListaTranzakcji");
+        Transactions = DbUtility.GetFromDatabase();
         var paginatedTransactions = Transactions
             .Skip((Core.Page - 1) * Core.NumberOfRows)
             .Take(Core.NumberOfRows)
@@ -121,7 +121,7 @@ public partial class MainWindow : Window
         var returnValue = 0.0;
         Transactions.Clear();
         DataContext = null;
-        Transactions = DbUtility.GetFromDatabase(@"SELECT Kwota FROM ListaTranzakcji");
+        Transactions = DbUtility.GetFromDatabase();
         foreach (var transaction in Transactions) returnValue += transaction.Kwota;
 
         DataContext = Transactions;

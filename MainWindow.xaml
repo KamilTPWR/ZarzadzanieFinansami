@@ -31,30 +31,17 @@
                     <MenuItem Header="_Zapisz" />
                     <Separator />
                     <MenuItem Header="_Ustawienia"/>
+                    <Separator />
                     <MenuItem Header="_Zamknij" Click="MenuItem_Plik_Zamknij_OnClick"/>
                 </MenuItem>
-                <MenuItem Header="_Edit">
-                    <MenuItem Header="_Exit">
-                        <MenuItem Header="_Open" />
-                        <MenuItem Header="_Save" />
-                    </MenuItem>
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
+                <MenuItem Header="_Narzędzia">
+                    <MenuItem Header="Dodaj Rekord" />
+                    <MenuItem Header="Znajdz" />
                     <Separator />
-                    <MenuItem Header="_Exit" />
+                    <MenuItem Header="Usuń wszystkie rekordy" />
                 </MenuItem>
                 <MenuItem Header="_Widok">
                     <MenuItem Header="Wybór liczby wierszy" Click="MenuItem_View_OnClick"/>
-                </MenuItem>
-                <MenuItem Header="Find">
-                    <MenuItem Header="_Exit">
-                        <MenuItem Header="_Open" />
-                        <MenuItem Header="_Save" />
-                    </MenuItem>
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
-                    <Separator />
-                    <MenuItem Header="_Exit" />
                 </MenuItem>
 
             </Menu>

@@ -12,16 +12,10 @@ public abstract class DbUtility
     public static List<Transaction> GetFromDatabase(string command = "SELECT * FROM ListaTranzakcji",
         string dataBaseName = $"FinanseDataBase.db")
     {
+        List<string> columns = new List<string> {"ID", "Nazwa", "Kwota", "Data", "Uwagi" };
+        
         List<Transaction> transactions = new();
         SQLitePCL.Batteries.Init();
-
-        var columnSection = command.Substring(7, command.IndexOf("FROM") - 8).Trim();
-
-        List<string> columns;
-        if (columnSection.Trim() == "*")
-            columns = new List<string> {"ID", "Nazwa", "Kwota", "Data", "Uwagi" };
-        else
-            columns = columnSection.Split(',').Select(c => c.Trim()).ToList();
 
         using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
         {
@@ -46,7 +40,7 @@ public abstract class DbUtility
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK, MessageBoxImage.Error);
                 connection.Close();
             }
         }
@@ -54,22 +48,32 @@ public abstract class DbUtility
         return transactions;
     }
     
-    public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi, string dataBaseName = $"FinanseDataBase.db")
+    public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi, 
+        string dataBaseName = $"FinanseDataBase.db")
     {
         if (double.TryParse(kwotaText, out var kwota))
         {
             SQLitePCL.Batteries.Init();
 
-            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+            try
             {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi) VALUES ($nazwa, $kwota, $data, $uwagi)";
-                command.Parameters.AddWithValue("$nazwa", nazwa);
-                command.Parameters.AddWithValue("$kwota", kwota);
-                command.Parameters.AddWithValue("$data", data);
-                command.Parameters.AddWithValue("$uwagi", uwagi);
-                command.ExecuteNonQuery();
+
+                using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+                {
+                    connection.Open();
+                    var command = connection.CreateCommand();
+                    command.CommandText =
+                        "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi) VALUES ($nazwa, $kwota, $data, $uwagi)";
+                    command.Parameters.AddWithValue("$nazwa", nazwa);
+                    command.Parameters.AddWithValue("$kwota", kwota);
+                    command.Parameters.AddWithValue("$data", data);
+                    command.Parameters.AddWithValue("$uwagi", uwagi);
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Nie spodziewany bład SaveTransaction", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         else
@@ -77,39 +81,6 @@ public abstract class DbUtility
             MessageBox.Show("Invalid input for Kwota. Please enter a numeric value.");
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     public static int GetNumberOfTransactions(string command = "SELECT * FROM ListaTranzakcji",
         string dataBaseName = $"FinanseDataBase.db")
@@ -165,7 +136,7 @@ public abstract class DbUtility
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MessageBox.Show(ex.Message, "Nie spodziewany bład", MessageBoxButton.OK, MessageBoxImage.Error);
                 connection.Close();
             }
         }
