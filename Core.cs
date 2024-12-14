@@ -1,16 +1,11 @@
-﻿namespace ZarządzanieFinansami;
+﻿namespace ZarzadzanieFinansami;
 
-public class Core
+public static class Core
 {
-    public double Saldo { get; set; }
-
-    public Core()
+    public static int NumberOfRows = Constants.NUMBEROFROWS;
+    public static int Page = 1;
+    public static int PagesNumber()
     {
-        Saldo = 0;
+        return (int)Math.Ceiling((double)DbUtility.GetNumberOfTransactions() / NumberOfRows);
     }
-    public void ChangeSaldo(double newValue)
-    {
-        Saldo = newValue;
-    }
-
 }

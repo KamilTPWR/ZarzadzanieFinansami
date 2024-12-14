@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System.Data;
+using Microsoft.Data.Sqlite;
 using System.Media;
 using System.Reflection;
 using System.Text;
@@ -12,143 +13,333 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.CodeDom;
+using LiveCharts;
+using LiveCharts.Wpf;
 
-namespace ZarządzanieFinansami;
+namespace ZarzadzanieFinansami;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
 
 // ReSharper disable once RedundantExtendsListEntry
-public partial class MainWindow : Window 
+public partial class MainWindow : Window
 {
-    Core _core = new Core();
-    public List<Transaction> Transactions = new List<Transaction>();
+    private bool _fIsClosing = false;
+    public List<Transaction> Transactions = new();
+    public required SeriesCollection PieSeries { get; set; }
+    public required SeriesCollection TransactionPieSeries { get; set; }
     public MainWindow()
-    {   
+    {
         InitializeComponent();
         StartClock();
         UpdateDataGrid();
-        ChangeSaldoEvent(GetSaldoFromDatabase());
-        
-        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
-        
-        //Napisy domyśne
-        SystemClock.Text = "00/00/0000 00:00:00";
-        
-        //Zarządzanie zegarem w prawym górnym rogu
-        void StartClock()
-        {
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(1);
-            timer.Tick += TickEvent;
-            timer.Start();
-        }
-        void TickEvent(object? sender, EventArgs e) //Nie mam pojęcia dlaczego tam ma być znak zapytania : P
-        {
-            SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-        }
+        ChangeSaldoEvent();
+        SetConstants();
     }
+
+/***********************************************************************************************************************/
+/*                                                Private Methods                                                      */
+/***********************************************************************************************************************/
+
+    private void SetConstants()
+    {
+        SystemClock.Text = Constants.DEFAULTCLOCK;
+        PageTextBlock.Text = Constants.NULLPAGE;
+        ButtonNumberControll.Content = Constants.NULLROWNUMBER;
+    }
+
     private void UpdateWindow()
     {
-        ChangeSaldoEvent(GetSaldoFromDatabase());
+        PageTextBlock.Text = " " + Core.Page + "-" + Core.PagesNumber() + " ";
+        ChangeSaldoEvent();
         UpdateDataGrid();
-        UpdateDataGridView();
+        DataGridUtility.UpdateDataGridView(MyDataGridView);
+        ButtonNumberControll.Content = Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
     }
-    private void UpdateDataGridView()
+    
+    private void UpdateDataGrid()
     {
-        var scaleRation = 0.20;
-        var gridView = MyDataGridView;
-
-        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-        
-        gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-        gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-        gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-        gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+        MyDataGridView.ContextMenu!.Visibility = Visibility.Visible;
+        Transactions.Clear();
+        DataContext = null;
+        Transactions = DbUtility.GetFromDatabase();
+        var paginatedTransactions = Transactions
+            .Skip((Core.Page - 1) * Core.NumberOfRows)
+            .Take(Core.NumberOfRows)
+            .ToList();
+        MyDataGridView.DataContext = paginatedTransactions;
+        MyDataGridView.ContextMenu!.Visibility = Visibility.Hidden;
+        UpdatePieChart();
+        UpdateTransactionPieChart();
     }
+    
+    private void UpdatePieChart()
+    {
+        double x = GetSaldoFromDatabase() * 1.5;
+        double zostalo = GetSaldoFromDatabase();
+        
+        double wydano = x - zostalo;
+        PieSeries = new SeriesCollection{
+                new PieSeries { Title = "Wydati", Values = new ChartValues<double> {Math.Round(zostalo, 2)}, DataLabels = true },
+                new PieSeries { Title = "Wolny budzet", Values = new ChartValues<double> {Math.Round(wydano, 2)}, DataLabels = true }
+            };
+        DataContext = this;
+    }
+    
+    private void UpdateTransactionPieChart()
+    {
+        var transactions = DbUtility.GetFromDatabase();
+        transactions.Sort((x, y) => y.Kwota.CompareTo(x.Kwota));
+        TransactionPieSeries = new SeriesCollection();
+        foreach (var transaction in transactions.Take(10))
+        {
+            TransactionPieSeries.Add(new PieSeries
+            {
+                Title = transaction.Nazwa,
+                Values = new ChartValues<double> { transaction.Kwota },
+                DataLabels = true
+            });
+        }
+        DataContext = this;
+    }
+
+    private double GetSaldoFromDatabase()
+    {
+        var returnValue = 0.0;
+        Transactions.Clear();
+        DataContext = null;
+        Transactions = DbUtility.GetFromDatabase();
+        foreach (var transaction in Transactions) returnValue += transaction.Kwota;
+
+        DataContext = Transactions;
+        return returnValue;
+    }
+    
+    private void ChangeSaldoEvent()
+    {
+        Saldo.Text = $"Saldo: {GetSaldoFromDatabase()*0.5:F2} $";
+        Wydatki.Text = $"Wydatki: {GetSaldoFromDatabase():F2} $";
+    }
+    
+/***********************************************************************************************************************/
+/*                                                Clock Events                                                         */
+/***********************************************************************************************************************/
+
+    private void StartClock()
+    {
+        var timer = new DispatcherTimer();
+        timer.Interval = TimeSpan.FromSeconds(1);
+        timer.Tick += TickEvent;
+        timer.Start();
+    }
+
+    private void TickEvent(object? sender, EventArgs e)
+    {
+        SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+    }
+
+/***********************************************************************************************************************/
+/*                                         Auto Events Handlers                                                        */
+/***********************************************************************************************************************/
+
     private void MyDataGridView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        var scaleRation = 0.20;
-        var gridView = MyDataGridView;
-        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-        if (4 == gridView.Columns.Count)
-        {
-            gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-            gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-            gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-            gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
-        }
+        if (Constants.STATICNUMBEROFCOLUMNS == MyDataGridView.Columns.Count) DataGridUtility.UpdateDataGridView(MyDataGridView);
     }
-    private void Button_OnClick(object sender, RoutedEventArgs e)
+    
+    private void MyDataGridView_OnBeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
     {
-        IncreaseSaldo increaseSaldo = new IncreaseSaldo();
-        increaseSaldo.ShowDialog();
-        UpdateWindow();
+        e.Cancel = true;
     }
-    private void ChangeSaldoEvent(double newSaldo)
-    {
-        _core.ChangeSaldo(newSaldo);
-        ResultTextDisplay.Text = $"Saldo: {_core.Saldo} $";
-    }
-    private void UpdateDataGrid() {
-        Transactions.Clear();
-        this.DataContext = null;
-        SQLitePCL.Batteries.Init();
-        using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
-        {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = @"SELECT Nazwa, Kwota, Data, Uwagi FROM ListaTranzakcji";
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    var nazwa = reader.GetString(0);
-                    var kwota = reader.GetDouble(1);
-                    var data = reader.GetString(2);
-                    var uwagi = reader.GetString(3);
-                    Transactions.Add(new Transaction(nazwa, kwota, data, uwagi));
-                }
-            }
-        }
-        this.DataContext = Transactions;
-    }
+    
     private void MyDataGridView_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateDataGrid();
-        var scaleRation = 0.20;
-        var gridView = MyDataGridView;
-
-        double totalWidth = MyDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
-
-        UpdateDataGrid();
-        gridView.Columns[0].Width = totalWidth * scaleRation;  // "Saldo"
-        gridView.Columns[1].Width = totalWidth * scaleRation;  // "Zmiana"
-        gridView.Columns[2].Width = totalWidth * scaleRation;  // "Data"
-        gridView.Columns[3].Width = totalWidth * 2*(scaleRation + 0.01); // "Uwagi"
+        DataGridUtility.UpdateDataGridView(MyDataGridView);
+        UpdateWindow();
     }
-    private double GetSaldoFromDatabase()
+    
+    private void DataGrid_MenuItem_OnClick(object sender, RoutedEventArgs e)
     {
-        double returnValue = 0.0;
-        Transactions.Clear();
-        this.DataContext = null;
-        SQLitePCL.Batteries.Init();
-        using (var connection = new SqliteConnection("Data Source=FinanseDataBase.db"))
+        if (MyDataGridView.SelectedItems.Count <= 0)
         {
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = @"SELECT Kwota FROM ListaTranzakcji";
-            using (var reader = command.ExecuteReader())
+            MessageBox.Show("Nie wybrano żadnych tranzakcji do usunięcia.", "Błąd", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        else
+        {
+            var columnValues = new List<object>();
+
+            foreach (var selectedItem in MyDataGridView.SelectedItems)
             {
-                while (reader.Read())
+                var item = selectedItem as dynamic;
+                if (item != null)
                 {
-                    var kwota = reader.GetDouble(0);
-                    returnValue += kwota;
+                    columnValues.Add(item.ID);
+                }
+            }
+
+            var message =
+                $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
+
+            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+                MessageBoxResult.Yes)
+            {
+                foreach (var id in columnValues)
+                {
+                    DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
+                }
+
+                UpdateDataGrid();
+            }
+        }
+    }
+    
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (_fIsClosing) return;
+        MessageBoxResult result = MessageBox.Show(
+            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        switch (result)
+        {
+            case MessageBoxResult.No:
+                e.Cancel = true;
+                break;
+            case MessageBoxResult.Yes:
+                Application.Current.Shutdown();
+                break;
+        }
+    }
+    
+/***********************************************************************************************************************/
+/*                                              Events Handlers                                                        */
+/***********************************************************************************************************************/    
+
+    private void AddButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var increaseSaldo = new IncreaseSaldo();
+        increaseSaldo.ShowDialog();
+        UpdateWindow();
+    }
+    
+    private void ButtonNumberControll_OnClick(object sender, RoutedEventArgs e)
+    {
+        var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
+        numberOfRecordsOnPage.ShowDialog();
+        UpdateWindow();
+    }
+    
+    private void ButtonRight_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (Core.Page < Core.PagesNumber())
+        {
+            Core.Page = ++Core.Page;
+            UpdateWindow();
+        }
+        e.Handled = true;
+    }
+    
+    private void ButtonLeft_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (Core.Page > 1)
+        {
+            Core.Page = --Core.Page;
+            UpdateWindow();
+        }
+        e.Handled = true;
+    }
+
+
+/***********************************************************************************************************************/
+/*                                                 ContextMenuLogic                                                    */
+/***********************************************************************************************************************/
+
+    private void MyDataGridView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        var dataGrid = sender as DataGrid;
+        object? dataItem;
+        var selectedItem = dataGrid?.SelectedIndex;
+        if (selectedItem != null && Convert.ToInt32(selectedItem) >= 0)
+        {
+            if (MessageBox.Show("Czy napewno chcesz usunąć tranzakcje ?", "Usuń tranzakcję.",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                dataItem = MyDataGridView.Items[(int)selectedItem];
+                DbUtility.DeleteFromDatabase((dataItem as Transaction)!.ID);
+                UpdateDataGrid();
+            }
+    
+        }
+    }
+    
+    private void MyDataGridView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        DataGrid dataGrid = (sender as DataGrid)!;
+        if (dataGrid.ContextMenu != null && dataGrid.ContextMenu.Visibility == Visibility.Collapsed)
+        {
+            Point mousePosition = Mouse.GetPosition(Application.Current.MainWindow);
+            if (Application.Current.MainWindow != null)
+            {
+                Point screenPoint = Application.Current.MainWindow.PointToScreen(mousePosition);
+                dataGrid.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Absolute;
+                dataGrid.ContextMenu.HorizontalOffset = screenPoint.X;
+                dataGrid.ContextMenu.VerticalOffset = screenPoint.Y;
+            }
+        }
+
+        if (dataGrid.ContextMenu != null && MyDataGridView.SelectedItems.Count > 0)
+        {
+            foreach (var selectedItem in MyDataGridView.SelectedItems)
+            {
+                var item = selectedItem as dynamic;
+                if (item != null && dataGrid.ContextMenu != null)
+                {
+                    dataGrid.ContextMenu!.Visibility = Visibility.Visible;
+                    dataGrid.ContextMenu.PlacementTarget = dataGrid;
+                    dataGrid.ContextMenu.IsOpen = true;
                 }
             }
         }
-        this.DataContext = Transactions;
-        return returnValue;
+    }
+
+/***********************************************************************************************************************/
+/*                                           Menu Items Events Handlers                                                */
+/***********************************************************************************************************************/
+
+    private void MenuItem_Otworz_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+    
+    private void MenuItem_Zapisz_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+    
+    private void MenuItem_Zapisz_jako_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+    
+    private void MenuItem_View_OnClick(object sender, RoutedEventArgs e)
+    {
+        var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
+        numberOfRecordsOnPage.ShowDialog();
+        UpdateWindow();
+    }
+
+    private void MenuItem_Wyjdz_OnClick(object sender, RoutedEventArgs e)
+    {
+        MessageBoxResult result = MessageBox.Show(
+            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (result == MessageBoxResult.Yes)
+        {
+            _fIsClosing = true;
+            Application.Current.Shutdown();
+        }
     }
 }

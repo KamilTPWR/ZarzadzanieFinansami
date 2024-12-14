@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace ZarządzanieFinansami;
+namespace ZarzadzanieFinansami;
 
 /// <summary>
 /// Interaction logic for App.xaml
