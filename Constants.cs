@@ -2,6 +2,7 @@
 
 public class Constants
 {
+    public static int NUMBEROFROWS = 50;
     public static readonly int STATICNUMBEROFCOLUMNS = 5;
     public static readonly string DEFAULTCLOCK = "00/00/0000 00:00:00";
     public static readonly string NULLPAGE = " 0 - 0 ";

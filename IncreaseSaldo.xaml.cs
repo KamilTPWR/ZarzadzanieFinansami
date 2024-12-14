@@ -18,8 +18,12 @@ public partial class IncreaseSaldo
     public IncreaseSaldo()
     {
         InitializeComponent();
-        Dodaj_Button.IsEnabled = false;
+        AddButton.IsEnabled = false;
     }
+    
+/***********************************************************************************************************************/
+/*                                                Buttons Event Handlers                                               */
+/***********************************************************************************************************************/    
     private void DodajButton_Click(object sender, RoutedEventArgs e)
     {
         // Get the values from TextBoxes
@@ -39,6 +43,42 @@ public partial class IncreaseSaldo
     {
         Close();
     }
+    private void ButtonToggle(bool a, bool b)
+    {
+        if (a == false && b == false && NazwaTextBox.Text != "" && KwotaTextBox.Text != "0,00")
+        {
+            AddButton.IsEnabled = true;
+        }
+        else
+        {
+            AddButton.IsEnabled = false;
+        }
+    }
+    
+/***********************************************************************************************************************/
+/*                                                   TextBox Logic                                                     */
+/***********************************************************************************************************************/        
+  
+    private void NazwaTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        TextBox textBox = (sender as TextBox)!;
+        if (Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,30}$") && textBox.Text != "")
+        {
+            ToolTipService.SetToolTip(textBox, null);
+            textBox.Foreground = Brushes.Black;
+            _fErrorInTextImput1 = false;
+            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+        }
+        else
+        {
+            ToolTip tooltip = new ToolTip();
+            tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 30 znaków.";
+            ToolTipService.SetToolTip(textBox, tooltip);
+            textBox.Foreground = Brushes.Red;
+            _fErrorInTextImput1 = true;
+            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+        }
+    }
     private void KwotaTextBox_OnGotFocus(object sender, RoutedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
@@ -46,12 +86,13 @@ public partial class IncreaseSaldo
     }
     private void KwotaTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
+        TextBox textBox = (sender as TextBox)!;
         if (!StrUtillity.IsNumberFormatValid(e.Text))
         {
             e.Handled = true;
         }
         
-        TextBox textBox = (sender as TextBox)!;
+        ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
         
         if (_fFirstTimeImput)
         {
@@ -97,30 +138,10 @@ public partial class IncreaseSaldo
             textBox.SelectionStart = temp;
         }
     }
-    private void NazwaTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
-    {
-        TextBox textBox = (sender as TextBox)!;
-        if (Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,25}$") && textBox.Text != "")
-        {
-            ToolTipService.SetToolTip(textBox, null);
-            textBox.Foreground = Brushes.Black;
-            _fErrorInTextImput1 = false;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
-        }
-        else
-        {
-            ToolTip tooltip = new ToolTip();
-            tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 25 znaków.";
-            ToolTipService.SetToolTip(textBox, tooltip);
-            textBox.Foreground = Brushes.Red;
-            _fErrorInTextImput1 = true;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
-        }
-    }
     private void UwagiTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
-        if (Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,200}$") && textBox.Text != "")
+        if (Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,220}$") && textBox.Text != "")
         {
             ToolTipService.SetToolTip(textBox, null);
             textBox.Foreground = Brushes.Black;
@@ -130,22 +151,51 @@ public partial class IncreaseSaldo
         else
         {
             ToolTip tooltip = new ToolTip();
-            tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 200 znaków.";
+            tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 220 znaków.";
             ToolTipService.SetToolTip(textBox, tooltip);
             textBox.Foreground = Brushes.Red;
             _fErrorInTextImput0 = true;
             ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
         }
     }
-    private void ButtonToggle(bool a, bool b)
+
+/***********************************************************************************************************************/
+/*                                                    Set-Up                                                           */
+/***********************************************************************************************************************/   
+    private void KwotaTextBox_OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (a == false && b == false && NazwaTextBox.Text != "" && UwagiTextBox.Text != "" && KwotaTextBox.Text != "0,00")
+        DataObject.AddPastingHandler(KwotaTextBox, OnPaste);
+    }
+    private void OnPaste(object sender, DataObjectPastingEventArgs e)
+    {
+        try
         {
-            Dodaj_Button.IsEnabled = true;
+            if (!e.DataObject.GetDataPresent(DataFormats.Text)) e.CancelCommand();
+            else
+            {
+                string clipboardText = e.DataObject.GetData(DataFormats.Text) as string ?? throw new NullReferenceException();
+                if (string.IsNullOrWhiteSpace(clipboardText) || !StrUtillity.IsNumberFormatValid(clipboardText)) e.CancelCommand();
+                else
+                {
+                    Pkwota = clipboardText;
+                    _fFirstTimeImput = false;
+                    e.CancelCommand();
+
+                    if (sender is TextBox textBox)
+                    {
+                        int selectionStart = textBox.SelectionStart;
+                        int selectionLength = textBox.SelectionLength;
+                        textBox.Text = textBox.Text.Remove(selectionStart, selectionLength);
+                        textBox.Text = textBox.Text.Insert(selectionStart, clipboardText);
+                        textBox.SelectionStart = selectionStart + clipboardText.Length;
+                    }
+                }
+            }
         }
-        else
+        catch (Exception exception)
         {
-            Dodaj_Button.IsEnabled = false;
+            Console.WriteLine(exception);
+            e.CancelCommand();
         }
     }
 }

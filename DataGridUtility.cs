@@ -14,10 +14,10 @@ public abstract class DataGridUtility
         if (gridView.Columns.Count == Constants.STATICNUMBEROFCOLUMNS)
         {
             gridView.Columns[0].Width = 0.01;                                   // "ID"
-            gridView.Columns[1].Width = totalWidth * scaleRation;               // "Saldo"
-            gridView.Columns[2].Width = totalWidth * scaleRation;               // "Zmiana"
+            gridView.Columns[1].Width = totalWidth * 1.1 * scaleRation;         // "Nazwa"
+            gridView.Columns[2].Width = totalWidth * scaleRation;               // "Kwota"
             gridView.Columns[3].Width = totalWidth * scaleRation;               // "Data"
-            gridView.Columns[4].Width = totalWidth * 2 * (scaleRation + 0.01);  // "Uwagi"
+            gridView.Columns[4].Width = totalWidth * 2 * scaleRation;           // "Uwagi"
         }
     }
 }

@@ -9,19 +9,14 @@ namespace ZarzadzanieFinansami;
 
 public abstract class DbUtility
 {
-    public static List<Transaction> GetFromDatabase(string command = "SELECT * FROM ListaTranzakcji",
-        string dataBaseName = $"FinanseDataBase.db")
+    public static List<Transaction> GetFromDatabase(string dataBaseName = $"FinanseDataBase.db")
     {
+        string command = "SELECT * FROM ListaTranzakcji";
+        //ReSharper disable once UseCollectionExpression, ponieważ po co komplikować proste rzeczy
+        List<string> columns = new List<string> {"ID", "Nazwa", "Kwota", "Data", "Uwagi" };
+        
         List<Transaction> transactions = new();
         SQLitePCL.Batteries.Init();
-
-        var columnSection = command.Substring(7, command.IndexOf("FROM") - 8).Trim();
-
-        List<string> columns;
-        if (columnSection.Trim() == "*")
-            columns = new List<string> {"ID", "Nazwa", "Kwota", "Data", "Uwagi" };
-        else
-            columns = columnSection.Split(',').Select(c => c.Trim()).ToList();
 
         using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
         {
@@ -35,18 +30,18 @@ public abstract class DbUtility
                 {
                     while (reader.Read())
                     {
-                        int ID = IfNotNull<int>("ID", columns, reader);
+                        int id = IfNotNull<int>("ID", columns, reader);
                         string name = IfNotNull<string>("Nazwa", columns, reader);
                         double amount = IfNotNull<double>("Kwota", columns, reader);
                         string date = IfNotNull<string>("Data", columns, reader);
                         string remarks = IfNotNull<string>("Uwagi", columns, reader);
-                        transactions.Add(new Transaction(ID,name, amount, date, remarks));
+                        transactions.Add(new Transaction(id,name, amount, date, remarks));
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK, MessageBoxImage.Error);
                 connection.Close();
             }
         }
@@ -54,22 +49,32 @@ public abstract class DbUtility
         return transactions;
     }
     
-    public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi, string dataBaseName = $"FinanseDataBase.db")
+    public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi, 
+        string dataBaseName = $"FinanseDataBase.db")
     {
         if (double.TryParse(kwotaText, out var kwota))
         {
             SQLitePCL.Batteries.Init();
 
-            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+            try
             {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi) VALUES ($nazwa, $kwota, $data, $uwagi)";
-                command.Parameters.AddWithValue("$nazwa", nazwa);
-                command.Parameters.AddWithValue("$kwota", kwota);
-                command.Parameters.AddWithValue("$data", data);
-                command.Parameters.AddWithValue("$uwagi", uwagi);
-                command.ExecuteNonQuery();
+
+                using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+                {
+                    connection.Open();
+                    var command = connection.CreateCommand();
+                    command.CommandText =
+                        "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi) VALUES ($nazwa, $kwota, $data, $uwagi)";
+                    command.Parameters.AddWithValue("$nazwa", nazwa);
+                    command.Parameters.AddWithValue("$kwota", kwota);
+                    command.Parameters.AddWithValue("$data", data);
+                    command.Parameters.AddWithValue("$uwagi", uwagi);
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Nie spodziewany bład SaveTransaction", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         else
@@ -77,48 +82,37 @@ public abstract class DbUtility
             MessageBox.Show("Invalid input for Kwota. Please enter a numeric value.");
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
-    public static int GetNumberOfTransactions(string command = "SELECT * FROM ListaTranzakcji",
-        string dataBaseName = $"FinanseDataBase.db")
+    public static int GetNumberOfTransactions(string dataBaseName = $"FinanseDataBase.db")
     {
-        List<Transaction> transactions = GetFromDatabase(command, dataBaseName);
+        List<Transaction> transactions = GetFromDatabase(dataBaseName);
         var i = transactions.Count;
         return i;
     }
+    
+    public static void DeleteFromDatabase(int index, string dataBaseName = $"FinanseDataBase.db",
+        string tableName = $"ListaTranzakcji")
+    {
+        var command = $"DELETE FROM {tableName} WHERE ID = {index}";
+        SQLitePCL.Batteries.Init();
 
+        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+        {
+            try
+            {
+                connection.Open(); 
+                var sqliteCommand = connection.CreateCommand();
+                sqliteCommand.CommandText = command;
+                sqliteCommand.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Nie spodziewany bład", MessageBoxButton.OK, MessageBoxImage.Error);
+                connection.Close();
+            }
+        }
+    }
+    
     private static dynamic IfNotNull<T>(string condition, List<string> columns, SqliteDataReader? reader)
     {
         if (reader == null) throw new NullReferenceException();
@@ -147,29 +141,5 @@ public abstract class DbUtility
         }
 
         throw new NotSupportedException($"The type {typeof(T).Name} is not supported.");
-    }
-    public static List<Transaction> DeleteFromDatabase(int index,string dataBaseName = $"FinanseDataBase.db",string tableName = $"ListaTranzakcji")
-    {
-        string command = $"DELETE FROM {tableName} WHERE ID = {index}";
-        List<Transaction> transactions = new();
-        SQLitePCL.Batteries.Init();
-
-        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
-        {
-            try
-            {
-                connection.Open(); 
-                var sqliteCommand = connection.CreateCommand();
-                sqliteCommand.CommandText = command;
-                sqliteCommand.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                connection.Close();
-            }
-        }
-
-        return transactions;
     }
 }

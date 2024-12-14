@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        Icon="Icons/MainIcon.png"
         mc:Ignorable="d"
         Title="TZF Lite" Height="450" Width="800"
         Closing="Window_Closing"
@@ -26,34 +27,28 @@
             </Grid.ColumnDefinitions>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_Plik">
-                    <MenuItem Header="_Otwórz" />
-                    <MenuItem Header="_Zapisz" />
+                    <MenuItem Header="_Otwórz" 
+                              Click="MenuItem_Otworz_OnClick"/>
+                    <MenuItem Header="_Zapisz" 
+                              Click="MenuItem_Zapisz_OnClick"/>
+                    <MenuItem Header="_Zapisz jako" 
+                              Click="MenuItem_Zapisz_jako_OnClick" />
                     <Separator />
                     <MenuItem Header="_Ustawienia"/>
-                    <MenuItem Header="_Zamknij" Click="MenuItem_Plik_Zamknij_OnClick"/>
-                </MenuItem>
-                <MenuItem Header="_Edit">
-                    <MenuItem Header="_Exit">
-                        <MenuItem Header="_Open" />
-                        <MenuItem Header="_Save" />
-                    </MenuItem>
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
                     <Separator />
-                    <MenuItem Header="_Exit" />
+                    <MenuItem Header="_Zapisz i wyjdź" 
+                              Click="MenuItem_Wyjdz_OnClick"/>
+                    <MenuItem Header="_Wyjdź" 
+                              Click="MenuItem_Wyjdz_OnClick"/>
+                </MenuItem>
+                <MenuItem Header="_Narzędzia">
+                    <MenuItem Header="Dodaj Rekord" />
+                    <MenuItem Header="Znajdz" />
+                    <Separator />
+                    <MenuItem Header="Usuń wszystkie rekordy" />
                 </MenuItem>
                 <MenuItem Header="_Widok">
                     <MenuItem Header="Wybór liczby wierszy" Click="MenuItem_View_OnClick"/>
-                </MenuItem>
-                <MenuItem Header="Find">
-                    <MenuItem Header="_Exit">
-                        <MenuItem Header="_Open" />
-                        <MenuItem Header="_Save" />
-                    </MenuItem>
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
-                    <Separator />
-                    <MenuItem Header="_Exit" />
                 </MenuItem>
 
             </Menu>
@@ -88,7 +83,7 @@
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Visibility="Collapsed">
-                    <MenuItem Header="Usuń" Click="MenuItem_OnClick">
+                    <MenuItem Header="Usuń" Click="DataGrid_MenuItem_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Icons/Trashcan.png" />
                         </MenuItem.Icon>
@@ -107,7 +102,7 @@
             </StackPanel>
             <lvc:PieChart Series="{Binding PieSeries}" StartingRotationAngle="0" LegendLocation="Right" Height="300" x:Name="Pie"/>
             <lvc:PieChart Series="{Binding TransactionPieSeries}"  StartingRotationAngle="0" LegendLocation="Bottom" Height="500" x:Name="TransationPieChart" />
-            <Button Click="DodajRekord_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" />
+            <Button Click="AddButton_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" />
         </StackPanel>
     </Grid>
 </Window>
