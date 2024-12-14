@@ -27,14 +27,19 @@
             </Grid.ColumnDefinitions>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_Plik">
-                    <MenuItem Header="_Otwórz" />
-                    <MenuItem Header="_Zapisz" />
-                    <MenuItem Header="_Zapisz jako" />
+                    <MenuItem Header="_Otwórz" 
+                              Click="MenuItem_Otworz_OnClick"/>
+                    <MenuItem Header="_Zapisz" 
+                              Click="MenuItem_Zapisz_OnClick"/>
+                    <MenuItem Header="_Zapisz jako" 
+                              Click="MenuItem_Zapisz_jako_OnClick" />
                     <Separator />
                     <MenuItem Header="_Ustawienia"/>
                     <Separator />
-                    <MenuItem Header="_Zapisz i wyjdź" Click="MenuItem_Plik_Zamknij_OnClick"/>
-                    <MenuItem Header="_Wyjdź" Click="MenuItem_Plik_Zamknij_OnClick"/>
+                    <MenuItem Header="_Zapisz i wyjdź" 
+                              Click="MenuItem_Plik_Zamknij_OnClick"/>
+                    <MenuItem Header="_Wyjdź" 
+                              Click="MenuItem_Plik_Zamknij_OnClick"/>
                 </MenuItem>
                 <MenuItem Header="_Narzędzia">
                     <MenuItem Header="Dodaj Rekord" />
@@ -78,7 +83,7 @@
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Visibility="Collapsed">
-                    <MenuItem Header="Usuń" Click="MenuItem_OnClick">
+                    <MenuItem Header="Usuń" Click="DataGrid_MenuItem_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Icons/Trashcan.png" />
                         </MenuItem.Icon>

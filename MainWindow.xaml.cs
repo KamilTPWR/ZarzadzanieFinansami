@@ -292,7 +292,7 @@ public partial class MainWindow : Window
         }
     }
     
-    private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+    private void DataGrid_MenuItem_OnClick(object sender, RoutedEventArgs e)
     {
         if (MyDataGridView.SelectedItems.Count <= 0)
         {
@@ -326,5 +326,20 @@ public partial class MainWindow : Window
                 UpdateDataGrid();
             }
         }
+    }
+
+    private void MenuItem_Zapisz_jako_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void MenuItem_Zapisz_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void MenuItem_Otworz_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
     }
 }
