@@ -88,7 +88,31 @@ public abstract class DbUtility
         var i = transactions.Count;
         return i;
     }
+    
+    public static void DeleteFromDatabase(int index, string dataBaseName = $"FinanseDataBase.db",
+        string tableName = $"ListaTranzakcji")
+    {
+        var command = $"DELETE FROM {tableName} WHERE ID = {index}";
+        List<Transaction> transactions = new();
+        SQLitePCL.Batteries.Init();
 
+        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+        {
+            try
+            {
+                connection.Open(); 
+                var sqliteCommand = connection.CreateCommand();
+                sqliteCommand.CommandText = command;
+                sqliteCommand.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Nie spodziewany bład", MessageBoxButton.OK, MessageBoxImage.Error);
+                connection.Close();
+            }
+        }
+    }
+    
     private static dynamic IfNotNull<T>(string condition, List<string> columns, SqliteDataReader? reader)
     {
         if (reader == null) throw new NullReferenceException();
@@ -117,28 +141,5 @@ public abstract class DbUtility
         }
 
         throw new NotSupportedException($"The type {typeof(T).Name} is not supported.");
-    }
-    public static void DeleteFromDatabase(int index, string dataBaseName = $"FinanseDataBase.db",
-        string tableName = $"ListaTranzakcji")
-    {
-        var command = $"DELETE FROM {tableName} WHERE ID = {index}";
-        List<Transaction> transactions = new();
-        SQLitePCL.Batteries.Init();
-
-        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
-        {
-            try
-            {
-                connection.Open(); 
-                var sqliteCommand = connection.CreateCommand();
-                sqliteCommand.CommandText = command;
-                sqliteCommand.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Nie spodziewany bład", MessageBoxButton.OK, MessageBoxImage.Error);
-                connection.Close();
-            }
-        }
     }
 }

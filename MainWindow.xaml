@@ -95,7 +95,7 @@
             </StackPanel>
             <lvc:PieChart Series="{Binding PieSeries}" StartingRotationAngle="0" LegendLocation="Right" Height="300" x:Name="Pie"/>
             <lvc:PieChart Series="{Binding TransactionPieSeries}"  StartingRotationAngle="0" LegendLocation="Bottom" Height="500" x:Name="TransationPieChart" />
-            <Button Click="DodajRekord_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" />
+            <Button Click="AddButton_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" />
         </StackPanel>
     </Grid>
 </Window>
