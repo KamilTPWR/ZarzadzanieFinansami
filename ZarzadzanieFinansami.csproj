@@ -14,6 +14,8 @@
         <Content Include="FinanseDataBase.db">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <None Remove="UnixTest\**" />
+        <None Remove="NUnitTest\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,6 +35,21 @@
       <Resource Include="Icons\MainIcon.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="UnixTest\**" />
+      <Compile Remove="NUnitTest\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="UnixTest\**" />
+      <EmbeddedResource Remove="NUnitTest\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Remove="UnixTest\**" />
+      <Page Remove="NUnitTest\**" />
     </ItemGroup>
 
 </Project>
