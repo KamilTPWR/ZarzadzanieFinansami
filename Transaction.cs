@@ -18,6 +18,10 @@ public class Transaction : IComparable<Transaction>
     }
     public int CompareTo(Transaction? other)
     {
-        return other.Kwota.CompareTo(Kwota);
+        if (other != null)
+        {
+            return other.Kwota.CompareTo(Kwota);
+        }
+        return -1;
     }
 }

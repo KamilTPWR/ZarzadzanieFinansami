@@ -12,6 +12,7 @@ public abstract class DbUtility
     public static List<Transaction> GetFromDatabase(string dataBaseName = $"FinanseDataBase.db")
     {
         string command = "SELECT * FROM ListaTranzakcji";
+        //ReSharper disable once UseCollectionExpression, ponieważ po co komplikować proste rzeczy
         List<string> columns = new List<string> {"ID", "Nazwa", "Kwota", "Data", "Uwagi" };
         
         List<Transaction> transactions = new();
@@ -29,12 +30,12 @@ public abstract class DbUtility
                 {
                     while (reader.Read())
                     {
-                        int ID = IfNotNull<int>("ID", columns, reader);
+                        int id = IfNotNull<int>("ID", columns, reader);
                         string name = IfNotNull<string>("Nazwa", columns, reader);
                         double amount = IfNotNull<double>("Kwota", columns, reader);
                         string date = IfNotNull<string>("Data", columns, reader);
                         string remarks = IfNotNull<string>("Uwagi", columns, reader);
-                        transactions.Add(new Transaction(ID,name, amount, date, remarks));
+                        transactions.Add(new Transaction(id,name, amount, date, remarks));
                     }
                 }
             }
@@ -93,7 +94,6 @@ public abstract class DbUtility
         string tableName = $"ListaTranzakcji")
     {
         var command = $"DELETE FROM {tableName} WHERE ID = {index}";
-        List<Transaction> transactions = new();
         SQLitePCL.Batteries.Init();
 
         using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))

@@ -29,10 +29,12 @@
                 <MenuItem Header="_Plik">
                     <MenuItem Header="_Otwórz" />
                     <MenuItem Header="_Zapisz" />
+                    <MenuItem Header="_Zapisz jako" />
                     <Separator />
                     <MenuItem Header="_Ustawienia"/>
                     <Separator />
-                    <MenuItem Header="_Zamknij" Click="MenuItem_Plik_Zamknij_OnClick"/>
+                    <MenuItem Header="_Zapisz i wyjdź" Click="MenuItem_Plik_Zamknij_OnClick"/>
+                    <MenuItem Header="_Wyjdź" Click="MenuItem_Plik_Zamknij_OnClick"/>
                 </MenuItem>
                 <MenuItem Header="_Narzędzia">
                     <MenuItem Header="Dodaj Rekord" />
