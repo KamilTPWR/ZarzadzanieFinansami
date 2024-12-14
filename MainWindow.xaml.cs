@@ -1,21 +1,9 @@
-﻿using System.Data;
-using Microsoft.Data.Sqlite;
-using System.Media;
-using System.Reflection;
-using System.Text;
+﻿using LiveCharts;
+using LiveCharts.Wpf;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.CodeDom;
-using LiveCharts;
-using LiveCharts.Wpf;
 
 namespace ZarzadzanieFinansami;
 
@@ -39,9 +27,9 @@ public partial class MainWindow : Window
         SetConstants();
     }
 
-/***********************************************************************************************************************/
-/*                                                Private Methods                                                      */
-/***********************************************************************************************************************/
+    /***********************************************************************************************************************/
+    /*                                                Private Methods                                                      */
+    /***********************************************************************************************************************/
 
     private void SetConstants()
     {
@@ -58,7 +46,7 @@ public partial class MainWindow : Window
         DataGridUtility.UpdateDataGridView(MyDataGridView);
         ButtonNumberControll.Content = Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
     }
-    
+
     private void UpdateDataGrid()
     {
         MyDataGridView.ContextMenu!.Visibility = Visibility.Visible;
@@ -74,20 +62,20 @@ public partial class MainWindow : Window
         UpdatePieChart();
         UpdateTransactionPieChart();
     }
-    
+
     private void UpdatePieChart()
     {
         double x = GetSaldoFromDatabase() * 1.5;
         double zostalo = GetSaldoFromDatabase();
-        
+
         double wydano = x - zostalo;
         PieSeries = new SeriesCollection{
-                new PieSeries { Title = "Wydati", Values = new ChartValues<double> {Math.Round(zostalo, 2)}, DataLabels = true },
+                new PieSeries { Title = "Wydatki", Values = new ChartValues<double> {Math.Round(zostalo, 2)}, DataLabels = true },
                 new PieSeries { Title = "Wolny budzet", Values = new ChartValues<double> {Math.Round(wydano, 2)}, DataLabels = true }
             };
         DataContext = this;
     }
-    
+
     private void UpdateTransactionPieChart()
     {
         var transactions = DbUtility.GetFromDatabase();
@@ -116,16 +104,16 @@ public partial class MainWindow : Window
         DataContext = Transactions;
         return returnValue;
     }
-    
+
     private void ChangeSaldoEvent()
     {
-        Saldo.Text = $"Saldo: {GetSaldoFromDatabase()*0.5:F2} $";
+        Saldo.Text = $"Saldo: {GetSaldoFromDatabase() * 0.5:F2} $";
         Wydatki.Text = $"Wydatki: {GetSaldoFromDatabase():F2} $";
     }
-    
-/***********************************************************************************************************************/
-/*                                                Clock Events                                                         */
-/***********************************************************************************************************************/
+
+    /***********************************************************************************************************************/
+    /*                                                Clock Events                                                         */
+    /***********************************************************************************************************************/
 
     private void StartClock()
     {
@@ -140,27 +128,27 @@ public partial class MainWindow : Window
         SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
     }
 
-/***********************************************************************************************************************/
-/*                                         Auto Events Handlers                                                        */
-/***********************************************************************************************************************/
+    /***********************************************************************************************************************/
+    /*                                         Auto Events Handlers                                                        */
+    /***********************************************************************************************************************/
 
     private void MyDataGridView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (Constants.STATICNUMBEROFCOLUMNS == MyDataGridView.Columns.Count) DataGridUtility.UpdateDataGridView(MyDataGridView);
     }
-    
+
     private void MyDataGridView_OnBeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
     {
         e.Cancel = true;
     }
-    
+
     private void MyDataGridView_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateDataGrid();
         DataGridUtility.UpdateDataGridView(MyDataGridView);
         UpdateWindow();
     }
-    
+
     private void DataGrid_MenuItem_OnClick(object sender, RoutedEventArgs e)
     {
         if (MyDataGridView.SelectedItems.Count <= 0)
@@ -196,7 +184,7 @@ public partial class MainWindow : Window
             }
         }
     }
-    
+
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
         if (_fIsClosing) return;
@@ -213,10 +201,10 @@ public partial class MainWindow : Window
                 break;
         }
     }
-    
-/***********************************************************************************************************************/
-/*                                              Events Handlers                                                        */
-/***********************************************************************************************************************/    
+
+    /***********************************************************************************************************************/
+    /*                                              Events Handlers                                                        */
+    /***********************************************************************************************************************/
 
     private void AddButton_OnClick(object sender, RoutedEventArgs e)
     {
@@ -224,14 +212,14 @@ public partial class MainWindow : Window
         increaseSaldo.ShowDialog();
         UpdateWindow();
     }
-    
+
     private void ButtonNumberControll_OnClick(object sender, RoutedEventArgs e)
     {
         var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
         numberOfRecordsOnPage.ShowDialog();
         UpdateWindow();
     }
-    
+
     private void ButtonRight_OnClick(object sender, RoutedEventArgs e)
     {
         if (Core.Page < Core.PagesNumber())
@@ -241,7 +229,7 @@ public partial class MainWindow : Window
         }
         e.Handled = true;
     }
-    
+
     private void ButtonLeft_OnClick(object sender, RoutedEventArgs e)
     {
         if (Core.Page > 1)
@@ -253,9 +241,9 @@ public partial class MainWindow : Window
     }
 
 
-/***********************************************************************************************************************/
-/*                                                 ContextMenuLogic                                                    */
-/***********************************************************************************************************************/
+    /***********************************************************************************************************************/
+    /*                                                 ContextMenuLogic                                                    */
+    /***********************************************************************************************************************/
 
     private void MyDataGridView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
@@ -272,10 +260,10 @@ public partial class MainWindow : Window
                 DbUtility.DeleteFromDatabase((dataItem as Transaction)!.ID);
                 UpdateDataGrid();
             }
-    
+
         }
     }
-    
+
     private void MyDataGridView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         DataGrid dataGrid = (sender as DataGrid)!;
@@ -306,25 +294,28 @@ public partial class MainWindow : Window
         }
     }
 
-/***********************************************************************************************************************/
-/*                                           Menu Items Events Handlers                                                */
-/***********************************************************************************************************************/
+    /***********************************************************************************************************************/
+    /*                                           Menu Items Events Handlers                                                */
+    /***********************************************************************************************************************/
 
     private void MenuItem_Otworz_OnClick(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        DbUtility.OpenDatabase();
+        UpdateDataGrid();
     }
-    
-    private void MenuItem_Zapisz_OnClick(object sender, RoutedEventArgs e)
+
+    private void MenuItem_Nowa_OnClick(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        DbUtility.CreateDatabase();
+        UpdateDataGrid();
     }
-    
+
     private void MenuItem_Zapisz_jako_OnClick(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        DbUtility.SaveDatabase();
+        UpdateDataGrid();
     }
-    
+
     private void MenuItem_View_OnClick(object sender, RoutedEventArgs e)
     {
         var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);

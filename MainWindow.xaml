@@ -29,8 +29,8 @@
                 <MenuItem Header="_Plik">
                     <MenuItem Header="_Otwórz" 
                               Click="MenuItem_Otworz_OnClick"/>
-                    <MenuItem Header="_Zapisz" 
-                              Click="MenuItem_Zapisz_OnClick"/>
+                    <MenuItem Header="_Nowa" 
+                              Click="MenuItem_Nowa_OnClick"/>
                     <MenuItem Header="_Zapisz jako" 
                               Click="MenuItem_Zapisz_jako_OnClick" />
                     <Separator />
