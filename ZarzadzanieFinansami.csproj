@@ -25,12 +25,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Icons\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Remove="Icons\kisspng-pixel-c-pixel-art-waste-openbsd-garbage-5ad101ddaa92a0.8790271015236469416987.png" />
       <Resource Include="Icons\Trashcan.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\Excel File +.png" />
+      <Resource Include="Icons\MainIcon.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
     </ItemGroup>
