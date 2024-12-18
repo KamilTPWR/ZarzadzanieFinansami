@@ -188,6 +188,7 @@ public abstract class DbUtility
 
         throw new NotSupportedException($"The type {typeof(T).Name} is not supported.");
     }
+    
     public static void CreateDatabase()
     {
         var dialog = new Microsoft.Win32.SaveFileDialog
@@ -219,6 +220,7 @@ public abstract class DbUtility
             }
         }
     }
+    
     public static void OpenDatabase()
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
@@ -279,6 +281,7 @@ public abstract class DbUtility
             }
         }
     }
+    
     public static void SaveDatabase()
     {
         var dialog = new Microsoft.Win32.SaveFileDialog
@@ -303,6 +306,7 @@ public abstract class DbUtility
             }
         }
     }
+    
     private static string ReturnDataBasePath()
     {
         if (string.IsNullOrEmpty(DataBasePath))
@@ -315,6 +319,7 @@ public abstract class DbUtility
         }
         return DataBasePath;
     }
+    
     private static string NormalizeSchema(string schema)
     {
         return schema
@@ -325,4 +330,5 @@ public abstract class DbUtility
         .Trim()
         .ToLowerInvariant();
     }
+    
 }
