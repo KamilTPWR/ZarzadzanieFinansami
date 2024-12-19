@@ -114,10 +114,10 @@
             <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <TextBlock x:Name="Saldo" FontSize="30" />
             </StackPanel>
-            
             <StackPanel Grid.Row="1" Orientation="Horizontal">
                 <TextBlock x:Name="Wydatki" FontSize="30" />
             </StackPanel>
+            
             <lvc:PieChart Grid.Row="2"
                           Series="{Binding PieSeries}" 
                           StartingRotationAngle="0" 
