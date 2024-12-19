@@ -1,105 +1,88 @@
 ﻿using Microsoft.Data.Sqlite;
 using System.IO;
 using System.Windows;
+using Microsoft.Win32;
 
 namespace ZarzadzanieFinansami;
 
 public abstract class DbUtility
 {
-    public static string DataBasePath = "";
+    private static string _dataBasePath = String.Empty;
+    
     public static List<Transaction> GetFromDatabase()
     {
-        try
+        string dataBaseName = ReturnDataBasePath();
+        EnsureNotEmpty(dataBaseName);
+        string command = "SELECT * FROM ListaTranzakcji";
+        List<string> columns = Constants.DEFAULTCOLUMNS;
+
+        List<Transaction> transactions = new();
+        SQLitePCL.Batteries.Init();
+
+        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
         {
-            string dataBaseName = DbUtility.ReturnDataBasePath();
-            if (dataBaseName == "")
+            try
             {
-                throw new Exception("Nie zostala wybrana baza danych");
-            }
-            string command = "SELECT * FROM ListaTranzakcji";
-            //ReSharper disable once UseCollectionExpression, ponieważ po co komplikować proste rzeczy
-            List<string> columns = new List<string> { "ID", "Nazwa", "Kwota", "Data", "Uwagi" };
-
-            List<Transaction> transactions = new();
-            SQLitePCL.Batteries.Init();
-
-            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
-            {
-                try
+                connection.Open();
+                var sqliteCommand = connection.CreateCommand();
+                sqliteCommand.CommandText = command;
+                using (var reader = sqliteCommand.ExecuteReader())
                 {
-                    connection.Open();
-                    var sqliteCommand = connection.CreateCommand();
-                    sqliteCommand.CommandText = command;
-
-                    using (var reader = sqliteCommand.ExecuteReader())
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            int id = IfNotNull<int>("ID", columns, reader);
-                            string name = IfNotNull<string>("Nazwa", columns, reader);
-                            double amount = IfNotNull<double>("Kwota", columns, reader);
-                            string date = IfNotNull<string>("Data", columns, reader);
-                            string remarks = IfNotNull<string>("Uwagi", columns, reader);
-                            transactions.Add(new Transaction(id, name, amount, date, remarks));
-                        }
+                        int id = TryGetValue<int>("ID", columns, reader);
+                        string name = TryGetValue<string>("Nazwa", columns, reader);
+                        double amount = TryGetValue<double>("Kwota", columns, reader);
+                        string date = TryGetValue<string>("Data", columns, reader);
+                        string remarks = TryGetValue<string>("Uwagi", columns, reader);
+                        transactions.Add(new Transaction(id, name, amount, date, remarks));
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK, MessageBoxImage.Error);
-                    connection.Close();
-                }
             }
-
-            return transactions;
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                connection.Close();
+            }
         }
-        catch (Exception ex)
-        {
-            return new List<Transaction>();
-        }
+        return transactions;
     }
 
     public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi)
     {
-        try
+        string dataBaseName = ReturnDataBasePath();
+        EnsureNotEmpty(dataBaseName);
+
+        if (double.TryParse(kwotaText, out var kwota))
         {
-            string dataBaseName = DbUtility.ReturnDataBasePath();
-            if (dataBaseName == "")
-            {
-                throw new Exception("Nie zostala wybrana baza danych");
-            }
-            if (double.TryParse(kwotaText, out var kwota))
-            {
-                SQLitePCL.Batteries.Init();
+            SQLitePCL.Batteries.Init();
 
-                try
+            try
+            {
+                using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
                 {
-
-                    using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
-                    {
-                        connection.Open();
-                        var command = connection.CreateCommand();
-                        command.CommandText =
-                            "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi) VALUES ($nazwa, $kwota, $data, $uwagi)";
-                        command.Parameters.AddWithValue("$nazwa", nazwa);
-                        command.Parameters.AddWithValue("$kwota", kwota);
-                        command.Parameters.AddWithValue("$data", data);
-                        command.Parameters.AddWithValue("$uwagi", uwagi);
-                        command.ExecuteNonQuery();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Nie spodziewany bład SaveTransaction", MessageBoxButton.OK, MessageBoxImage.Error);
+                    connection.Open();
+                    var command = connection.CreateCommand();
+                    command.CommandText =
+                        "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi) VALUES ($nazwa, $kwota, $data, $uwagi)";
+                    command.Parameters.AddWithValue("$nazwa", nazwa);
+                    command.Parameters.AddWithValue("$kwota", kwota);
+                    command.Parameters.AddWithValue("$data", data);
+                    command.Parameters.AddWithValue("$uwagi", uwagi);
+                    command.ExecuteNonQuery();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Invalid input for Kwota. Please enter a numeric value.");
+                MessageBox.Show(ex.Message, "Nie spodziewany bład SaveTransaction", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
-        catch (Exception ex)
+        else
         {
+            MessageBox.Show("Błąd", "Nie udało się zapisać w bazie danych", MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 
@@ -107,11 +90,8 @@ public abstract class DbUtility
     {
         try
         {
-            string dataBaseName = DbUtility.ReturnDataBasePath();
-            if (dataBaseName == "")
-            {
-                throw new Exception("Nie zostala wybrana baza danych");
-            }
+            string dataBaseName = ReturnDataBasePath();
+            EnsureNotEmpty(dataBaseName);
             List<Transaction> transactions = GetFromDatabase();
             if (transactions == null)
             {
@@ -120,7 +100,7 @@ public abstract class DbUtility
             var i = transactions.Count;
             return i;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return 0;
         }
@@ -130,11 +110,8 @@ public abstract class DbUtility
     {
         try
         {
-            string dataBaseName = DbUtility.ReturnDataBasePath();
-            if (dataBaseName == "")
-            {
-                throw new Exception("Nie zostala wybrana baza danych");
-            }
+            string dataBaseName = ReturnDataBasePath();
+            EnsureNotEmpty(dataBaseName);
             var command = $"DELETE FROM {tableName} WHERE ID = {index}";
             SQLitePCL.Batteries.Init();
 
@@ -159,8 +136,143 @@ public abstract class DbUtility
             MessageBox.Show(ex.Message);
         }
     }
+    
+    /***********************************************************************************************************************/
+    /*                                                Dialog Winodws                                                       */
+    /***********************************************************************************************************************/   
+    
+    public static void CreateDatabase()
+    {
+        var dialog = CreateSaveFileDialog();
+        var result = dialog.ShowDialog();
+        if (result != true) return;
+        _dataBasePath = dialog.FileName;
+        try
+        {
+            File.Copy("FinanseDataBase.db", _dataBasePath, overwrite: false);
+        }
+        catch (IOException copyError)
+        {
+            MessageBox.Show($"Error: {copyError.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+    
+    public static void OpenDatabase()
+    {
+        var dialog = OpenFileDialog();
+        var result = dialog.ShowDialog();
+        if (result != true) return;
+        _dataBasePath = dialog.FileName;
+        try
+        {
+            using (var connection = new SqliteConnection($"Data Source={_dataBasePath}"))
+            {
+                int temp = 0;
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT sql FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence'";
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var actualSchema = reader.GetString(0);
+                        if (actualSchema == String.Empty)
+                        {
+                            throw new Exception("Table does not exist");
+                        }
+                        if (NormalizeSchema(actualSchema) == NormalizeSchema(Constants.EXPECTEDSCHAMES[temp]))
+                        {
+                            temp++;
+                        }
+                        else
+                        {
+                            throw new Exception("Table structures dont match");
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            _dataBasePath = String.Empty;
+        }
+    }
+    
+    public static void SaveDatabase()
+    {
+        var dialog = SaveFileDialog();
 
-    private static dynamic IfNotNull<T>(string condition, List<string> columns, SqliteDataReader? reader)
+        bool? result = dialog.ShowDialog();
+
+        if (result == true)
+        {
+            string tempPath = dialog.FileName;
+            try
+            {
+                File.Copy(_dataBasePath, tempPath, overwrite: false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+    
+    private static SaveFileDialog CreateSaveFileDialog()
+    {
+        var dialog = new SaveFileDialog
+        {
+            FileName = "database.db",
+            Filter = "SQLite Database Files (*.db)|*.db",
+            Title = "Zapisz Plik"
+        };
+        return dialog;
+    }
+    
+    private static OpenFileDialog OpenFileDialog()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = "SQLite Database Files (*.db)|*.db|All Files (*.*)|*.*",
+            Title = "Select an SQLite Database File"
+        };
+        return dialog;
+    }
+    
+    private static SaveFileDialog SaveFileDialog()
+    {
+        var dialog = new SaveFileDialog
+        {
+            FileName = "database.db",
+            Filter = "SQLite Database Files (*.db)|*.db",
+            Title = "Save SQLite Database"
+        };
+        return dialog;
+    }
+    
+    /***********************************************************************************************************************/
+    /*                                                Private Methods                                                      */
+    /***********************************************************************************************************************/  
+    
+    private static string ReturnDataBasePath()
+    {
+        if (string.IsNullOrEmpty(_dataBasePath))
+        {
+            return String.Empty;
+        }
+        if (!File.Exists(_dataBasePath))
+        {
+            return String.Empty;
+        }
+        return _dataBasePath;
+    }
+    
+    private static dynamic TryGetValue<T>(string condition, List<string> columns, SqliteDataReader? reader)
     {
         if (reader == null) throw new NullReferenceException();
         if (typeof(T) == typeof(double))
@@ -190,146 +302,23 @@ public abstract class DbUtility
         throw new NotSupportedException($"The type {typeof(T).Name} is not supported.");
     }
     
-    public static void CreateDatabase()
-    {
-        var dialog = new Microsoft.Win32.SaveFileDialog
-        {
-            FileName = "database.db",
-            Filter = "SQLite Database Files (*.db)|*.db",
-            Title = "Save SQLite Database"
-        };
-
-        // Show save file dialog box
-        bool? result = dialog.ShowDialog();
-
-        if (result == true)
-        {
-            DataBasePath = dialog.FileName;
-
-            try
-            {
-                // Copy the base database file to the selected location
-                File.Copy("FinanseDataBase.db", DataBasePath, overwrite: false);
-            }
-            catch (IOException copyError)
-            {
-                MessageBox.Show($"Error: {copyError.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-    }
-    
-    public static void OpenDatabase()
-    {
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            Filter = "SQLite Database Files (*.db)|*.db|All Files (*.*)|*.*",
-            Title = "Select an SQLite Database File"
-        };
-        
-        bool? result = dialog.ShowDialog();
-        
-        if (result == true)
-        {
-            DataBasePath = dialog.FileName;
-
-            //Schemat wszystich tabelek
-            string[] expectedSchemas = [
-                "CREATE TABLE \"ListaTranzakcji\" (\r\n\t\"ID\"\tINTEGER NOT NULL,\r\n\t\"Nazwa\"\tTEXT NOT NULL,\r\n\t\"Kwota\"\tREAL NOT NULL,\r\n\t\"Data\"\tTEXT NOT NULL,\r\n\t\"Uwagi\"\tTEXT,\r\n\tPRIMARY KEY(\"ID\" AUTOINCREMENT)\r\n)",
-                "CREATE TABLE \"Rachunki\" (\r\n\t\"ID\"\tINTEGER NOT NULL,\r\n\t\"Nazwa\"\tTEXT,\r\n\t\"Saldo\"\tREAL NOT NULL,\r\n\tPRIMARY KEY(\"ID\" AUTOINCREMENT)\r\n)",
-                "CREATE TABLE \"KontoOszczednosciowe\" (\r\n\t\"ID\"\tINTEGER NOT NULL,\r\n\t\"IDkonta\"\tINTEGER NOT NULL,\r\n\tPRIMARY KEY(\"ID\" AUTOINCREMENT),\r\n\tCONSTRAINT \"KluczObcy\" FOREIGN KEY(\"IDkonta\") REFERENCES \"\"\r\n)",
-                "CREATE TABLE main_ListaTranzakcji\r\n(\r\n    ID    INTEGER,\r\n    Nazwa TEXT,\r\n    Kwota REAL,\r\n    Data  TEXT,\r\n    Uwagi TEXT\r\n)"
-            ];
-            int temp = 0;
-            try
-            {
-                using (var connection = new SqliteConnection($"Data Source={DataBasePath}"))
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = "SELECT sql FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence'";
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var actualSchema = reader.GetString(0);
-                            if (actualSchema != String.Empty)
-                            {
-                                if (NormalizeSchema(actualSchema) == NormalizeSchema(expectedSchemas[temp]))
-                                {
-                                    temp++;
-                                }
-                                else
-                                {
-                                    throw new Exception("Table structures dont match");
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception("Table does not exist");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                DataBasePath = "";
-            }
-        }
-    }
-    
-    public static void SaveDatabase()
-    {
-        var dialog = new Microsoft.Win32.SaveFileDialog
-        {
-            FileName = "database.db",
-            Filter = "SQLite Database Files (*.db)|*.db",
-            Title = "Save SQLite Database"
-        };
-
-        bool? result = dialog.ShowDialog();
-
-        if (result == true)
-        {
-            string tempPath = dialog.FileName;
-            try
-            {
-                File.Copy(DataBasePath, tempPath, overwrite: false);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-    }
-    
-    private static string ReturnDataBasePath()
-    {
-        if (string.IsNullOrEmpty(DataBasePath))
-        {
-            return "";
-        }
-        if (!File.Exists(DataBasePath))
-        {
-            return "";
-        }
-        return DataBasePath;
-    }
-    
     private static string NormalizeSchema(string schema)
     {
         return schema
-        .Replace("\r", "")
-        .Replace("\n", "")
-        .Replace("\t", "")
-        .Replace("\"", "'")
-        .Trim()
-        .ToLowerInvariant();
+            .Replace("\r", "")
+            .Replace("\n", "")
+            .Replace("\t", "")
+            .Replace("\"", "'")
+            .Trim()
+            .ToLowerInvariant();
+    }
+    
+    private static void EnsureNotEmpty(string dataBaseName)
+    {
+        if (dataBaseName == String.Empty)
+        {
+            throw new Exception("Nie zostala wybrana baza danych");
+        }
     }
     
 }
