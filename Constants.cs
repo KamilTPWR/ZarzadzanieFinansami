@@ -3,7 +3,7 @@ using LiveCharts.Wpf;
 
 namespace ZarzadzanieFinansami;
 
-public class Constants
+public abstract class Constants
 {
     public static int NUMBEROFROWS = 50;
     public static readonly int STATICNUMBEROFCOLUMNS = 5;

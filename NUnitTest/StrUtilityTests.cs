@@ -9,7 +9,7 @@ public class StrUtilityTests
     {
         string input = "123,456";
         
-        bool result = StrUtillity.IsNumberFormatValid(input);
+        bool result = StrUtility.IsNumberFormatValid(input);
         
         Assert.That(result, Is.True);
     }
@@ -19,7 +19,7 @@ public class StrUtilityTests
     {
         string input = "123a456";
         
-        bool result = StrUtillity.IsNumberFormatValid(input);
+        bool result = StrUtility.IsNumberFormatValid(input);
         
         Assert.That(result, Is.False);
     }
@@ -30,7 +30,7 @@ public class StrUtilityTests
         string input = "Pięć";
         int size = 10;
 
-        string result = StrUtillity.CropString(input, size);
+        string result = StrUtility.CropString(input, size);
         
         Assert.That(result, Is.EqualTo("Pięć"));
     }
@@ -41,7 +41,7 @@ public class StrUtilityTests
         string input = "qwertyuiop";
         int size = 5;
         
-        string result = StrUtillity.CropString(input, size);
+        string result = StrUtility.CropString(input, size);
         
         Assert.That(result, Is.EqualTo("qwert"));
     }
@@ -53,7 +53,7 @@ public class StrUtilityTests
         string input = "123456";
 
          
-        int result = StrUtillity.NumberOfDigitsAfterComa(input);
+        int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
         Assert.That(result, Is.EqualTo(0));
@@ -66,7 +66,7 @@ public class StrUtilityTests
         string input = "123,456";
 
          
-        int result = StrUtillity.NumberOfDigitsAfterComa(input);
+        int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
         Assert.AreEqual(3, result);
@@ -79,7 +79,7 @@ public class StrUtilityTests
         string input = "123.";
 
          
-        int result = StrUtillity.NumberOfDigitsAfterComa(input);
+        int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
         Assert.That(result, Is.EqualTo(0));
@@ -92,7 +92,7 @@ public class StrUtilityTests
         string input = "123,";
 
          
-        int result = StrUtillity.NumberOfDigitsAfterComa(input);
+        int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
         Assert.That(result, Is.EqualTo(0));
@@ -105,7 +105,7 @@ public class StrUtilityTests
         string input = "123,,123";
 
          
-        int result = StrUtillity.NumberOfDigitsAfterComa(input);
+        int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
         Assert.That(result, Is.EqualTo(-1));
@@ -118,7 +118,7 @@ public class StrUtilityTests
         string input = ",,";
 
          
-        int result = StrUtillity.NumberOfDigitsAfterComa(input);
+        int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
         Assert.That(result, Is.EqualTo(-1));
@@ -131,7 +131,7 @@ public class StrUtilityTests
         string input = String.Empty;
 
          
-        int result = StrUtillity.NumberOfDigitsAfterComa(input);
+        int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
         Assert.That(result, Is.EqualTo(0));

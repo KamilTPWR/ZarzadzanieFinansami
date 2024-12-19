@@ -87,7 +87,7 @@ public partial class IncreaseSaldo
     private void KwotaTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
-        if (!StrUtillity.IsNumberFormatValid(e.Text))
+        if (!StrUtility.IsNumberFormatValid(e.Text))
         {
             e.Handled = true;
         }
@@ -100,7 +100,7 @@ public partial class IncreaseSaldo
             _fFirstTimeImput = false;
             Pkwota = textBox.Text;
             e.Handled = true;
-            textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectionStart = Pkwota.Length - 1 - StrUtillity.NumberOfDigitsAfterComa(Pkwota)));
+            textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectionStart = Pkwota.Length - 1 - StrUtility.NumberOfDigitsAfterComa(Pkwota)));
         }
         else
         {
@@ -114,7 +114,7 @@ public partial class IncreaseSaldo
                 Pkwota += ",";
                 textBox.Text = Pkwota;
             }
-            textBox.SelectionStart = textBox.Text.Length - StrUtillity.NumberOfDigitsAfterComa(textBox.Text);
+            textBox.SelectionStart = textBox.Text.Length - StrUtility.NumberOfDigitsAfterComa(textBox.Text);
             e.Handled = true;
         }
     }
@@ -123,7 +123,7 @@ public partial class IncreaseSaldo
         TextBox textBox = (sender as TextBox)!;
         Pkwota = textBox.Text;
         
-        if (!StrUtillity.IsNumberFormatValid(textBox.Text) || Pkwota == "")
+        if (!StrUtility.IsNumberFormatValid(textBox.Text) || Pkwota == "")
         {
             textBox.Text = "0,00";
             Pkwota = String.Empty;
@@ -131,10 +131,10 @@ public partial class IncreaseSaldo
         }
 
         textBox.Text = textBox.Text.Trim();
-        if (StrUtillity.NumberOfDigitsAfterComa(textBox.Text) > 2)
+        if (StrUtility.NumberOfDigitsAfterComa(textBox.Text) > 2)
         {
             var temp = textBox.SelectionStart;
-            textBox.Text = StrUtillity.CropString(textBox.Text, textBox.Text.Length - StrUtillity.NumberOfDigitsAfterComa(textBox.Text) + 2);
+            textBox.Text = StrUtility.CropString(textBox.Text, textBox.Text.Length - StrUtility.NumberOfDigitsAfterComa(textBox.Text) + 2);
             textBox.SelectionStart = temp;
         }
     }
@@ -174,7 +174,7 @@ public partial class IncreaseSaldo
             else
             {
                 string clipboardText = e.DataObject.GetData(DataFormats.Text) as string ?? throw new NullReferenceException();
-                if (string.IsNullOrWhiteSpace(clipboardText) || !StrUtillity.IsNumberFormatValid(clipboardText)) e.CancelCommand();
+                if (string.IsNullOrWhiteSpace(clipboardText) || !StrUtility.IsNumberFormatValid(clipboardText)) e.CancelCommand();
                 else
                 {
                     Pkwota = clipboardText;
