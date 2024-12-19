@@ -12,41 +12,48 @@ public abstract class DbUtility
     public static List<Transaction> GetFromDatabase()
     {
         string dataBaseName = ReturnDataBasePath();
-        EnsureNotEmpty(dataBaseName);
-        string command = "SELECT * FROM ListaTranzakcji";
-        List<string> columns = Constants.DEFAULTCOLUMNS;
-
-        List<Transaction> transactions = new();
-        SQLitePCL.Batteries.Init();
-
-        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+        try
         {
-            try
+            EnsureNotEmpty(dataBaseName);
+            string command = "SELECT * FROM ListaTranzakcji";
+            List<string> columns = Constants.DEFAULTCOLUMNS;
+
+            List<Transaction> transactions = new();
+            SQLitePCL.Batteries.Init();
+
+            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
             {
-                connection.Open();
-                var sqliteCommand = connection.CreateCommand();
-                sqliteCommand.CommandText = command;
-                using (var reader = sqliteCommand.ExecuteReader())
+                try
                 {
-                    while (reader.Read())
+                    connection.Open();
+                    var sqliteCommand = connection.CreateCommand();
+                    sqliteCommand.CommandText = command;
+                    using (var reader = sqliteCommand.ExecuteReader())
                     {
-                        int id = TryGetValue<int>("ID", columns, reader);
-                        string name = TryGetValue<string>("Nazwa", columns, reader);
-                        double amount = TryGetValue<double>("Kwota", columns, reader);
-                        string date = TryGetValue<string>("Data", columns, reader);
-                        string remarks = TryGetValue<string>("Uwagi", columns, reader);
-                        transactions.Add(new Transaction(id, name, amount, date, remarks));
+                        while (reader.Read())
+                        {
+                            int id = TryGetValue<int>("ID", columns, reader);
+                            string name = TryGetValue<string>("Nazwa", columns, reader);
+                            double amount = TryGetValue<double>("Kwota", columns, reader);
+                            string date = TryGetValue<string>("Data", columns, reader);
+                            string remarks = TryGetValue<string>("Uwagi", columns, reader);
+                            transactions.Add(new Transaction(id, name, amount, date, remarks));
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    connection.Close();
+                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                connection.Close();
-            }
+            return transactions;
         }
-        return transactions;
+        catch (Exception ex)
+        {
+            return new List<Transaction>();
+        }
     }
 
     public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi)
