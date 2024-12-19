@@ -28,12 +28,25 @@
 
     <ItemGroup>
       <None Remove="Icons\kisspng-pixel-c-pixel-art-waste-openbsd-garbage-5ad101ddaa92a0.8790271015236469416987.png" />
-      <Resource Include="Icons\Trashcan.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\Excel File +.png" />
       <Resource Include="Icons\MainIcon.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\saveAs.png" />
+      <Resource Include="Icons\saveAs.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\OpenFile.png" />
+      <Resource Include="Icons\OpenFile.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\NewFile.png" />
+      <Resource Include="Icons\NewFile.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\Bin.png" />
+      <Resource Include="Icons\Bin.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Resource>
     </ItemGroup>
 

@@ -27,12 +27,21 @@
             </Grid.ColumnDefinitions>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_Plik">
-                    <MenuItem Header="_Otwórz" 
-                              Click="MenuItem_Otworz_OnClick"/>
-                    <MenuItem Header="_Nowa" 
-                              Click="MenuItem_Nowa_OnClick"/>
-                    <MenuItem Header="_Zapisz jako" 
-                              Click="MenuItem_Zapisz_jako_OnClick" />
+                    <MenuItem Header="_Otwórz" Click="MenuItem_Otworz_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/OpenFile.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Nowa" Click="MenuItem_Nowa_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/NewFile.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Zapisz jako" Click="MenuItem_Zapisz_jako_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/saveAs.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <Separator />
                     <MenuItem Header="_Ustawienia"/>
                     <Separator />
@@ -85,7 +94,7 @@
                 <ContextMenu Visibility="Collapsed">
                     <MenuItem Header="Usuń" Click="DataGrid_MenuItem_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/Trashcan.png" />
+                            <Image Source="Icons/Bin.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
@@ -93,16 +102,39 @@
         </DataGrid>
 
         <!-- Prawa dolna  -->
-        <StackPanel Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom">
-            <StackPanel Orientation="Horizontal">
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="5*" />
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <TextBlock x:Name="Saldo" FontSize="30" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
+            
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
                 <TextBlock x:Name="Wydatki" FontSize="30" />
             </StackPanel>
-            <lvc:PieChart Series="{Binding PieSeries}" StartingRotationAngle="0" LegendLocation="Right" Height="300" x:Name="Pie"/>
-            <lvc:PieChart Series="{Binding TransactionPieSeries}"  StartingRotationAngle="0" LegendLocation="Bottom" Height="500" x:Name="TransationPieChart" />
-            <Button Click="AddButton_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" />
-        </StackPanel>
+            
+            <lvc:PieChart Grid.Row="2"
+                          Series="{Binding PieSeries}" 
+                          StartingRotationAngle="0" 
+                          LegendLocation="Right" 
+                          DisableAnimations="True" 
+                          x:Name="Pie">
+            </lvc:PieChart>
+
+            <lvc:PieChart Grid.Row="3"
+                          Series="{Binding TransactionPieSeries}"  
+                          StartingRotationAngle="0" 
+                          LegendLocation="Right" 
+                          DisableAnimations="False" 
+                          x:Name="TransactionPieChart">
+            </lvc:PieChart>
+            <Button Grid.Row="4" Click="AddButton_OnClick" Height="20" Content="Dodaj Rekord" Margin="10" x:Name="AddButtonName"/>
+        </Grid>
     </Grid>
 </Window>

@@ -18,28 +18,28 @@ public class TransactionTests
     [Test]
     public void CompareTo_ShouldCompareKwotaCorrectly()
     {
-        // Arrange
+          
         var transaction1 = new Transaction(1, "Test1", 200.0, " ", " ");
         var transaction2 = new Transaction(2, "Test2", 300.0, " ", " ");
 
-        // Act
+         
         int result = transaction1.CompareTo(transaction2);
 
-        // Assert
+           
         Assert.That(result, Is.EqualTo(1));
     }
 
     [Test]
     public void CompareTo_ShouldReturnZero_WhenKwotaIsEqual()
     {
-        // Arrange
+          
         var transaction1 = new Transaction(1, "Test1", 200.0, " ", " ");
         var transaction2 = new Transaction(2, "Test2", 200.0, " ", " ");
 
-        // Act
+         
         int result = transaction1.CompareTo(transaction2);
 
-        // Assert
+           
         Assert.That(result, Is.EqualTo(0)); 
     }
 }

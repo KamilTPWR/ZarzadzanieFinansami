@@ -156,6 +156,7 @@ public abstract class DbUtility
         }
         catch (Exception ex)
         {
+            MessageBox.Show(ex.Message);
         }
     }
 

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using LiveCharts.Dtos;
 
 namespace ZarzadzanieFinansami;
 
@@ -43,6 +44,7 @@ public partial class MainWindow : Window
         PageTextBlock.Text = " " + Core.Page + "-" + Core.PagesNumber() + " ";
         ChangeSaldoEvent();
         UpdateDataGrid();
+        UpdatePieChart();
         DataGridUtility.UpdateDataGridView(MyDataGridView);
         ButtonNumberControll.Content = Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
     }
@@ -67,12 +69,14 @@ public partial class MainWindow : Window
     {
         double x = GetSaldoFromDatabase() * 1.5;
         double zostalo = GetSaldoFromDatabase();
-
         double wydano = x - zostalo;
-        PieSeries = new SeriesCollection{
-                new PieSeries { Title = "Wydatki", Values = new ChartValues<double> {Math.Round(zostalo, 2)}, DataLabels = true },
-                new PieSeries { Title = "Wolny budzet", Values = new ChartValues<double> {Math.Round(wydano, 2)}, DataLabels = true }
-            };
+        Pie.SeriesColors = Constants.COLORS;
+        PieSeries = new SeriesCollection
+        {
+            CreateSetupSeries(),
+            CreatePieSeries("Wolny budzet", wydano),
+            CreatePieSeries("Zostało",zostalo),
+        };
         DataContext = this;
     }
 
@@ -80,7 +84,11 @@ public partial class MainWindow : Window
     {
         var transactions = DbUtility.GetFromDatabase();
         transactions.Sort((x, y) => y.Kwota.CompareTo(x.Kwota));
-        TransactionPieSeries = new SeriesCollection();
+        TransactionPieSeries = new SeriesCollection
+        {
+            CreateSetupSeries(),
+        };
+        TransactionPieChart.SeriesColors = Constants.COLORS;
         foreach (var transaction in transactions.Take(10))
         {
             TransactionPieSeries.Add(new PieSeries
@@ -91,6 +99,26 @@ public partial class MainWindow : Window
             });
         }
         DataContext = this;
+    }
+    
+    private static PieSeries CreatePieSeries(string title, double value)
+    {
+        return new PieSeries
+        {
+            Title = title,
+            Values = new ChartValues<double> { Math.Round(value, 2) },
+            DataLabels = true
+        };
+    }
+    
+    private static PieSeries CreateSetupSeries()
+    {
+        return new PieSeries
+        {
+            Title = Constants.WHITESPACEPIECHART,
+            Values = new ChartValues<double> { 0 },
+            Opacity = 0.1,
+        };
     }
 
     private double GetSaldoFromDatabase()
@@ -301,19 +329,19 @@ public partial class MainWindow : Window
     private void MenuItem_Otworz_OnClick(object sender, RoutedEventArgs e)
     {
         DbUtility.OpenDatabase();
-        UpdateDataGrid();
+        UpdateWindow();
     }
 
     private void MenuItem_Nowa_OnClick(object sender, RoutedEventArgs e)
     {
         DbUtility.CreateDatabase();
-        UpdateDataGrid();
+        UpdateWindow();
     }
 
     private void MenuItem_Zapisz_jako_OnClick(object sender, RoutedEventArgs e)
     {
         DbUtility.SaveDatabase();
-        UpdateDataGrid();
+        UpdateWindow();
     }
 
     private void MenuItem_View_OnClick(object sender, RoutedEventArgs e)
