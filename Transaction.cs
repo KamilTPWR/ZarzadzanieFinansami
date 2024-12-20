@@ -18,10 +18,28 @@ public class Transaction : IComparable<Transaction>
     }
     public int CompareTo(Transaction? other)
     {
-        if (other != null)
+        throw new ArgumentException("Invalid parameter for comparison.");
+    }
+    public int CompareTo(Transaction? other, ComparisonField parameter)
+    {
+        if (other == null) return 1;
+
+        switch (parameter)
         {
-            return other.Kwota.CompareTo(Kwota);
+            case ComparisonField.ID:
+                return ID.CompareTo(other.ID);
+            case ComparisonField.Nazwa:
+                return string.Compare(Nazwa, other.Nazwa, StringComparison.OrdinalIgnoreCase);
+            case ComparisonField.Kwota:
+                return Kwota.CompareTo(other.Kwota);
+            case ComparisonField.Data:
+                DateTime thisDate = DateTime.ParseExact(Data, "dd.MM.yyyy", null);
+                DateTime otherDate = DateTime.ParseExact(other.Data, "dd.MM.yyyy", null);
+                return thisDate.CompareTo(otherDate);
+            case ComparisonField.Uwagi:
+                return string.Compare(Uwagi, other.Uwagi, StringComparison.OrdinalIgnoreCase);
+            default:
+                throw new ArgumentException("Invalid parameter for comparison.");
         }
-        return -1;
     }
 }

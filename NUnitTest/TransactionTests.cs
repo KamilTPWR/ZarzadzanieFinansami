@@ -1,45 +1,67 @@
 ﻿using NUnit.Framework;
 using ZarzadzanieFinansami;
 
+namespace ZarzadzanieFinansami.Tests;
+
+using NUnit.Framework;
+
 [TestFixture]
 public class TransactionTests
 {
+    private Transaction transaction1;
+    private Transaction transaction2;
 
-    [Test]
-    public void CompareTo_ShouldReturnNegative_WhenNull()
+    [SetUp]
+    public void SetUp()
     {
-        var transaction1 = new Transaction(1, "Test1", 200.0, " ", " ");
-        
-        int result = transaction1.CompareTo(null);
-        
-        Assert.That(result, Is.EqualTo(-1));
+        transaction1 = new Transaction(1, "Test1", 200.0, "01.01.2023", "Note1");
+        transaction2 = new Transaction(2, "Test2", 300.0, "02.01.2023", "Note2");
     }
 
     [Test]
-    public void CompareTo_ShouldCompareKwotaCorrectly()
+    public void CompareTo_ShouldThrowArgumentException_WhenInvalidParameter()
     {
-          
-        var transaction1 = new Transaction(1, "Test1", 200.0, " ", " ");
-        var transaction2 = new Transaction(2, "Test2", 300.0, " ", " ");
-
-         
-        int result = transaction1.CompareTo(transaction2);
-
-           
-        Assert.That(result, Is.EqualTo(1));
+        Assert.Throws<ArgumentException>(() => transaction1.CompareTo(null));
+    }
+    
+    [Test]
+    public void CompareTo_ShouldThrowArgumentException_WhenNoParameter()
+    {
+        Assert.Throws<ArgumentException>(() => transaction1.CompareTo(transaction2));
     }
 
     [Test]
-    public void CompareTo_ShouldReturnZero_WhenKwotaIsEqual()
+    public void CompareTo_ShouldCompareByID()
     {
-          
-        var transaction1 = new Transaction(1, "Test1", 200.0, " ", " ");
-        var transaction2 = new Transaction(2, "Test2", 200.0, " ", " ");
+        int result = transaction1.CompareTo(transaction2, ComparisonField.ID);
+        Assert.That(result, Is.LessThan(0));
+    }
 
-         
-        int result = transaction1.CompareTo(transaction2);
+    [Test]
+    public void CompareTo_ShouldCompareByName()
+    {
+        int result = transaction1.CompareTo(transaction2, ComparisonField.Nazwa);
+        Assert.That(result, Is.LessThan(0));
+    }
 
-           
-        Assert.That(result, Is.EqualTo(0)); 
+    [Test]
+    public void CompareTo_ShouldCompareByAmount()
+    {
+        int result = transaction1.CompareTo(transaction2, ComparisonField.Kwota);
+        Assert.That(result, Is.LessThan(0));
+    }
+
+    [Test]
+    public void CompareTo_ShouldCompareByDate()
+    {
+        int result = transaction1.CompareTo(transaction2, ComparisonField.Data);
+        Assert.That(result, Is.LessThan(0));
+    }
+
+    [Test]
+    public void CompareTo_ShouldCompareByNotes()
+    {
+        int result = transaction1.CompareTo(transaction2, ComparisonField.Uwagi);
+        Assert.That(result, Is.LessThan(0));
     }
 }

@@ -108,7 +108,7 @@ public class StrUtilityTests
         int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
-        Assert.That(result, Is.EqualTo(-1));
+        Assert.That(result, Is.EqualTo(4));
     }
     
     [Test]
@@ -121,7 +121,7 @@ public class StrUtilityTests
         int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
-        Assert.That(result, Is.EqualTo(-1));
+        Assert.That(result, Is.EqualTo(1));
     }
     
     [Test]

@@ -1,4 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AIComparable_00601_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F24372012c6c94138bf3f496e104366ffc8f918_003F5f_003F44fbf689_003FIComparable_00601_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/SweaWarningsMode/@EntryValue">ShowAndRun</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=ID/@EntryIndexedValue">ID</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=5490b1df_002D167d_002D40ef_002Db2db_002Dd50f7f8e785d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TransactionTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
@@ -15,5 +16,6 @@
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::8EBEA70C-61B8-4A8F-9E27-B412058ABA7D::net8.0-windows::TransactionTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::8EBEA70C-61B8-4A8F-9E27-B412058ABA7D::net8.0-windows::StrUtilityTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::8EBEA70C-61B8-4A8F-9E27-B412058ABA7D::net8.0-windows::ZarzadzanieFinansami.Tests.TransactionTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

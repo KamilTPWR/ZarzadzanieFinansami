@@ -83,7 +83,7 @@ public partial class MainWindow : Window
     private void UpdateTransactionPieChart()
     {
         var transactions = DbUtility.GetFromDatabase();
-        transactions.Sort((x, y) => y.Kwota.CompareTo(x.Kwota));
+        transactions.Sort((x, y) => x.CompareTo(y, ComparisonField.Kwota));
         TransactionPieSeries = new SeriesCollection
         {
             CreateSetupSeries(),
