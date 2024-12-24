@@ -82,6 +82,7 @@
                   MouseDoubleClick="MyDataGridView_MouseDoubleClick"
                   PreviewMouseRightButtonDown="MyDataGridView_PreviewMouseRightButtonDown"
                   BeginningEdit="MyDataGridView_OnBeginningEdit"
+                  Sorting="GridViewOnSorting_OnClick"
                   >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding ID}" x:Name="ID" Visibility="Hidden"/>

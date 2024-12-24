@@ -1,4 +1,6 @@
-﻿namespace ZarzadzanieFinansami;
+﻿using System.Diagnostics;
+
+namespace ZarzadzanieFinansami;
 
 public enum ComparisonField
 {

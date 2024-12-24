@@ -15,8 +15,10 @@ namespace ZarzadzanieFinansami;
 // ReSharper disable once RedundantExtendsListEntry
 public partial class MainWindow : Window
 {
-    private bool _fIsClosing = false;
-    public List<Transaction> Transactions = new();
+    private bool _isClosing = false;
+    private List<Transaction> _transactions = new();
+    private string? _columnHeader;
+    private bool _sortDirection = true;
     public required SeriesCollection PieSeries { get; set; }
     public required SeriesCollection TransactionPieSeries { get; set; }
     public MainWindow()
@@ -44,7 +46,7 @@ public partial class MainWindow : Window
         PageTextBlock.Text = " " + Core.Page + "-" + Core.PagesNumber() + " ";
         ChangeSaldoEvent();
         UpdateDataGrid();
-        UpdatePieChart();
+        UpdateCharts();
         DataGridUtility.UpdateDataGridView(MyDataGridView);
         ButtonNumberControll.Content = Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
     }
@@ -52,17 +54,32 @@ public partial class MainWindow : Window
     private void UpdateDataGrid()
     {
         MyDataGridView.ContextMenu!.Visibility = Visibility.Visible;
-        Transactions.Clear();
-        DataContext = null;
-        Transactions = DbUtility.GetFromDatabase();
-        var paginatedTransactions = Transactions
+        _transactions = DbUtility.GetFromDatabase();
+        if (Enum.TryParse<ComparisonField>(_columnHeader, out var field))
+        {
+            var transactions = _transactions;
+            transactions.Sort((x, y) => x.CompareTo(y, field));
+            if (_sortDirection)
+            {
+                transactions.Reverse();   
+            }
+            MyDataGridView.DataContext = CropTransactionsToPaginatedTransactions(transactions);
+        }
+        else
+        {
+            MyDataGridView.DataContext = CropTransactionsToPaginatedTransactions(DbUtility.GetFromDatabase());
+        }
+        MyDataGridView.ContextMenu!.Visibility = Visibility.Hidden;
+        UpdateCharts();
+    }
+
+    private static List<Transaction> CropTransactionsToPaginatedTransactions(List<Transaction> transactions)
+    {
+        var paginatedTransactions = transactions
             .Skip((Core.Page - 1) * Core.NumberOfRows)
             .Take(Core.NumberOfRows)
             .ToList();
-        MyDataGridView.DataContext = paginatedTransactions;
-        MyDataGridView.ContextMenu!.Visibility = Visibility.Hidden;
-        UpdatePieChart();
-        UpdateTransactionPieChart();
+        return paginatedTransactions;
     }
 
     private void UpdatePieChart()
@@ -75,14 +92,14 @@ public partial class MainWindow : Window
         {
             CreateSetupSeries(),
             CreatePieSeries("Wolny budzet", wydano),
-            CreatePieSeries("Zostało",zostalo),
+            CreatePieSeries("Zostało", zostalo),
         };
         DataContext = this;
     }
 
     private void UpdateTransactionPieChart()
     {
-        var transactions = DbUtility.GetFromDatabase();
+        var transactions = _transactions;
         transactions.Sort((x, y) => x.CompareTo(y, ComparisonField.Kwota));
         TransactionPieSeries = new SeriesCollection
         {
@@ -100,7 +117,7 @@ public partial class MainWindow : Window
         }
         DataContext = this;
     }
-    
+
     private static PieSeries CreatePieSeries(string title, double value)
     {
         return new PieSeries
@@ -110,7 +127,7 @@ public partial class MainWindow : Window
             DataLabels = true
         };
     }
-    
+
     private static PieSeries CreateSetupSeries()
     {
         return new PieSeries
@@ -120,16 +137,22 @@ public partial class MainWindow : Window
             Opacity = 0.1,
         };
     }
+    
+    private void UpdateCharts()
+    {
+        UpdatePieChart();
+        UpdateTransactionPieChart();
+    }
 
     private double GetSaldoFromDatabase()
     {
         var returnValue = 0.0;
-        Transactions.Clear();
+        _transactions.Clear();
         DataContext = null;
-        Transactions = DbUtility.GetFromDatabase();
-        foreach (var transaction in Transactions) returnValue += transaction.Kwota;
+        _transactions = DbUtility.GetFromDatabase();
+        foreach (var transaction in _transactions) returnValue += transaction.Kwota;
 
-        DataContext = Transactions;
+        DataContext = _transactions;
         return returnValue;
     }
 
@@ -162,7 +185,8 @@ public partial class MainWindow : Window
 
     private void MyDataGridView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (Constants.STATICNUMBEROFCOLUMNS == MyDataGridView.Columns.Count) DataGridUtility.UpdateDataGridView(MyDataGridView);
+        if (Constants.STATICNUMBEROFCOLUMNS == MyDataGridView.Columns.Count)
+            DataGridUtility.UpdateDataGridView(MyDataGridView);
     }
 
     private void MyDataGridView_OnBeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
@@ -177,45 +201,9 @@ public partial class MainWindow : Window
         UpdateWindow();
     }
 
-    private void DataGrid_MenuItem_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (MyDataGridView.SelectedItems.Count <= 0)
-        {
-            MessageBox.Show("Nie wybrano żadnych tranzakcji do usunięcia.", "Błąd", MessageBoxButton.OK,
-                MessageBoxImage.Error);
-        }
-        else
-        {
-            var columnValues = new List<object>();
-
-            foreach (var selectedItem in MyDataGridView.SelectedItems)
-            {
-                var item = selectedItem as dynamic;
-                if (item != null)
-                {
-                    columnValues.Add(item.ID);
-                }
-            }
-
-            var message =
-                $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
-
-            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
-                MessageBoxResult.Yes)
-            {
-                foreach (var id in columnValues)
-                {
-                    DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
-                }
-
-                UpdateDataGrid();
-            }
-        }
-    }
-
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
-        if (_fIsClosing) return;
+        if (_isClosing) return;
         MessageBoxResult result = MessageBox.Show(
             "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program",
             MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -255,6 +243,7 @@ public partial class MainWindow : Window
             Core.Page = ++Core.Page;
             UpdateWindow();
         }
+
         e.Handled = true;
     }
 
@@ -265,7 +254,52 @@ public partial class MainWindow : Window
             Core.Page = --Core.Page;
             UpdateWindow();
         }
+
         e.Handled = true;
+    }
+    
+    private void GridViewOnSorting_OnClick(object sender, DataGridSortingEventArgs e)
+    {
+        _sortDirection = !_sortDirection;
+        _columnHeader = e.Column.Header.ToString();
+        UpdateDataGrid();
+        e.Handled = true;
+    }
+    
+    private void DataGrid_MenuItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (MyDataGridView.SelectedItems.Count <= 0)
+        {
+            MessageBox.Show("Nie wybrano żadnych tranzakcji do usunięcia.", "Błąd", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        else
+        {
+            var columnValues = new List<object>();
+
+            foreach (var selectedItem in MyDataGridView.SelectedItems)
+            {
+                var item = selectedItem as dynamic;
+                if (item != null)
+                {
+                    columnValues.Add(item.ID);
+                }
+            }
+
+            var message =
+                $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
+
+            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+                MessageBoxResult.Yes)
+            {
+                foreach (var id in columnValues)
+                {
+                    DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
+                }
+
+                UpdateDataGrid();
+            }
+        }
     }
 
 
@@ -354,11 +388,13 @@ public partial class MainWindow : Window
     private void MenuItem_Wyjdz_OnClick(object sender, RoutedEventArgs e)
     {
         MessageBoxResult result = MessageBox.Show(
-            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (result == MessageBoxResult.Yes)
         {
-            _fIsClosing = true;
+            _isClosing = true;
             Application.Current.Shutdown();
         }
     }
+    
 }
