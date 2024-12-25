@@ -50,12 +50,9 @@
         <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Label Content="Kategoria:" Margin="0,0,0,0"/>
-                <ComboBox Width="195" Height="30" FontSize="12">
-                    <ComboBoxItem>Cat.1</ComboBoxItem>
-                    <ComboBoxItem IsSelected="True">Cat.2 Here</ComboBoxItem>
-                    <ComboBoxItem>Cat.3</ComboBoxItem>
+                <ComboBox Width="195" Height="30" FontSize="12" x:Name="Cats">
                 </ComboBox>
-                <Button Width="120" Height="30" FontSize="16" Margin="5,0,0,0" Content="Dodaj kategorię" />
+                <Button Width="120" Height="30" FontSize="16" Margin="5,0,0,0" Content="Dodaj kategorię" Click="Button_Click" />
             </StackPanel>
         </Grid>
         

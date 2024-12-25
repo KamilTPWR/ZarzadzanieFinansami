@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Data.Sqlite;
+using ZarzadzanieFinansami;
 
 namespace ZarzadzanieFinansami;
 
@@ -14,11 +15,24 @@ public partial class IncreaseSaldo
     private bool _fFirstTimeImput = true;
     private bool _fErrorInTextImput0 = false;
     private bool _fErrorInTextImput1 = false;
-    
+    private List<string> _categories = new List<string>();
+
     public IncreaseSaldo()
     {
         InitializeComponent();
         AddButton.IsEnabled = false;
+        UpdateCategories();
+    }
+    public void UpdateCategories()
+    {
+        List<Category> temp = DbUtility.GetCategoriesFromDatabase();
+        _categories.Clear();
+        Cats.ItemsSource = _categories;
+        foreach (Category category in temp)
+        {
+            _categories.Add(category.ID + "." + category.Name);
+        }
+        Cats.ItemsSource = _categories;
     }
     
 /***********************************************************************************************************************/
@@ -31,12 +45,13 @@ public partial class IncreaseSaldo
         var kwotaText = KwotaTextBox.Text;
         var uwagi = UwagiTextBox.Text;
         var data = DateTime.Now.ToString("dd/MM/yyyy");
+        var kategoria = Convert.ToInt32(Cats.SelectedValue.ToString().Split(".")[0]);
         DateTime? selectedDate = Datepicker.SelectedDate;
         if (selectedDate.HasValue)
         {
             data = selectedDate.Value.ToString("dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
         }
-        DbUtility.SaveTransaction(nazwa, kwotaText, data, uwagi);
+        DbUtility.SaveTransaction(nazwa, kwotaText, data, uwagi, kategoria);
         Close();
     }
     private void AnulujButton_Click(object sender, RoutedEventArgs e)
@@ -197,5 +212,13 @@ public partial class IncreaseSaldo
             Console.WriteLine(exception);
             e.CancelCommand();
         }
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        CategoryAdd window = new CategoryAdd();
+        window.ShowDialog();
+        UpdateCategories();
+        this.Close();
     }
 }

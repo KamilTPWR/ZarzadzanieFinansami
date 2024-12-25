@@ -90,6 +90,7 @@
                 <DataGridTextColumn Header="Kwota" Binding="{Binding Kwota}" Width="Auto" />
                 <DataGridTextColumn Header="Data" Binding="{Binding Data}" Width="Auto" />
                 <DataGridTextColumn Header="Uwagi" Binding="{Binding Uwagi}" Width="Auto" />
+                <DataGridTextColumn Header="Kategoria" Binding="{Binding Kategoria}" Width="Auto" />
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Visibility="Collapsed">

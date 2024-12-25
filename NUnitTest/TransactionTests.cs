@@ -14,8 +14,8 @@ public class TransactionTests
     [SetUp]
     public void SetUp()
     {
-        transaction1 = new Transaction(1, "Test1", 200.0, "10.01.2023", "kot");
-        transaction2 = new Transaction(2, "Test2", 300.0, "01.12.2024", "Pies");
+        transaction1 = new Transaction(1, "Test1", 200.0, "10.01.2023", "kots", "kat1");
+        transaction2 = new Transaction(2, "Test2", 300.0, "01.12.2024", "Pies","kat1");
     }
 
     [Test]

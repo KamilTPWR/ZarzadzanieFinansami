@@ -21,6 +21,7 @@ public partial class MainWindow : Window
     private bool _sortDirection = true;
     public required SeriesCollection PieSeries { get; set; }
     public required SeriesCollection TransactionPieSeries { get; set; }
+
     public MainWindow()
     {
         InitializeComponent();

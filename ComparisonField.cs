@@ -8,5 +8,6 @@ public enum ComparisonField
     Nazwa,
     Kwota,
     Data,
-    Uwagi
+    Uwagi,
+    Kategoria
 }

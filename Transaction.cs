@@ -7,19 +7,23 @@ public class Transaction : IComparable<Transaction>
     public double Kwota { get; set; }
     public string Data { get; set; }
     public string Uwagi { get; set; }
+    public string Kategoria { get; set; }
 
-    public Transaction(int id,string nazwa, double kwota, string data, string uwagi)
+    public Transaction(int id, string nazwa, double kwota, string data, string uwagi, string kategoria)
     {
-        ID = id; 
+        ID = id;
         Nazwa = nazwa;
         Kwota = kwota;
         Data = data;
         Uwagi = uwagi;
+        Kategoria = kategoria;
     }
+
     public int CompareTo(Transaction? other)
     {
         throw new ArgumentException("Invalid parameter for comparison.");
     }
+
     public int CompareTo(Transaction? other, ComparisonField parameter)
     {
         if (other == null) return 1;
@@ -38,6 +42,8 @@ public class Transaction : IComparable<Transaction>
                 return thisDate.CompareTo(otherDate);
             case ComparisonField.Uwagi:
                 return string.Compare(Uwagi, other.Uwagi, StringComparison.OrdinalIgnoreCase);
+            case ComparisonField.Kategoria:
+                return string.Compare(Kategoria, other.Kategoria, StringComparison.OrdinalIgnoreCase);
             default:
                 throw new ArgumentException("Invalid parameter for comparison.");
         }
