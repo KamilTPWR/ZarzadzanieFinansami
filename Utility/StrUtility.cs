@@ -1,11 +1,11 @@
 ﻿namespace ZarzadzanieFinansami;
 
-public class StrUtillity
+public abstract class StrUtility
 {
     public static bool IsNumberFormatValid(string imputS)
     {
-        string s = "1234567890,";
-
+        const string s = "1234567890,";
+        
         foreach(char c in imputS)
         {
             if (!s.Contains(c.ToString()))
@@ -17,8 +17,6 @@ public class StrUtillity
     {
         return input.Length <= size ? input : input.Substring(0, size);
     }
-    
-    
     public static int NumberOfDigitsAfterComa(string liczba)
     {
         int indeksPrzecinka = liczba.IndexOf(',');
