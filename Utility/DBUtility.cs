@@ -420,5 +420,4 @@ public abstract class DbUtility
             .Trim()
             .ToLowerInvariant();
     }
-    
 }
