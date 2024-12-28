@@ -9,12 +9,14 @@ public abstract class DbUtility
 {
     private static string _dataBasePath = String.Empty;
 
-    public static List<Transaction> GetTransactionsFromDatabase()
+    public static List<Transaction> GetTransactionsFromDatabase(out bool success)
     {
         string command = 
             "SELECT ListaTranzakcji.ID, ListaTranzakcji.Nazwa, Kwota, Data, Uwagi, Kategorie.Nazwa FROM ListaTranzakcji JOIN Kategorie on ListaTranzakcji.KategoriaID = Kategorie.ID";
         List<string> columns = Constants.DEFAULTCOLUMNS;
         List<Transaction> transactions = new();
+        success = false;
+
         try
         {
             string dataBaseName = ReturnDataBasePath();
@@ -28,12 +30,12 @@ public abstract class DbUtility
                     try
                     {
                         AddTransactionsFromColumns(columns, reader, transactions);
+                        success = true;
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
                             MessageBoxImage.Error);
-                        connection.Close();
                     }
                 }
             }
@@ -179,15 +181,10 @@ public abstract class DbUtility
         {
             string dataBaseName = ReturnDataBasePath();
             EnsureNotEmpty(dataBaseName);
-            List<Transaction> transactions = GetTransactionsFromDatabase();
-            if (transactions == null)
-            {
-                throw new Exception("Nie zostala wybrana baza danych");
-            }
-            var i = transactions.Count;
-            return i;
+            List<Transaction> transactions = GetTransactionsFromDatabase(out var success);
+            return success ? transactions.Count : 0;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return 0;
         }
@@ -423,7 +420,5 @@ public abstract class DbUtility
             .Trim()
             .ToLowerInvariant();
     }
-
-
     
 }

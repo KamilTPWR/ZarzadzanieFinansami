@@ -2,6 +2,7 @@
 using LiveCharts.Wpf;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using LiveCharts.Dtos;
@@ -16,9 +17,12 @@ namespace ZarzadzanieFinansami;
 public partial class MainWindow : Window
 {
     private bool _isClosing = false;
+    private bool _sortDirection = true;
+    protected bool _IsDatabaseOpen = false;
+    
     private List<Transaction> _transactions = new();
     private string? _columnHeader;
-    private bool _sortDirection = true;
+    
     public required SeriesCollection PieSeries { get; set; }
     public required SeriesCollection TransactionPieSeries { get; set; }
 
@@ -55,7 +59,8 @@ public partial class MainWindow : Window
     private void UpdateDataGrid()
     {
         MyDataGridView.ContextMenu!.Visibility = Visibility.Visible;
-        _transactions = DbUtility.GetFromDatabase();
+        _transactions = DbUtility.GetTransactionsFromDatabase(out var success);
+        ToggleAddButton(success);
         if (Enum.TryParse<ComparisonField>(_columnHeader, out var field))
         {
             var transactions = _transactions;
@@ -68,7 +73,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            MyDataGridView.DataContext = CropTransactionsToPaginatedTransactions(DbUtility.GetFromDatabase());
+            MyDataGridView.DataContext = CropTransactionsToPaginatedTransactions(DbUtility.GetTransactionsFromDatabase(out _));
         }
         MyDataGridView.ContextMenu!.Visibility = Visibility.Hidden;
         UpdateCharts();
@@ -150,7 +155,7 @@ public partial class MainWindow : Window
         var returnValue = 0.0;
         _transactions.Clear();
         DataContext = null;
-        _transactions = DbUtility.GetFromDatabase();
+        _transactions = DbUtility.GetTransactionsFromDatabase(out _);
         foreach (var transaction in _transactions) returnValue += transaction.Kwota;
 
         DataContext = _transactions;
@@ -161,6 +166,18 @@ public partial class MainWindow : Window
     {
         Saldo.Text = $"Saldo: {GetSaldoFromDatabase() * 0.5:F2} $";
         Wydatki.Text = $"Wydatki: {GetSaldoFromDatabase():F2} $";
+    }
+
+    private void ToggleAddButton(bool isAbleToWork)
+    {
+        if (isAbleToWork)
+        {
+            AddButtonName.IsEnabled = true;
+        }
+        else
+        {
+            AddButtonName.IsEnabled = false;
+        }
     }
 
     /***********************************************************************************************************************/

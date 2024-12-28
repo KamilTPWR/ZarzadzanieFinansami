@@ -30,7 +30,7 @@ public partial class IncreaseSaldo
         Cats.ItemsSource = _categories;
         foreach (Category category in temp)
         {
-            _categories.Add(category.ID + "." + category.Name);
+            _categories.Add(category.ID + ". " + category.Name);
         }
         Cats.ItemsSource = _categories;
     }
@@ -219,6 +219,7 @@ public partial class IncreaseSaldo
         CategoryAdd window = new CategoryAdd();
         window.ShowDialog();
         UpdateCategories();
-        this.Close();
+        Cats.Dispatcher.BeginInvoke(new Action(() => Cats.ItemsSource = _categories));
+        Cats.Dispatcher.Invoke(delegate { Cats.Items.Refresh(); });
     }
 }
