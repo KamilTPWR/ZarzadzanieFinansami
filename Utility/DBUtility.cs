@@ -9,174 +9,168 @@ public abstract class DbUtility
 {
     private static string _dataBasePath = String.Empty;
 
-    public static List<Transaction> GetFromDatabase()
+    public static List<Transaction> GetTransactionsFromDatabase()
     {
-        string dataBaseName = ReturnDataBasePath();
+        string command = 
+            "SELECT ListaTranzakcji.ID, ListaTranzakcji.Nazwa, Kwota, Data, Uwagi, Kategorie.Nazwa FROM ListaTranzakcji JOIN Kategorie on ListaTranzakcji.KategoriaID = Kategorie.ID";
+        List<string> columns = Constants.DEFAULTCOLUMNS;
+        List<Transaction> transactions = new();
         try
         {
+            string dataBaseName = ReturnDataBasePath();
             EnsureNotEmpty(dataBaseName);
-            string command = 
-                "SELECT ListaTranzakcji.ID, ListaTranzakcji.Nazwa, Kwota, Data, Uwagi, Kategorie.Nazwa FROM ListaTranzakcji JOIN Kategorie on ListaTranzakcji.KategoriaID = Kategorie.ID";
-            List<string> columns = Constants.DEFAULTCOLUMNS;
-
-            List<Transaction> transactions = new();
             SQLitePCL.Batteries.Init();
-
             using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+            using (var reader = SqliteExecuteCommand(connection, command).ExecuteReader())
             {
-                try
+                while (reader.Read())
                 {
-                    connection.Open();
-                    var sqliteCommand = connection.CreateCommand();
-                    sqliteCommand.CommandText = command;
-
-                    using (var reader = sqliteCommand.ExecuteReader())
+                    try
                     {
-                        while (reader.Read())
-                        {
-                            int id = TryGetValue<int>("ListaTranzakcji.ID", columns, reader);
-                            string name = TryGetValue<string>("ListaTranzakcji.Nazwa", columns, reader);
-                            double amount = TryGetValue<double>("Kwota", columns, reader);
-                            string date = TryGetValue<string>("Data", columns, reader);
-                            string remarks = TryGetValue<string>("Uwagi", columns, reader);
-                            string category = TryGetValue<string>("Kategorie.Nazwa", columns, reader);
-                            transactions.Add(new Transaction(id, name, amount, date, remarks, category));
-                        }
+                        AddTransactionsFromColumns(columns, reader, transactions);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        connection.Close();
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    connection.Close();
-                }
             }
-
-            return transactions;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return new List<Transaction>();
         }
+        return transactions;
     }
+    
+    private static void AddTransactionsFromColumns(List<string> columns, SqliteDataReader reader, List<Transaction> transactions)
+    {
+        int id = TryGetValue<int>("ListaTranzakcji.ID", columns, reader);
+        string name = TryGetValue<string>("ListaTranzakcji.Nazwa", columns, reader);
+        double amount = TryGetValue<double>("Kwota", columns, reader);
+        string date = TryGetValue<string>("Data", columns, reader);
+        string remarks = TryGetValue<string>("Uwagi", columns, reader);
+        string category = TryGetValue<string>("Kategorie.Nazwa", columns, reader);
+        transactions.Add(new Transaction(id, name, amount, date, remarks, category));
+    }
+
     public static List<Category> GetCategoriesFromDatabase()
     {
+        string command = 
+            "SELECT * FROM Kategorie";
+        var columns = new List<string> { "ID", "Nazwa" };
+        List<Category> categories = new();
         try
         {
-            string dataBaseName = DbUtility.ReturnDataBasePath();
-            if (dataBaseName == "")
-            {
-                throw new Exception("Nie zostala wybrana baza danych");
-            }
-            string command = "SELECT * FROM Kategorie";
-            //ReSharper disable once UseCollectionExpression, ponieważ po co komplikować proste rzeczy
-            List<string> columns = new List<string> { "ID", "Nazwa" };
-
-            List<Category> categories = new();
+            string dataBaseName = ReturnDataBasePath();
+            EnsureNotEmpty(dataBaseName);
             SQLitePCL.Batteries.Init();
-
-            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
-            {
-                try
+            { 
+                using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+                using (var reader = SqliteExecuteCommand(connection, command).ExecuteReader())
                 {
-                    connection.Open();
-                    var sqliteCommand = connection.CreateCommand();
-                    sqliteCommand.CommandText = command;
-
-                    using (var reader = sqliteCommand.ExecuteReader())
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        try
                         {
-                            int id = TryGetValue<int>("ID", columns, reader);
-                            string name = TryGetValue<string>("Nazwa", columns, reader);
-                            categories.Add(new Category(id, name));
+                            AddCategorisFromColumns(columns, reader, categories);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message, "Nie spodziewany bład GetCategoriesFromDatabase", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                            connection.Close();
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    connection.Close();
-                }
             }
-            return categories;
         }
         catch (Exception ex)
         {
             return new List<Category>();
         }
+        return categories;
+    }
+
+    private static void AddCategorisFromColumns(List<string> columns, SqliteDataReader reader, List<Category> categories)
+    {
+        int id = TryGetValue<int>("ID", columns, reader);
+        string name = TryGetValue<string>("Nazwa", columns, reader);
+        categories.Add(new Category(id, name));
     }
 
     public static void SaveTransaction(string nazwa, string kwotaText, string data, string uwagi, int idkategorii)
     {
+        string commandText = 
+            "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi, KategoriaID) VALUES ($nazwa, $kwota, $data, $uwagi, $idkat)";
         string dataBaseName = ReturnDataBasePath();
-        EnsureNotEmpty(dataBaseName);
-
-        if (double.TryParse(kwotaText, out var kwota))
-        {
-            SQLitePCL.Batteries.Init();
-
-            try
-            {
-                using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText =
-                        command.CommandText =
-                            "INSERT INTO ListaTranzakcji(Nazwa, Kwota, Data, Uwagi, KategoriaID) VALUES ($nazwa, $kwota, $data, $uwagi, $idkat)";
-                    command.Parameters.AddWithValue("$nazwa", nazwa);
-                    command.Parameters.AddWithValue("$kwota", kwota);
-                    command.Parameters.AddWithValue("$data", data);
-                    command.Parameters.AddWithValue("$uwagi", uwagi);
-                    command.Parameters.AddWithValue("$idkat", idkategorii);
-                    command.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Nie spodziewany bład SaveTransaction", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-        else
+        if (IsDataBaseNull(dataBaseName)) return;
+        if (!double.TryParse(kwotaText, out var kwota))
         {
             MessageBox.Show("Błąd", "Nie udało się zapisać w bazie danych", MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
-    }
-    public static void SaveCategory(string nazwa)
-    {
-        try
+        else
         {
-            string dataBaseName = DbUtility.ReturnDataBasePath();
-            if (dataBaseName == "")
-            {
-                throw new Exception("Nie zostala wybrana baza danych");
-            }
             SQLitePCL.Batteries.Init();
-            try
+            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
             {
-
-                using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+                try
                 {
                     connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText =
-                        "INSERT INTO Kategorie(Nazwa) VALUES ($nazwa)";
-                    command.Parameters.AddWithValue("$nazwa", nazwa);
-                    command.ExecuteNonQuery();
+                    ExecuteSaveTransactionSql(connection, commandText, nazwa, kwota, data, uwagi, idkategorii);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Nie spodziewany bład SaveTransaction", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
             }
-            catch (Exception ex)
+        }
+    }
+
+    private static void ExecuteSaveTransactionSql(SqliteConnection connection, string commandText, string nazwa, double kwota, string data, string uwagi, int idkategorii)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = commandText;
+        command.Parameters.AddWithValue("$nazwa", nazwa);
+        command.Parameters.AddWithValue("$kwota", kwota);
+        command.Parameters.AddWithValue("$data", data);
+        command.Parameters.AddWithValue("$uwagi", uwagi);
+        command.Parameters.AddWithValue("$idkat", idkategorii);
+        command.ExecuteNonQuery();
+    }
+
+    public static void SaveCategory(string nazwa)
+    {
+        string commandText =
+            "INSERT INTO Kategorie(Nazwa) VALUES ($nazwa)";
+        string dataBaseName = ReturnDataBasePath();
+        if (IsDataBaseNull(dataBaseName)) return;
+        try
+        {
+            SQLitePCL.Batteries.Init();
+            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
             {
-                MessageBox.Show(ex.Message, "Nie spodziewany bład SaveTransaction", MessageBoxButton.OK, MessageBoxImage.Error);
+                connection.Open();
+                ExecuteSaveCategorySql(nazwa, connection, commandText);
             }
         }
         catch (Exception ex)
         {
+            MessageBox.Show(ex.Message, "Nie spodziewany bład SaveCategory", MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
+    }
+
+    private static void ExecuteSaveCategorySql(string nazwa, SqliteConnection connection, string commandText)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = commandText;
+        command.Parameters.AddWithValue("$nazwa", nazwa);
+        command.ExecuteNonQuery();
     }
 
     public static int GetNumberOfTransactions()
@@ -185,16 +179,15 @@ public abstract class DbUtility
         {
             string dataBaseName = ReturnDataBasePath();
             EnsureNotEmpty(dataBaseName);
-            List<Transaction> transactions = GetFromDatabase();
+            List<Transaction> transactions = GetTransactionsFromDatabase();
             if (transactions == null)
             {
                 throw new Exception("Nie zostala wybrana baza danych");
             }
-
             var i = transactions.Count;
             return i;
         }
-        catch (Exception)
+        catch (Exception e)
         {
             return 0;
         }
@@ -202,32 +195,25 @@ public abstract class DbUtility
 
     public static void DeleteFromDatabase(int index, string tableName = $"ListaTranzakcji")
     {
-        try
+        string command = 
+            $"DELETE FROM {tableName} WHERE ID = {index}";
+        string dataBaseName = ReturnDataBasePath();
+        if (IsDataBaseNull(dataBaseName)) return;
+        SQLitePCL.Batteries.Init();
+        using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
         {
-            string dataBaseName = ReturnDataBasePath();
-            EnsureNotEmpty(dataBaseName);
-            var command = $"DELETE FROM {tableName} WHERE ID = {index}";
-            SQLitePCL.Batteries.Init();
-
-            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+            try
             {
-                try
-                {
-                    connection.Open();
-                    var sqliteCommand = connection.CreateCommand();
-                    sqliteCommand.CommandText = command;
-                    sqliteCommand.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Nie spodziewany bład", MessageBoxButton.OK, MessageBoxImage.Error);
-                    connection.Close();
-                }
+                connection.Open();
+                var sqliteCommand = connection.CreateCommand();
+                sqliteCommand.CommandText = command;
+                sqliteCommand.ExecuteNonQuery();
             }
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(ex.Message);
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Nie spodziewany bład", MessageBoxButton.OK, MessageBoxImage.Error);
+                connection.Close();
+            }
         }
     }
 
@@ -360,13 +346,41 @@ public abstract class DbUtility
         {
             return String.Empty;
         }
-
         if (!File.Exists(_dataBasePath))
         {
             return String.Empty;
         }
-
         return _dataBasePath;
+    }
+    
+    private static void EnsureNotEmpty(string dataBaseName)
+    {
+        if (dataBaseName == String.Empty)
+        {
+            throw new Exception("Nie zostala wybrana baza danych");
+        }
+    }
+    
+    private static bool IsDataBaseNull(string dataBaseName)
+    {
+        try
+        {
+            EnsureNotEmpty(dataBaseName);
+        }
+        catch (Exception)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    
+    private static SqliteCommand SqliteExecuteCommand(SqliteConnection connection, string command)
+    {
+        connection.Open();
+        var sqliteCommand = connection.CreateCommand();
+        sqliteCommand.CommandText = command;
+        return sqliteCommand;
     }
 
     private static dynamic TryGetValue<T>(string condition, List<string> columns, SqliteDataReader? reader)
@@ -410,11 +424,6 @@ public abstract class DbUtility
             .ToLowerInvariant();
     }
 
-    private static void EnsureNotEmpty(string dataBaseName)
-    {
-        if (dataBaseName == String.Empty)
-        {
-            throw new Exception("Nie zostala wybrana baza danych");
-        }
-    }
+
+    
 }

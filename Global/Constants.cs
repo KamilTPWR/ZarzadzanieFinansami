@@ -24,8 +24,8 @@ public abstract class Constants
     };
     public static readonly List<string> DEFAULTCOLUMNS = new()
     {
-        "ID",
-        "Nazwa",
+        "ListaTranzakcji.ID",
+        "ListaTranzakcji.Nazwa",
         "Kwota",
         "Data",
         "Uwagi",
