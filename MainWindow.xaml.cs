@@ -19,7 +19,7 @@ public partial class MainWindow : Window
 {
     private bool _isClosing = false;
     private bool _sortDirection = true;
-    protected bool IsDatabaseOpen = false;
+    private bool _isDatabaseOpen = false;
     
     private List<Transaction> _transactions = new();
     private string? _columnHeader;
@@ -61,6 +61,7 @@ public partial class MainWindow : Window
     {
         MyDataGridView.ContextMenu!.Visibility = Visibility.Visible;
         _transactions = DbUtility.GetTransactionsFromDatabase(out var success);
+        _isDatabaseOpen = success;
         ToggleAddButton(success);
         if (Enum.TryParse<ComparisonField>(_columnHeader, out var field))
         {
@@ -91,6 +92,7 @@ public partial class MainWindow : Window
 
     private void UpdatePieChart()
     {
+        SwitchVisibilityOfChart(Pie, _isDatabaseOpen);
         double x = GetSaldoFromDatabase() * 1.5;
         double zostalo = GetSaldoFromDatabase();
         double wydano = x - zostalo;
@@ -106,6 +108,7 @@ public partial class MainWindow : Window
 
     private void UpdateTransactionPieChart()
     {
+        SwitchVisibilityOfChart(TransactionPieChart, _isDatabaseOpen);
         var transactions = _transactions;
         transactions.Sort((x, y) => x.CompareTo(y, ComparisonField.Kwota));
         TransactionPieSeries = new SeriesCollection
@@ -123,6 +126,18 @@ public partial class MainWindow : Window
             });
         }
         DataContext = this;
+    }
+
+    private void SwitchVisibilityOfChart(PieChart chart, bool visibility)
+    {
+        if (visibility == false)
+        {
+            chart.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            chart.Visibility = Visibility.Visible;
+        }
     }
 
     private static PieSeries CreatePieSeries(string title, double value)
@@ -223,9 +238,10 @@ public partial class MainWindow : Window
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
         if (_isClosing) return;
+        SystemSounds.Exclamation.Play();
         MessageBoxResult result = MessageBox.Show(
-            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program",
-            MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            "Czy napewno chcesz zamknąć program? \n Dane zostaną zapisane.", "Zamknij program",
+            MessageBoxButton.YesNo, MessageBoxImage.Question);
         switch (result)
         {
             case MessageBoxResult.No:
@@ -406,9 +422,9 @@ public partial class MainWindow : Window
 
     private void MenuItem_Wyjdz_OnClick(object sender, RoutedEventArgs e)
     {
+        SystemSounds.Exclamation.Play();
         MessageBoxResult result = MessageBox.Show(
-            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program",
-            MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            "Czy napewno chcesz zamknąć program? \n Dane zostaną zapisane.", "Zamknij program", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (result == MessageBoxResult.Yes)
         {
             _isClosing = true;
@@ -447,5 +463,10 @@ public partial class MainWindow : Window
     private void ShowNullDataBaseError()
     {
         MessageBox.Show("Nie wybrano bazy danych.", "Brak bazy danych", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+
+    private void MenuItem_Ustawienia_OnClick(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
     }
 }

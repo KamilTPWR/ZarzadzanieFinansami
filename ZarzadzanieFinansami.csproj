@@ -30,19 +30,19 @@
       </Resource>
       <None Remove="Icons\saveAs.png" />
       <Resource Include="Icons\saveAs.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="Icons\OpenFile.png" />
       <Resource Include="Icons\OpenFile.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="Icons\NewFile.png" />
       <Resource Include="Icons\NewFile.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="Icons\Bin.png" />
       <Resource Include="Icons\Bin.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="FinanseDataBase.db" />
       <Content Include="FinanseDataBase.db">
@@ -50,19 +50,24 @@
       </Content>
       <None Remove="Icons\write_file.png" />
       <Resource Include="Icons\write_file.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="Icons\settings_gear.png" />
       <Resource Include="Icons\settings_gear.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="Icons\row.png" />
       <Resource Include="Icons\row.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="Icons\gears.png" />
       <Resource Include="Icons\gears.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\save.png" />
+      <None Remove="Icons\save1.png" />
+      <Resource Include="Icons\save1.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
     </ItemGroup>
 

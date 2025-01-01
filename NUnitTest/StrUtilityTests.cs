@@ -69,7 +69,7 @@ public class StrUtilityTests
         int result = StrUtility.NumberOfDigitsAfterComa(input);
 
            
-        Assert.AreEqual(3, result);
+        Assert.That(result, Is.EqualTo(3));
     }
     
     [Test]

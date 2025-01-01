@@ -43,16 +43,17 @@
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator />
-                    <MenuItem Header="_Ustawienia">
+                    <MenuItem Header="_Ustawienia" Click="MenuItem_Ustawienia_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Icons/gears.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                        <Separator />
-                    <MenuItem Header="_Zapisz i wyjdź" 
-                              Click="MenuItem_Wyjdz_OnClick"/>
-                    <MenuItem Header="_Wyjdź" 
-                              Click="MenuItem_Wyjdz_OnClick"/>
+                        <Separator/>
+                    <MenuItem Header="_Zapisz i wyjdź" Click="MenuItem_Wyjdz_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/save1.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Narzędzia">
                     <MenuItem Header="Dodaj Rekord">
@@ -75,12 +76,11 @@
                 </MenuItem>
                 <MenuItem Header="_Widok">
                     <MenuItem Header="Wybór liczby wierszy" Click="MenuItem_View_OnClick">
-                    <MenuItem.Icon>
-                        <Image Source="Icons/row.png" />
-                    </MenuItem.Icon>
+                        <MenuItem.Icon>
+                            <Image Source="Icons/row.png" />
+                        </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
-
             </Menu>
             <StackPanel Grid.Column="1" Orientation="Horizontal" FlowDirection="RightToLeft">
                 <Button Width="20" Content="&lt;" Click="ButtonRight_OnClick" />
