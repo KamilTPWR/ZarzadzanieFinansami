@@ -1,4 +1,5 @@
-﻿using LiveCharts;
+﻿using System.Media;
+using LiveCharts;
 using LiveCharts.Wpf;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,7 +19,7 @@ public partial class MainWindow : Window
 {
     private bool _isClosing = false;
     private bool _sortDirection = true;
-    protected bool _IsDatabaseOpen = false;
+    protected bool IsDatabaseOpen = false;
     
     private List<Transaction> _transactions = new();
     private string? _columnHeader;
@@ -414,5 +415,37 @@ public partial class MainWindow : Window
             Application.Current.Shutdown();
         }
     }
-    
+
+    private void MenuItem_Usun_wszystkie_rekordy_OnClick(object sender, RoutedEventArgs e)
+    {
+        var IDs = new List<int>();
+        foreach (var transaction in _transactions)
+        {
+            IDs.Add(transaction.ID);
+        }
+
+        if (IDs.Count <= 0)
+        {
+            ShowNullDataBaseError();
+            return;
+        }
+
+        SystemSounds.Exclamation.Play();
+        var message =
+            $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {IDs.Count} ?\nTej operacji nie da się odwrócić.";
+        if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+            MessageBoxResult.Yes)
+        {
+            foreach (var id in IDs)
+            {
+                DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
+            }
+            UpdateWindow();
+        }
+    }
+
+    private void ShowNullDataBaseError()
+    {
+        MessageBox.Show("Nie wybrano bazy danych.", "Brak bazy danych", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
 }

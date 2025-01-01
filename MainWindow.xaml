@@ -54,7 +54,8 @@
                     <MenuItem Header="Dodaj Rekord" />
                     <MenuItem Header="Znajdz" />
                     <Separator />
-                    <MenuItem Header="Usuń wszystkie rekordy" />
+                    <MenuItem Header="Usuń wszystkie rekordy" 
+                              Click="MenuItem_Usun_wszystkie_rekordy_OnClick" />
                 </MenuItem>
                 <MenuItem Header="_Widok">
                     <MenuItem Header="Wybór liczby wierszy" Click="MenuItem_View_OnClick"/>

@@ -25,17 +25,18 @@ public abstract class DbUtility
             using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
             using (var reader = SqliteExecuteCommand(connection, command).ExecuteReader())
             {
+                success = true;
                 while (reader.Read())
                 {
                     try
                     {
                         AddTransactionsFromColumns(columns, reader, transactions);
-                        success = true;
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
                             MessageBoxImage.Error);
+                        success = false;
                     }
                 }
             }
