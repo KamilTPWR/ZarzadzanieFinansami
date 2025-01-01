@@ -43,22 +43,42 @@
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator />
-                    <MenuItem Header="_Ustawienia"/>
-                    <Separator />
+                    <MenuItem Header="_Ustawienia">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/gears.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                        <Separator />
                     <MenuItem Header="_Zapisz i wyjdź" 
                               Click="MenuItem_Wyjdz_OnClick"/>
                     <MenuItem Header="_Wyjdź" 
                               Click="MenuItem_Wyjdz_OnClick"/>
                 </MenuItem>
                 <MenuItem Header="_Narzędzia">
-                    <MenuItem Header="Dodaj Rekord" />
-                    <MenuItem Header="Znajdz" />
-                    <Separator />
+                    <MenuItem Header="Dodaj Rekord">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/write_file.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Zarządzaj Kategoriami" >
+                        <MenuItem.Icon>
+                            <Image Source="Icons/settings_gear.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                        <Separator />
                     <MenuItem Header="Usuń wszystkie rekordy" 
-                              Click="MenuItem_Usun_wszystkie_rekordy_OnClick" />
+                              Click="MenuItem_Usun_wszystkie_rekordy_OnClick" >
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Bin.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Widok">
-                    <MenuItem Header="Wybór liczby wierszy" Click="MenuItem_View_OnClick"/>
+                    <MenuItem Header="Wybór liczby wierszy" Click="MenuItem_View_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="Icons/row.png" />
+                    </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
 
             </Menu>

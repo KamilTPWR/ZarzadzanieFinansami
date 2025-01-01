@@ -48,6 +48,22 @@
       <Content Include="FinanseDataBase.db">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <None Remove="Icons\write_file.png" />
+      <Resource Include="Icons\write_file.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\settings_gear.png" />
+      <Resource Include="Icons\settings_gear.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\row.png" />
+      <Resource Include="Icons\row.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Icons\gears.png" />
+      <Resource Include="Icons\gears.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
     <ItemGroup>
