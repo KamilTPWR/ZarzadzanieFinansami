@@ -11,11 +11,13 @@ namespace ZarzadzanieFinansami;
 
 public partial class IncreaseSaldo
 {
-    protected string Pkwota = String.Empty;
+    private string _kwota = String.Empty;
+    
     private bool _fFirstTimeImput = true;
     private bool _fErrorInTextImput0 = false;
     private bool _fErrorInTextImput1 = false;
-    private List<string> _categories = new List<string>();
+    
+    private List<string> _categories = new();
 
     public IncreaseSaldo()
     {
@@ -45,7 +47,14 @@ public partial class IncreaseSaldo
         var kwotaText = KwotaTextBox.Text;
         var uwagi = UwagiTextBox.Text;
         var data = DateTime.Now.ToString("dd/MM/yyyy");
-        var kategoria = Convert.ToInt32(Cats.SelectedValue.ToString().Split(".")[0]);
+        var temp = Cats.SelectedValue;
+        if (temp == null)
+        {
+            MessageBox.Show("Nie wybrano Kategorii.", "Nie wybrano kategorii.", MessageBoxButton.OK, MessageBoxImage.Error);
+            e.Handled = true;
+            return;
+        }
+        Int32 kategoria = Convert.ToInt32(temp.ToString()!.Split(".")[0]);
         DateTime? selectedDate = Datepicker.SelectedDate;
         if (selectedDate.HasValue)
         {
@@ -58,16 +67,14 @@ public partial class IncreaseSaldo
     {
         Close();
     }
-    private void ButtonToggle(bool a, bool b)
+    
+    private void Dodaj_Kategorie_Button_Click(object sender, RoutedEventArgs e)
     {
-        if (a == false && b == false && NazwaTextBox.Text != "" && KwotaTextBox.Text != "0,00")
-        {
-            AddButton.IsEnabled = true;
-        }
-        else
-        {
-            AddButton.IsEnabled = false;
-        }
+        CategoryAdd window = new CategoryAdd();
+        window.ShowDialog();
+        UpdateCategories();
+        Cats.Dispatcher.BeginInvoke(new Action(() => Cats.ItemsSource = _categories));
+        Cats.Dispatcher.Invoke(delegate { Cats.Items.Refresh(); });
     }
     
 /***********************************************************************************************************************/
@@ -82,7 +89,7 @@ public partial class IncreaseSaldo
             ToolTipService.SetToolTip(textBox, null);
             textBox.Foreground = Brushes.Black;
             _fErrorInTextImput1 = false;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+            ButtonToggle(_fErrorInTextImput0 &&_fErrorInTextImput1);
         }
         else
         {
@@ -91,14 +98,16 @@ public partial class IncreaseSaldo
             ToolTipService.SetToolTip(textBox, tooltip);
             textBox.Foreground = Brushes.Red;
             _fErrorInTextImput1 = true;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
         }
     }
+    
     private void KwotaTextBox_OnGotFocus(object sender, RoutedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
         textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectAll()));
     }
+    
     private void KwotaTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
@@ -107,41 +116,42 @@ public partial class IncreaseSaldo
             e.Handled = true;
         }
         
-        ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+        ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
         
         if (_fFirstTimeImput)
         {
             textBox.Text = e.Text + ",00";
             _fFirstTimeImput = false;
-            Pkwota = textBox.Text;
+            _kwota = textBox.Text;
             e.Handled = true;
-            textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectionStart = Pkwota.Length - 1 - StrUtility.NumberOfDigitsAfterComa(Pkwota)));
+            textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectionStart = _kwota.Length - 1 - StrUtility.NumberOfDigitsAfterComa(_kwota)));
         }
         else
         {
-            Pkwota = textBox.Text;
+            _kwota = textBox.Text;
         }
 
         if (e.Text.ToCharArray()[0] == '.' || e.Text.ToCharArray()[0] == ',')
         {
-            if (!Pkwota.EndsWith(','))
+            if (!_kwota.EndsWith(','))
             {
-                Pkwota += ",";
-                textBox.Text = Pkwota;
+                _kwota += ",";
+                textBox.Text = _kwota;
             }
             textBox.SelectionStart = textBox.Text.Length - StrUtility.NumberOfDigitsAfterComa(textBox.Text);
             e.Handled = true;
         }
     }
+    
     private void KwotaTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
-        Pkwota = textBox.Text;
+        _kwota = textBox.Text;
         
-        if (!StrUtility.IsNumberFormatValid(textBox.Text) || Pkwota == "")
+        if (!StrUtility.IsNumberFormatValid(textBox.Text) || _kwota == "")
         {
             textBox.Text = "0,00";
-            Pkwota = String.Empty;
+            _kwota = String.Empty;
             _fFirstTimeImput = true;
         }
 
@@ -153,6 +163,7 @@ public partial class IncreaseSaldo
             textBox.SelectionStart = temp;
         }
     }
+    
     private void UwagiTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
@@ -161,7 +172,7 @@ public partial class IncreaseSaldo
             ToolTipService.SetToolTip(textBox, null);
             textBox.Foreground = Brushes.Black;
             _fErrorInTextImput0 = false;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
         }
         else
         {
@@ -170,17 +181,15 @@ public partial class IncreaseSaldo
             ToolTipService.SetToolTip(textBox, tooltip);
             textBox.Foreground = Brushes.Red;
             _fErrorInTextImput0 = true;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
         }
     }
-
-/***********************************************************************************************************************/
-/*                                                    Set-Up                                                           */
-/***********************************************************************************************************************/   
+    
     private void KwotaTextBox_OnLoaded(object sender, RoutedEventArgs e)
     {
         DataObject.AddPastingHandler(KwotaTextBox, OnPaste);
     }
+    
     private void OnPaste(object sender, DataObjectPastingEventArgs e)
     {
         try
@@ -192,7 +201,7 @@ public partial class IncreaseSaldo
                 if (string.IsNullOrWhiteSpace(clipboardText) || !StrUtility.IsNumberFormatValid(clipboardText)) e.CancelCommand();
                 else
                 {
-                    Pkwota = clipboardText;
+                    _kwota = clipboardText;
                     _fFirstTimeImput = false;
                     e.CancelCommand();
 
@@ -214,12 +223,19 @@ public partial class IncreaseSaldo
         }
     }
 
-    private void Button_Click(object sender, RoutedEventArgs e)
+/***********************************************************************************************************************/
+/*                                                    Set-Up                                                           */
+/***********************************************************************************************************************/   
+    
+    private void ButtonToggle(bool a)
     {
-        CategoryAdd window = new CategoryAdd();
-        window.ShowDialog();
-        UpdateCategories();
-        Cats.Dispatcher.BeginInvoke(new Action(() => Cats.ItemsSource = _categories));
-        Cats.Dispatcher.Invoke(delegate { Cats.Items.Refresh(); });
+        if (a == false && NazwaTextBox.Text != "" && KwotaTextBox.Text != "0,00")
+        {
+            AddButton.IsEnabled = true;
+        }
+        else
+        {
+            AddButton.IsEnabled = false;
+        }
     }
 }
