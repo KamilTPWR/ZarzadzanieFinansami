@@ -1,0 +1,57 @@
+﻿<Window x:Class="ZarządzanieFinansami.Windows.Settings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:ZarządzanieFinansami.Windows"
+        mc:Ignorable="d"
+        Title="Settings" Height="450" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Zarządzanie budżetem -->
+        <GroupBox Header="Zarządzanie budżetem " Margin="0,0,0,10">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Budżet miesięczny:" Margin="10,0,0,5" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Text="9.81" Margin="10,0,10,5" VerticalAlignment="Center" />
+            </Grid>
+        </GroupBox>
+        
+        <!-- Wyśwetlanie -->
+        <GroupBox Header="Wyświetlanie" Grid.Row="1" Margin="0,0,0,10">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox Name="CurrencyPicker" Loaded="CurrencyPicker_OnLoaded">
+                    <ComboBoxItem Content="PLN"/>
+                    <ComboBoxItem Content="USD"/>
+                    <ComboBoxItem Content="EUR"/>
+                    <ComboBoxItem Content="GPD"/>
+                    <ComboBoxItem Content="YEN"/>
+                </ComboBox>
+                
+            </Grid>
+        </GroupBox>
+        
+        <!-- Save Button -->
+        <Button Grid.Row="2" Content="Save" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="100" />
+    </Grid>
+</Window>

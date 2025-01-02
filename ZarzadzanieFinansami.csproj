@@ -74,6 +74,9 @@
     <ItemGroup>
       <Compile Remove="UnixTest\**" />
       <Compile Remove="NUnitTest\**" />
+      <Compile Update="Enums\CurrencySymbol.cs">
+        <DependentUpon>Currency.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

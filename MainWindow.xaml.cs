@@ -7,6 +7,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using LiveCharts.Dtos;
+using ZarządzanieFinansami.Windows;
 
 namespace ZarzadzanieFinansami;
 
@@ -233,6 +234,7 @@ public partial class MainWindow : Window
         UpdateDataGrid();
         DataGridUtility.UpdateDataGridView(MyDataGridView);
         UpdateWindow();
+        SettingsUtility.LoadSettings();
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -467,6 +469,9 @@ public partial class MainWindow : Window
 
     private void MenuItem_Ustawienia_OnClick(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        double saldo = 123.23423411;
+        SettingsUtility.SaveSettings(StrUtility.FormatValue(saldo), Currency.PLN, 10, "Light");
+        Settings setSettingsWindow = new Settings();
+        setSettingsWindow.ShowDialog();
     }
 }

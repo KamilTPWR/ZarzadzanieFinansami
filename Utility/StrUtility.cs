@@ -24,4 +24,9 @@ public abstract class StrUtility
             return 0;
         return liczba.Length - indeksPrzecinka - 1;
     }
+    public static string FormatValue(double number)
+    {
+        return Math.Round(number, 2).ToString();
+    }
+
 }
