@@ -28,5 +28,4 @@ public abstract class StrUtility
     {
         return Math.Round(number, 2).ToString();
     }
-
 }
