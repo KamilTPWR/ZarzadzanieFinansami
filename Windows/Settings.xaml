@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:ZarządzanieFinansami.Windows"
         mc:Ignorable="d"
-        Title="Settings" Height="450" Width="800">
+        Title="Settings" Height="280" Width="400">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -23,9 +23,8 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-
                     <TextBlock Text="Budżet miesięczny:" Margin="10,0,0,5" VerticalAlignment="Center" />
-                    <TextBox Grid.Column="1" Text="9.81" Margin="10,0,10,5" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Text="" Margin="10,0,10,5" VerticalAlignment="Center" />
             </Grid>
         </GroupBox>
         
@@ -40,18 +39,25 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <ComboBox Name="CurrencyPicker" Loaded="CurrencyPicker_OnLoaded">
+                
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Waluta:" Margin="10,0,0,5" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="CurrencyPicker" Width="60" HorizontalAlignment="Left" Margin="10,0,10,5">
                     <ComboBoxItem Content="PLN"/>
                     <ComboBoxItem Content="USD"/>
                     <ComboBoxItem Content="EUR"/>
                     <ComboBoxItem Content="GPD"/>
                     <ComboBoxItem Content="YEN"/>
                 </ComboBox>
-                
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Motyw:" Margin="10,0,0,5" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="1" Grid.Column="1" Name="ColorShamePicker" Width="120" HorizontalAlignment="Left" Margin="10,0,10,5">
+                    <ComboBoxItem Content="Jasny"/>
+                    <ComboBoxItem Content="Ciemny"/>
+                    <ComboBoxItem Content="Różowy"/>
+                </ComboBox>
             </Grid>
         </GroupBox>
         
         <!-- Save Button -->
-        <Button Grid.Row="2" Content="Save" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="100" />
+        <Button Grid.Row="2" Content="Zapisz" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="100" />
     </Grid>
 </Window>

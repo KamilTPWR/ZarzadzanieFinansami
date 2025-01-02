@@ -67,7 +67,6 @@ public partial class IncreaseSaldo
     {
         Close();
     }
-    
     private void Dodaj_Kategorie_Button_Click(object sender, RoutedEventArgs e)
     {
         CategoryAdd window = new CategoryAdd();
