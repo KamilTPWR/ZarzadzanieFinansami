@@ -37,8 +37,8 @@ public class Transaction : IComparable<Transaction>
             case ComparisonField.Kwota:
                 return Kwota.CompareTo(other.Kwota);
             case ComparisonField.Data:
-                DateTime thisDate = DateTime.ParseExact(Data, "dd.MM.yyyy", null);
-                DateTime otherDate = DateTime.ParseExact(other.Data, "dd.MM.yyyy", null);
+                DateTime thisDate = DateTime.ParseExact(Data, "yyyy-MM-dd", null);
+                DateTime otherDate = DateTime.ParseExact(other.Data, "yyyy-MM-dd", null);
                 return thisDate.CompareTo(otherDate);
             case ComparisonField.Uwagi:
                 return string.Compare(Uwagi, other.Uwagi, StringComparison.OrdinalIgnoreCase);

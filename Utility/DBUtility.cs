@@ -47,7 +47,44 @@ public abstract class DbUtility
         }
         return transactions;
     }
-    
+    public static double GetTransactionsFromDatabase2(out bool success, string StartDate, string EndDate)
+    {
+        string command = $"SELECT SUM(Kwota) FROM ListaTranzakcji WHERE date(Data) > '{StartDate}' AND date(Data) < '{EndDate}'";
+        List<string> columns = Constants.DEFAULTCOLUMNS;
+        double transactions = 0;
+        success = false;
+
+        try
+        {
+            string dataBaseName = ReturnDataBasePath();
+            EnsureNotEmpty(dataBaseName);
+            SQLitePCL.Batteries.Init();
+            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+            using (var reader = SqliteExecuteCommand(connection, command).ExecuteReader())
+            {
+                success = true;
+                while (reader.Read())
+                {
+                    try
+                    {
+                        transactions = reader.GetDouble(0);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        success = false;
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
+        return transactions;
+    }
+
     private static void AddTransactionsFromColumns(List<string> columns, SqliteDataReader reader, List<Transaction> transactions)
     {
         int id = TryGetValue<int>("ListaTranzakcji.ID", columns, reader);

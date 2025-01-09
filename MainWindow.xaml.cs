@@ -1,6 +1,7 @@
 ﻿using System.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
+using System.Media;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -35,6 +36,23 @@ public partial class MainWindow : Window
         UpdateDataGrid();
         ChangeSaldoEvent();
         SetConstants();
+        //DateTime today = DateTime.Today;
+        //DayOfWeek firstDayOfWeek = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
+        //int diffToFirstDayOfWeek = (7 + (today.DayOfWeek - firstDayOfWeek)) % 7;
+        //DateTime firstDayOfWeekDate = today.AddDays(-diffToFirstDayOfWeek);
+        //DateTime lastDayOfWeekDate = firstDayOfWeekDate.AddDays(6);
+
+        //Console.WriteLine($"First day of the week: {firstDayOfWeekDate:yyyy-MM-dd}");
+        //Console.WriteLine($"Last day of the week: {lastDayOfWeekDate:yyyy-MM-dd}");
+        //MessageBox.Show($"First day of the week: {firstDayOfWeekDate:yyyy-MM-dd}");
+        //MessageBox.Show($"Last day of the week: {lastDayOfWeekDate:yyyy-MM-dd}");
+
+        //// First and Last Day of the Month
+        //DateTime firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
+        //DateTime lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+        //Console.WriteLine($"First day of the month: {firstDayOfMonth:yyyy-MM-dd}");
+        //Console.WriteLine($"Last day of the month: {lastDayOfMonth:yyyy-MM-dd}");
     }
 
     /***********************************************************************************************************************/
@@ -50,7 +68,8 @@ public partial class MainWindow : Window
 
     private void UpdateWindow()
     {
-        PageTextBlock.Text = " " + Core.Page + "-" + Core.PagesNumber() + " ";
+        var pagesNumberFormat = " " + Core.Page + "-" + Core.PagesNumber() + " ";
+        PageTextBlock.Text = pagesNumberFormat;
         ChangeSaldoEvent();
         UpdateDataGrid();
         UpdateCharts();
@@ -473,5 +492,6 @@ public partial class MainWindow : Window
         SettingsUtility.SaveSettings(StrUtility.FormatValue(saldo), Currency.PLN, 10, "Light");
         Settings setSettingsWindow = new Settings();
         setSettingsWindow.ShowDialog();
+       // MessageBox.Show(DbUtility.GetTransactionsFromDatabase2(out var success,"2025-01-20","2025-01-01").ToString());
     }
 }
