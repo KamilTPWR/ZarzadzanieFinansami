@@ -33,8 +33,9 @@ public abstract class Constants
     };
     public static readonly string[] EXPECTEDSCHAMES = [
         "CREATE TABLE \"Kategorie\" (\r\n\t\"ID\"\tINTEGER NOT NULL,\r\n\t\"Nazwa\"\tTEXT NOT NULL,\r\n\tPRIMARY KEY(\"ID\" AUTOINCREMENT)\r\n)",
-        "CREATE TABLE \"ListaTranzakcji\" (\r\n\t\"ID\"\tINTEGER NOT NULL,\r\n\t\"Nazwa\"\tTEXT NOT NULL,\r\n\t\"Kwota\"\tREAL NOT NULL,\r\n\t\"Data\"\tTEXT NOT NULL,\r\n\t\"Uwagi\"\tTEXT,\r\n\t\"KategoriaID\"\tINTEGER NOT NULL,\r\n\tPRIMARY KEY(\"ID\" AUTOINCREMENT),\r\n\tCONSTRAINT \"KategorieForeignKey\" FOREIGN KEY(\"KategoriaID\") REFERENCES \"Kategorie\"(\"ID\")\r\n)"
+        "CREATE TABLE \"ListaTranzakcji\" (\n    \"ID\" INTEGER NOT NULL,\n    \"Nazwa\" TEXT NOT NULL,\n    \"Kwota\" REAL NOT NULL,\n    \"Data\" TEXT NOT NULL,\n    \"Uwagi\" TEXT,\n    \"KategoriaID\" INTEGER NOT NULL,\n    PRIMARY KEY(\"ID\" AUTOINCREMENT),\n    CONSTRAINT \"KategorieForeignKey\" FOREIGN KEY(\"KategoriaID\") REFERENCES \"Kategorie\"(\"ID\") ON DELETE CASCADE\n)"
     ];
+    
     public static readonly ColorsCollection COLORS =
     [
         Colors.White, // 1. White

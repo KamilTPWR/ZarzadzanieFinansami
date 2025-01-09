@@ -318,7 +318,6 @@ public abstract class DbUtility
             _dataBasePath = String.Empty;
         }
     }
-
     public static void SaveDatabase()
     {
         var dialog = SaveFileDialog();
@@ -330,12 +329,21 @@ public abstract class DbUtility
             string tempPath = dialog.FileName;
             try
             {
+                ReplaceFileIfNeeded(tempPath);
                 File.Copy(_dataBasePath, tempPath, overwrite: false);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+    }
+
+    private static void ReplaceFileIfNeeded(string tempPath)
+    {
+        if (File.Exists(tempPath))
+        {
+            File.Delete(tempPath);
         }
     }
 

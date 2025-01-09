@@ -86,7 +86,7 @@
                 <Button Width="20" Content="&lt;" Click="ButtonRight_OnClick" />
                 <TextBlock x:Name="PageTextBlock" Width="40" TextAlignment="Center" TextWrapping="NoWrap" />
                 <Button Width="20" Content="&gt;" Click="ButtonLeft_OnClick" />
-                <Button x:Name="ButtonNumberControll" Background="White" BorderBrush="White"
+                <Button x:Name="Button_NumberOfRows" Background="White" BorderBrush="White"
                         Click="ButtonNumberControll_OnClick" />
             </StackPanel>
         </Grid>
@@ -95,14 +95,14 @@
         <TextBlock Grid.Column="1" Grid.Row="0" x:Name="SystemClock" />
 
         <!-- Lewy dolny -->
-        <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MyDataGridView"
+        <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MainDataGrid"
                   HorizontalAlignment="Stretch"
-                  SizeChanged="MyDataGridView_SizeChanged"
-                  Loaded="MyDataGridView_Loaded"
+                  SizeChanged="MainDataGrid_SizeChanged"
+                  Loaded="MainDataGrid_Loaded"
                   AutoGenerateColumns="False"
-                  MouseDoubleClick="MyDataGridView_MouseDoubleClick"
-                  PreviewMouseRightButtonDown="MyDataGridView_PreviewMouseRightButtonDown"
-                  BeginningEdit="MyDataGridView_OnBeginningEdit"
+                  MouseDoubleClick="MainDataGrid_MouseDoubleClick"
+                  PreviewMouseRightButtonDown="MainDataGrid_PreviewMouseRightButtonDown"
+                  BeginningEdit="MainDataGrid_OnBeginningEdit"
                   Sorting="GridViewOnSorting_OnClick"
                   >
             <DataGrid.Columns>
@@ -115,7 +115,7 @@
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Visibility="Collapsed">
-                    <MenuItem Header="Usuń" Click="DataGrid_MenuItem_OnClick">
+                    <MenuItem Header="Usuń" Click="DataGrid_MenuItem_Remove_OnClick">
                         <MenuItem.Icon>
                             <Image Source="Icons/Bin.png" />
                         </MenuItem.Icon>

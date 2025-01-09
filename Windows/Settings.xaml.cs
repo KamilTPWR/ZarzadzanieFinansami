@@ -11,5 +11,4 @@ public partial class Settings : Window
         InitializeComponent();
         CurrencyPicker.SelectedIndex = (int)selectedCurrency;
     }
-    
 }
