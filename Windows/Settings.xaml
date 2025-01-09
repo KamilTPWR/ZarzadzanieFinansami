@@ -24,7 +24,12 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                     <TextBlock Text="Budżet miesięczny:" Margin="10,0,0,5" VerticalAlignment="Center" />
-                    <TextBox Grid.Column="1" Text="" Margin="10,0,10,5" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Text="" Margin="10,0,10,5" VerticalAlignment="Center" x:Name="Box"
+                             GotFocus="Box_OnGotFocus"
+                             PreviewTextInput="Box_PreviewTextInput"
+                             TextChanged="Box_TextChanged"
+                             Loaded="Box_OnLoaded"
+                             />
             </Grid>
         </GroupBox>
         
@@ -48,16 +53,17 @@
                     <ComboBoxItem Content="GPD"/>
                     <ComboBoxItem Content="YEN"/>
                 </ComboBox>
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Motyw:" Margin="10,0,0,5" VerticalAlignment="Center" />
-                <ComboBox Grid.Row="1" Grid.Column="1" Name="ColorShamePicker" Width="120" HorizontalAlignment="Left" Margin="10,0,10,5">
-                    <ComboBoxItem Content="Jasny"/>
-                    <ComboBoxItem Content="Ciemny"/>
-                    <ComboBoxItem Content="Różowy"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Zakres:" Margin="10,0,0,5" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="1" Grid.Column="1" Name="DataRangePicker" Width="120" HorizontalAlignment="Left" Margin="10,0,10,5">
+                    <ComboBoxItem Content="Tygodniowy"/>
+                    <ComboBoxItem Content="Miesięczny"/>
+                    <ComboBoxItem Content="Roczny"/>
                 </ComboBox>
             </Grid>
         </GroupBox>
         
         <!-- Save Button -->
-        <Button Grid.Row="2" Content="Zapisz" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="100" />
+        <Button Grid.Row="2" Content="Zapisz" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="100"
+                Click="SaveButton_OnClick" />
     </Grid>
 </Window>

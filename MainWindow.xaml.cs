@@ -259,7 +259,7 @@ public partial class MainWindow : Window
         UpdateCharts();
         DataGridUtility.UpdateDataGridView(MainDataGrid);
         UpdateWindow();
-        SettingsUtility.LoadSettings();
+        //SettingsUtility.LoadSettings();
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -496,7 +496,7 @@ public partial class MainWindow : Window
     private void MenuItem_Ustawienia_OnClick(object sender, RoutedEventArgs e)
     {
         double saldo = 123.23423411;
-        SettingsUtility.SaveSettings(StrUtility.FormatValue(saldo), Currency.PLN, 10, "Light");
+        //SettingsUtility.SaveSettings(StrUtility.FormatValue(saldo), Currency.PLN, 10);
         Settings setSettingsWindow = new Settings();
         setSettingsWindow.ShowDialog();
        // MessageBox.Show(DbUtility.GetTransactionsFromDatabase2(out var success,"2025-01-20","2025-01-01").ToString());
