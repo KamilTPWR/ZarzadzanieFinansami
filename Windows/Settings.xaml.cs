@@ -12,7 +12,6 @@ public partial class Settings : Window
 
     public Settings()
     {
-        SettingsUtility.DebugLoadSettings(); 
         InitializeComponent();
         InitializeSettings();
     }

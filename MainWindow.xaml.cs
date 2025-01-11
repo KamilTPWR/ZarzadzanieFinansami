@@ -37,6 +37,7 @@ public partial class MainWindow : Window
         UpdateCharts();
         UpdateTextBoxes();
         SetConstants();
+        SettingsUtility.DebugLoadSettings();
         //DateTime today = DateTime.Today;
         //DayOfWeek firstDayOfWeek = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
         //int diffToFirstDayOfWeek = (7 + (today.DayOfWeek - firstDayOfWeek)) % 7;
@@ -124,16 +125,16 @@ public partial class MainWindow : Window
     private void UpdatePieChart()
     {
         SwitchVisibilityOfChart(Pie, _isDatabaseOpen);
-        double x = GetSaldoFromDatabase() * 1.5;
-        double zostalo = GetSaldoFromDatabase();
-        double wydano = x - zostalo;
+        
+        var tempSaldo = Math.Round(Core.GlobalSaldo - GetSaldoFromDatabase(), 2);
+        var tempExpenses = Math.Round(GetSaldoFromDatabase(), 2);
         
         Pie.SeriesColors = Constants.COLORS;
         PieSeries = new SeriesCollection
         {
             CreateSetupSeries(),
-            CreatePieSeries("Wolny budzet", wydano),
-            CreatePieSeries("Zostało", zostalo),
+            CreatePieSeries("Wolny budżet", tempSaldo),
+            CreatePieSeries("Wydatki", tempExpenses),
         };
         DataContext = this;
     }
@@ -217,8 +218,11 @@ public partial class MainWindow : Window
 
     private void UpdateTextBoxes()
     {
-        Saldo.Text = $"Saldo: {GetSaldoFromDatabase() * 0.5:F2} $";
-        Wydatki.Text = $"Wydatki: {GetSaldoFromDatabase():F2} $";
+        string tempSaldo = Math.Round(Core.GlobalSaldo - GetSaldoFromDatabase(), 2) + CurrencySymbol.Currency[Core.GlobalCurrency];
+        string tempExpenses = Math.Round(GetSaldoFromDatabase(), 2) + CurrencySymbol.Currency[Core.GlobalCurrency];
+
+        Saldo.Text = $"Wolny Budżet: {tempSaldo}";
+        Wydatki.Text = $"Wydatki: {tempExpenses}";
     }
 
     /***********************************************************************************************************************/
@@ -495,10 +499,8 @@ public partial class MainWindow : Window
 
     private void MenuItem_Ustawienia_OnClick(object sender, RoutedEventArgs e)
     {
-        double saldo = 123.23423411;
-        //SettingsUtility.SaveSettings(StrUtility.FormatValue(saldo), Currency.PLN, 10);
         Settings setSettingsWindow = new Settings();
         setSettingsWindow.ShowDialog();
-       // MessageBox.Show(DbUtility.GetTransactionsFromDatabase2(out var success,"2025-01-20","2025-01-01").ToString());
+        UpdateWindow();
     }
 }
