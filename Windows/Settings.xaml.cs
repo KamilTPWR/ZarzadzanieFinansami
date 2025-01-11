@@ -12,12 +12,15 @@ public partial class Settings : Window
 
     public Settings()
     {
-        SettingsUtility.LoadSettings(); 
+        SettingsUtility.DebugLoadSettings(); 
         InitializeComponent();
         CurrencyPicker.SelectedIndex = (int)Core.GlobalCurrency;
         Box.Text = StrUtility.FormatValue(Core.GlobalSaldo);
     }
     
+    /***********************************************************************************************************************/
+    /*                                                   TextBoxLogic                                                      */
+    /***********************************************************************************************************************/
     private void Box_OnGotFocus(object sender, RoutedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
@@ -116,6 +119,10 @@ public partial class Settings : Window
         }
     }
     
+    /***********************************************************************************************************************/
+    /*                                                   SaveSettings                                                      */
+    /***********************************************************************************************************************/
+    
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
         var currencyIndex = CurrencyPicker.SelectedIndex;
@@ -130,7 +137,7 @@ public partial class Settings : Window
         //MessageBox.Show($"Selected Data Range: {selectedDataRange}");
         
         SettingsUtility.SaveSettings(_kwota, selectedCurrency, Core.NumberOfRows);
-        SettingsUtility.LoadSettings();
+        SettingsUtility.DebugLoadSettings();
         
         Close();
     }
