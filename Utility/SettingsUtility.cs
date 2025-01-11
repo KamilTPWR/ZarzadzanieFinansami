@@ -94,6 +94,7 @@ public class SettingsUtility
 
         Console.WriteLine("Loaded Settings:");
         Console.WriteLine($"Saldo: {saldo}");
+        Console.WriteLine($"Data Range: {dataRange}");
         Console.WriteLine($"Currency Type: {currencyType}");
         Console.WriteLine($"Rows to Display: {rowsToDisplay}");
     }
@@ -101,49 +102,28 @@ public class SettingsUtility
     private static string ReadDataRange(string line)
     {
         string s = line.Substring("DataRange=".Length).Trim();
-        
         Core.GlobalDataRange = Enum.TryParse<DataRange>(s, out var rowsToDisplay) ? rowsToDisplay : Core.GlobalDataRange;
-        
         return s;
     }
 
     private static string ReadSaldo(string line)
     {
-        string saldo;
-        saldo = line.Substring("Saldo=".Length).Trim();
-        try
-        {
-            Core.GlobalSaldo = double.Parse(saldo);
-
-        }
-        catch (Exception)
-        {
-            saldo = "0,00";
-        }
+        string saldo = line.Substring("Saldo=".Length).Trim();
+        Core.GlobalSaldo = double.TryParse(saldo, out var saldoValue) ? saldoValue : 0.00;
         return saldo;
     }
 
     private static string ReadCurrencyType(string line)
     {
-        string currencyType;
-        currencyType = line.Substring("CurrencyType=".Length).Trim();
-        Core.GlobalCurrency = Enum.TryParse<Currency>(currencyType, out var field) ? field : Currency.PLN;
+        string currencyType = line.Substring("CurrencyType=".Length).Trim();
+        Core.GlobalCurrency = Enum.TryParse<Currency>(currencyType, out var field) ? field : Core.GlobalCurrency;
         return currencyType;
     }
 
     private static string ReadRowsToDisplay(string line)
     {
-        string rowsToDisplay;
-        rowsToDisplay = line.Substring("RowsToDisplay=".Length).Trim();
-        try
-        {
-            Core.NumberOfRows = int.Parse(rowsToDisplay);
-        }
-        catch (Exception)
-        {
-            Core.NumberOfRows = Constants.NUMBEROFROWS;
-        }
-
+        string rowsToDisplay = line.Substring("RowsToDisplay=".Length).Trim();
+        Core.NumberOfRows = int.TryParse(rowsToDisplay, out var numRows) ? numRows : Constants.NUMBEROFROWS;
         return rowsToDisplay;
     }
 

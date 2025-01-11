@@ -2,7 +2,7 @@
 
 public enum DataRange
 {
-    Day,
     Week,
+    Month,
     Year
 }

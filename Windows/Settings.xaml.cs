@@ -14,8 +14,34 @@ public partial class Settings : Window
     {
         SettingsUtility.DebugLoadSettings(); 
         InitializeComponent();
+        InitializeSettings();
+    }
+
+    private void InitializeSettings()
+    {
         CurrencyPicker.SelectedIndex = (int)Core.GlobalCurrency;
+        DataRangePicker.SelectedIndex = (int)Core.GlobalDataRange;
         Box.Text = StrUtility.FormatValue(Core.GlobalSaldo);
+    }
+
+    /***********************************************************************************************************************/
+    /*                                                   SaveSettings                                                      */
+    /***********************************************************************************************************************/
+    
+    private void SaveButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var currencyIndex = CurrencyPicker.SelectedIndex;
+        var dataRangeIndex = DataRangePicker.SelectedIndex;
+        
+        if (_kwota == String.Empty) _kwota = "0,00";
+        
+        var selectedCurrency = (Currency)currencyIndex;
+        var selectedDataRange = (DataRange)dataRangeIndex;
+        
+        SettingsUtility.SaveSettings(_kwota, selectedDataRange, selectedCurrency, Core.NumberOfRows);
+        SettingsUtility.DebugLoadSettings();
+        
+        Close();
     }
     
     /***********************************************************************************************************************/
@@ -117,28 +143,5 @@ public partial class Settings : Window
             Console.WriteLine(exception);
             e.CancelCommand();
         }
-    }
-    
-    /***********************************************************************************************************************/
-    /*                                                   SaveSettings                                                      */
-    /***********************************************************************************************************************/
-    
-    private void SaveButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        var currencyIndex = CurrencyPicker.SelectedIndex;
-        var dataRangeIndex = DataRangePicker.SelectedIndex;
-        if (_kwota == String.Empty) _kwota = "0,00";
-        
-        var selectedCurrency = (Currency)currencyIndex;
-        //string symbol = CurrencySymbol.Currency[selectedCurrency];
-        //MessageBox.Show($"Selected Currency: {selectedCurrency}\nSymbol: {symbol}");
-        
-        var selectedDataRange = (DataRange)dataRangeIndex;
-        //MessageBox.Show($"Selected Data Range: {selectedDataRange}");
-        
-        SettingsUtility.SaveSettings(_kwota, selectedCurrency, Core.NumberOfRows);
-        SettingsUtility.DebugLoadSettings();
-        
-        Close();
     }
 }
