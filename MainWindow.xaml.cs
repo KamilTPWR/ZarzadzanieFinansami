@@ -125,21 +125,24 @@ public partial class MainWindow : Window
     private void UpdatePieChart()
     {
         SwitchVisibilityOfChart(Pie, _isDatabaseOpen);
-        
+
+        NewMethod();
+    }
+
+    private void NewMethod()
+    {
         var tempSaldo = Math.Round(Core.GlobalSaldo - GetSaldoFromDatabase(), 2);
         var tempExpenses = Math.Round(GetSaldoFromDatabase(), 2);
-        
+        if (tempSaldo < 0) tempSaldo = 0;
         Pie.SeriesColors = Constants.COLORS;
         PieSeries = new SeriesCollection
         {
-            CreateSetupSeries(),
             CreatePieSeries("Wolny budżet", tempSaldo),
             CreatePieSeries("Wydatki", tempExpenses),
         };
         DataContext = this;
     }
-    
-    // WARNING: Do not modify this code unless necessary!
+
     private void UpdateTransactionPieChart()
     {
         SwitchVisibilityOfChart(TransactionPieChart, _isDatabaseOpen);
@@ -148,21 +151,23 @@ public partial class MainWindow : Window
         transactions.Sort((x, y) => x.CompareTo(y, ComparisonField.Kwota));
         
         TransactionPieChart.SeriesColors = Constants.COLORS;
-        TransactionPieSeries = new SeriesCollection { CreateSetupSeries() };
+        TransactionPieSeries = new SeriesCollection();
 
-        AddTransactions(transactions);
+        AddTransactionsToPieSeries(transactions);
         
         TransactionPieChart.Series = TransactionPieSeries;
         DataContext = this;
     }
 
-    private void AddTransactions(List<Transaction> transactions , int amount = 10)
+    private void AddTransactionsToPieSeries(List<Transaction> transactions , int amount = 10)
     {
         foreach (var transaction in transactions.Take(amount))
         {
+            string title = transaction.Nazwa;
+            
             TransactionPieSeries.Add(new PieSeries
             {
-                Title = transaction.Nazwa,
+                Title = title.Length <= Constants.SIZEOFLEGEND ? title : title.Substring(0, Constants.SIZEOFLEGEND) + "...",
                 Values = new ChartValues<double> { transaction.Kwota },
                 DataLabels = true
             });
