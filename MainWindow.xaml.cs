@@ -1,4 +1,5 @@
-﻿using System.Media;
+﻿using System.Globalization;
+using System.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
 using System.Media;
@@ -8,6 +9,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using LiveCharts.Dtos;
+using Microsoft.VisualBasic;
 using ZarządzanieFinansami.Windows;
 
 namespace ZarzadzanieFinansami;
@@ -24,11 +26,12 @@ public partial class MainWindow : Window
     private bool _isDatabaseOpen = false;
     
     private List<Transaction> _transactions = new();
+    
     private string? _columnHeader;
     
     public required SeriesCollection PieSeries { get; set; }
     public required SeriesCollection TransactionPieSeries { get; set; }
-
+    
     public MainWindow()
     {
         InitializeComponent();
@@ -38,23 +41,6 @@ public partial class MainWindow : Window
         UpdateTextBoxes();
         SetConstants();
         SettingsUtility.DebugLoadSettings();
-        //DateTime today = DateTime.Today;
-        //DayOfWeek firstDayOfWeek = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
-        //int diffToFirstDayOfWeek = (7 + (today.DayOfWeek - firstDayOfWeek)) % 7;
-        //DateTime firstDayOfWeekDate = today.AddDays(-diffToFirstDayOfWeek);
-        //DateTime lastDayOfWeekDate = firstDayOfWeekDate.AddDays(6);
-
-        //Console.WriteLine($"First day of the week: {firstDayOfWeekDate:yyyy-MM-dd}");
-        //Console.WriteLine($"Last day of the week: {lastDayOfWeekDate:yyyy-MM-dd}");
-        //MessageBox.Show($"First day of the week: {firstDayOfWeekDate:yyyy-MM-dd}");
-        //MessageBox.Show($"Last day of the week: {lastDayOfWeekDate:yyyy-MM-dd}");
-
-        //// First and Last Day of the Month
-        //DateTime firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
-        //DateTime lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-
-        //Console.WriteLine($"First day of the month: {firstDayOfMonth:yyyy-MM-dd}");
-        //Console.WriteLine($"Last day of the month: {lastDayOfMonth:yyyy-MM-dd}");
     }
 
     /***********************************************************************************************************************/
@@ -125,16 +111,23 @@ public partial class MainWindow : Window
     private void UpdatePieChart()
     {
         SwitchVisibilityOfChart(Pie, _isDatabaseOpen);
-
         NewMethod();
     }
 
     private void NewMethod()
     {
-        var tempSaldo = Math.Round(Core.GlobalSaldo - GetSaldoFromDatabase(), 2);
-        var tempExpenses = Math.Round(GetSaldoFromDatabase(), 2);
+        DateHandler dateHandler = new();
+        var startDate = dateHandler.FirstDayOfYear.ToString();
+        var endDate = dateHandler.LastDayOfYear.ToString();
+        
+        var sumOfKwotaInTimeRangeFromDatabase = DbUtility.GetSumOfKwotaInTimeRangeFromDatabase(out _, startDate, endDate );
+        
+        var tempSaldo = Math.Round(Core.GlobalSaldo - sumOfKwotaInTimeRangeFromDatabase, 2);
+        var tempExpenses = Math.Round(sumOfKwotaInTimeRangeFromDatabase, 2);
+        
         if (tempSaldo < 0) tempSaldo = 0;
-        Pie.SeriesColors = Constants.COLORS;
+        
+        Pie.SeriesColors = Constants.COLORSFOR2;
         PieSeries = new SeriesCollection
         {
             CreatePieSeries("Wolny budżet", tempSaldo),
@@ -195,16 +188,6 @@ public partial class MainWindow : Window
             DataLabels = true
         };
     }
-
-    private static PieSeries CreateSetupSeries()
-    {
-        return new PieSeries
-        {
-            Title = Constants.WHITESPACEPIECHART,
-            Values = new ChartValues<double> { 0 },
-            Opacity = 0.1,
-        };
-    }
     
     //TODO: Remove and Rewrite
     private double GetSaldoFromDatabase()
@@ -241,7 +224,7 @@ public partial class MainWindow : Window
         timer.Tick += TickEvent;
         timer.Start();
     }
-
+    
     private void TickEvent(object? sender, EventArgs e)
     {
         SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
@@ -506,6 +489,13 @@ public partial class MainWindow : Window
     {
         Settings setSettingsWindow = new Settings();
         setSettingsWindow.ShowDialog();
+        UpdateWindow();
+    }
+
+    private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        var increaseSaldo = new IncreaseSaldo();
+        increaseSaldo.ShowDialog();
         UpdateWindow();
     }
 }
