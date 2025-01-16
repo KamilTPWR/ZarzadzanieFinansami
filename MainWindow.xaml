@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        Icon="Icons/MainIcon.png"
+        Icon="/Resources/Icons/MainIcon.png"
         mc:Ignorable="d"
         Title="TZF Lite"
         Height="450" Width="800"
@@ -32,55 +32,55 @@
                 <MenuItem Header="_Plik">
                     <MenuItem Header="_Otwórz" Click="MenuItem_Otworz_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/OpenFile.png" />
+                            <Image Source="/Resources/Icons/OpenFile.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="_Nowa" Click="MenuItem_Nowa_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/NewFile.png" />
+                            <Image Source="/Resources/Icons/NewFile.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="_Zapisz jako" Click="MenuItem_Zapisz_jako_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/saveAs.png" />
+                            <Image Source="/Resources/Icons/saveAs.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator />
                     <MenuItem Header="_Ustawienia" Click="MenuItem_Ustawienia_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/gears.png" />
+                            <Image Source="/Resources/Icons/gears.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                         <Separator/>
                     <MenuItem Header="_Zapisz i wyjdź" Click="MenuItem_Wyjdz_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/save1.png" />
+                            <Image Source="/Resources/Icons/save1.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Narzędzia">
-                    <MenuItem Header="Dodaj Rekord">
+                    <MenuItem Header="Dodaj Rekord" Click="MenuItem_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/write_file.png" />
+                            <Image Source="/Resources/Icons/write_file.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Zarządzaj Kategoriami" >
                         <MenuItem.Icon>
-                            <Image Source="Icons/settings_gear.png" />
+                            <Image Source="/Resources/Icons/settings_gear.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                         <Separator />
                     <MenuItem Header="Usuń wszystkie rekordy" 
                               Click="MenuItem_Usun_wszystkie_rekordy_OnClick" >
                         <MenuItem.Icon>
-                            <Image Source="Icons/Bin.png" />
+                            <Image Source="/Resources/Icons/Bin.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Widok">
                     <MenuItem Header="Wybór liczby wierszy" Click="MenuItem_View_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/row.png" />
+                            <Image Source="/Resources/Icons/row.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
@@ -120,7 +120,7 @@
                 <ContextMenu Visibility="Collapsed">
                     <MenuItem Header="Usuń" Click="DataGrid_MenuItem_Remove_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Icons/Bin.png" />
+                            <Image Source="/Resources/Icons/Bin.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>

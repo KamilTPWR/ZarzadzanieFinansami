@@ -11,10 +11,8 @@ public abstract class Constants
     public static readonly string DEFAULTCLOCK = "00/00/0000 00:00:00";
     public static readonly string NULLPAGE = " 0 - 0 ";
     public static readonly string NULLROWNUMBER = " 000/000 ";
-    //public static readonly string WHITESPACEPIECHART =
-        //"\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800";
-        public static readonly string WHITESPACEPIECHART =
-            "\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800";
+    public static readonly string DATEFORMAT = "yyyy-MM-dd";
+
     public static readonly Dictionary<int, int> RAWVALUES  = new()
     {
         { 0, 10 },
@@ -34,6 +32,7 @@ public abstract class Constants
         "Uwagi",
         "Kategorie.Nazwa"
     };
+    //SELECT sql FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence'
     public static readonly string[] EXPECTEDSCHAMES = [
         "CREATE TABLE \"Kategorie\" (\r\n\t\"ID\"\tINTEGER NOT NULL,\r\n\t\"Nazwa\"\tTEXT NOT NULL,\r\n\tPRIMARY KEY(\"ID\" AUTOINCREMENT)\r\n)",
         "CREATE TABLE \"ListaTranzakcji\" (\n    \"ID\" INTEGER NOT NULL,\n    \"Nazwa\" TEXT NOT NULL,\n    \"Kwota\" REAL NOT NULL,\n    \"Data\" TEXT NOT NULL,\n    \"Uwagi\" TEXT,\n    \"KategoriaID\" INTEGER NOT NULL,\n    PRIMARY KEY(\"ID\" AUTOINCREMENT),\n    CONSTRAINT \"KategorieForeignKey\" FOREIGN KEY(\"KategoriaID\") REFERENCES \"Kategorie\"(\"ID\") ON DELETE CASCADE\n)"
@@ -48,9 +47,14 @@ public abstract class Constants
         Colors.SeaGreen, 
         Colors.PaleGreen, 
         Colors.LightGreen, 
-        Colors.SpringGreen, 
         Colors.ForestGreen,
         Colors.Chartreuse,
+    ];
+    
+    public static readonly ColorsCollection COLORSFOR2 =
+    [
+        Colors.ForestGreen, 
+        Colors.Gray
     ];
     
 }

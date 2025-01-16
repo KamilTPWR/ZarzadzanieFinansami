@@ -17,49 +17,70 @@ public class SettingsUtility
         }
     }
 
-    public static string GetSaldoa(string filePath = "settings.ini")
+    public static string GetSaldo(string filePath = "settings.ini")
     {
         if (!IsFileExist(filePath)) return Core.GlobalSaldo.ToString();
         string[] lines = File.ReadAllLines(filePath);
         foreach (string line in lines)
         {
-            return line.Substring("Saldo=".Length).Trim();;
+            if (line.StartsWith("Saldo="))
+            {
+                return line.Substring("Saldo=".Length).Trim();
+            }
         }
         return Core.GlobalSaldo.ToString();
     }
     public static Currency GetCurrencyType(string filePath = "settings.ini")
     {
         if (!IsFileExist(filePath)) return Core.GlobalCurrency;
+    
         string[] lines = File.ReadAllLines(filePath);
         foreach (string line in lines)
         {
-            string s = line.Substring("CurrencyType=".Length).Trim();
-            if (Enum.TryParse(s, out Currency currencyType))
-                return currencyType;
+            if (line.StartsWith("CurrencyType="))
+            {
+                string s = line.Substring("CurrencyType=".Length).Trim();
+                if (Enum.TryParse(s, out Currency currencyType))
+                    return currencyType;
+            }
         }
+    
         return Core.GlobalCurrency;
     }
+
     public static DataRange GetDataRange(string filePath = "settings.ini")
     {
         if (!IsFileExist(filePath)) return Core.GlobalDataRange;
+    
         string[] lines = File.ReadAllLines(filePath);
         foreach (string line in lines)
         {
-            string s = line.Substring("DataRange=".Length).Trim();
-            if (Enum.TryParse(s, out DataRange dataRange))
-                return dataRange;
+            if (line.StartsWith("DataRange="))
+            {
+                string s = line.Substring("DataRange=".Length).Trim();
+                if (Enum.TryParse(s, out DataRange dataRange))
+                    return dataRange;
+            }
         }
+    
         return Core.GlobalDataRange;
     }
+
     public static int GetRowsToDisplay(string filePath = "settings.ini")
     {
         if (!IsFileExist(filePath)) return Core.NumberOfRows;
+    
         string[] lines = File.ReadAllLines(filePath);
         foreach (string line in lines)
         {
-            string s = line.Substring("RowsToDisplay=".Length).Trim();
-            if (int.TryParse(s, out int rowsToDisplay)) return rowsToDisplay;
+            if (line.StartsWith("RowsToDisplay="))
+            {
+                string s = line.Substring("RowsToDisplay=".Length).Trim();
+                if (int.TryParse(s, out int rowsToDisplay)) 
+                    return rowsToDisplay;
+            }
         }
+    
         return Core.NumberOfRows;
     }
     

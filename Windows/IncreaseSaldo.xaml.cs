@@ -45,7 +45,7 @@ public partial class IncreaseSaldo
         var nazwa = NazwaTextBox.Text;
         var kwotaText = KwotaTextBox.Text;
         var uwagi = UwagiTextBox.Text;
-        var data = DateTime.Now.ToString("yyyy-MM-dd");
+        var data = DateTime.Now.ToString(Constants.DATEFORMAT);
         var temp = Cats.SelectedValue;
         
         if (temp != null)
@@ -55,7 +55,7 @@ public partial class IncreaseSaldo
             
             if (selectedDate.HasValue)
             {
-                data = selectedDate.Value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                data = selectedDate.Value.ToString(Constants.DATEFORMAT, System.Globalization.CultureInfo.InvariantCulture);
             }
 
             DbUtility.SaveTransaction(nazwa, kwotaText, data, uwagi, kategoria);

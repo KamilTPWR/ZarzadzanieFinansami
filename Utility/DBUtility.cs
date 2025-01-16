@@ -47,13 +47,11 @@ public abstract class DbUtility
         }
         return transactions;
     }
-    public static double GetTransactionsFromDatabase2(out bool success, string StartDate, string EndDate)
+    public static double GetSumOfKwotaInTimeRangeFromDatabase(out bool success, string StartDate, string EndDate)
     {
         string command = $"SELECT SUM(Kwota) FROM ListaTranzakcji WHERE date(Data) > '{StartDate}' AND date(Data) < '{EndDate}'";
-        List<string> columns = Constants.DEFAULTCOLUMNS;
         double transactions = 0;
         success = false;
-
         try
         {
             string dataBaseName = ReturnDataBasePath();
@@ -275,7 +273,6 @@ public abstract class DbUtility
             MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
-
     public static void OpenDatabase()
     {
         var dialog = OpenFileDialog();

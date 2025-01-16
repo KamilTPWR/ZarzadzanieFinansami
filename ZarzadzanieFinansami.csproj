@@ -25,48 +25,45 @@
     <ItemGroup>
       <None Remove="Icons\kisspng-pixel-c-pixel-art-waste-openbsd-garbage-5ad101ddaa92a0.8790271015236469416987.png" />
       <None Remove="Icons\Excel File +.png" />
-      <Resource Include="Icons\MainIcon.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\saveAs.png" />
-      <Resource Include="Icons\saveAs.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\OpenFile.png" />
-      <Resource Include="Icons\OpenFile.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\NewFile.png" />
-      <Resource Include="Icons\NewFile.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\Bin.png" />
-      <Resource Include="Icons\Bin.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="FinanseDataBase.db" />
-      <Content Include="FinanseDataBase.db">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Icons\write_file.png" />
-      <Resource Include="Icons\write_file.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\settings_gear.png" />
-      <Resource Include="Icons\settings_gear.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\row.png" />
-      <Resource Include="Icons\row.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\gears.png" />
-      <Resource Include="Icons\gears.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Icons\save.png" />
       <None Remove="Icons\save1.png" />
-      <Resource Include="Icons\save1.png">
+      <Resource Include="Resources\Icons\Bin.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\gears.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\MainIcon.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\NewFile.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\OpenFile.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\row.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\save1.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\saveAs.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\settings_gear.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\write_file.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
     </ItemGroup>

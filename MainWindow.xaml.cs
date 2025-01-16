@@ -10,6 +10,8 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using LiveCharts.Dtos;
 using Microsoft.VisualBasic;
+using ZarządzanieFinansami.Instances;
+using ZarządzanieFinansami.Utility;
 using ZarządzanieFinansami.Windows;
 
 namespace ZarzadzanieFinansami;
@@ -29,9 +31,6 @@ public partial class MainWindow : Window
     
     private string? _columnHeader;
     
-    public required SeriesCollection PieSeries { get; set; }
-    public required SeriesCollection TransactionPieSeries { get; set; }
-    
     public MainWindow()
     {
         InitializeComponent();
@@ -41,6 +40,7 @@ public partial class MainWindow : Window
         UpdateTextBoxes();
         SetConstants();
         SettingsUtility.DebugLoadSettings();
+
     }
 
     /***********************************************************************************************************************/
@@ -56,38 +56,59 @@ public partial class MainWindow : Window
 
     private void UpdateWindow()
     {
-        var pagesNumberFormat = " " + Core.Page + "-" + Core.PagesNumber() + " ";
-        PageTextBlock.Text = pagesNumberFormat;
+        PageTextBlock.Text = PagesNumberFormat();
         UpdateTextBoxes();
         UpdateDataGrid();
         UpdateCharts();
         DataGridUtility.UpdateDataGridView(MainDataGrid);
-        Button_NumberOfRows.Content = Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
+        Button_NumberOfRows.Content = FormatNumberOfRows();
     }
-
+    
     private void UpdateDataGrid()
     {
         MainDataGrid.ContextMenu!.Visibility = Visibility.Visible;
+        
         _transactions = DbUtility.GetTransactionsFromDatabase(out var outCome);
+        
+        var transactions = _transactions;
+        
         _isDatabaseOpen = outCome;
-        AddButtonName.IsEnabled = outCome;
+        
+        ToggleButton(outCome);
+        
         if (Enum.TryParse<ComparisonField>(_columnHeader, out var field))
         {
-            var transactions = _transactions;
             transactions.Sort((x, y) => x.CompareTo(y, field));
-            if (_sortDirection)
-            {
-                transactions.Reverse();   
-            }
+            SetSortDirection(transactions, _sortDirection);
             MainDataGrid.DataContext = CropTransactionsToPaginatedTransactions(transactions);
         }
         else
         {
-            MainDataGrid.DataContext = CropTransactionsToPaginatedTransactions(DbUtility.GetTransactionsFromDatabase(out _));
+            MainDataGrid.DataContext = CropTransactionsToPaginatedTransactions(transactions);
         }
         MainDataGrid.ContextMenu!.Visibility = Visibility.Hidden;
     }
-
+    
+    //extracted methods
+    private static string FormatNumberOfRows()
+    {
+        return Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
+    }
+    private static string PagesNumberFormat()
+    {
+        return " " + Core.Page + "-" + Core.PagesNumber() + " ";
+    }
+    private void SetSortDirection(List<Transaction> transactions, bool sortDirection)
+    {
+        if (sortDirection)
+        {
+            transactions.Reverse();   
+        }
+    }
+    private void ToggleButton(bool outCome)
+    {
+        AddButtonName.IsEnabled = outCome;
+    }
     private static List<Transaction> CropTransactionsToPaginatedTransactions(List<Transaction> transactions)
     {
         var paginatedTransactions = transactions
@@ -99,118 +120,45 @@ public partial class MainWindow : Window
 
     
     /***********************************************************************************************************************/
-    /*                                                   PieSeries                                                         */
+    /*                                                 Charts and Display                                                  */
     /***********************************************************************************************************************/
     
     private void UpdateCharts()
     {
-        UpdatePieChart();
-        UpdateTransactionPieChart();
-    }
-    
-    private void UpdatePieChart()
-    {
-        SwitchVisibilityOfChart(Pie, _isDatabaseOpen);
-        NewMethod();
-    }
-
-    private void NewMethod()
-    {
-        DateHandler dateHandler = new();
-        var startDate = dateHandler.FirstDayOfYear.ToString();
-        var endDate = dateHandler.LastDayOfYear.ToString();
-        
-        var sumOfKwotaInTimeRangeFromDatabase = DbUtility.GetSumOfKwotaInTimeRangeFromDatabase(out _, startDate, endDate );
-        
-        var tempSaldo = Math.Round(Core.GlobalSaldo - sumOfKwotaInTimeRangeFromDatabase, 2);
-        var tempExpenses = Math.Round(sumOfKwotaInTimeRangeFromDatabase, 2);
-        
-        if (tempSaldo < 0) tempSaldo = 0;
-        
-        Pie.SeriesColors = Constants.COLORSFOR2;
-        PieSeries = new SeriesCollection
+        //creating charts
+        PieCharsUtility chars = new()
         {
-            CreatePieSeries("Wolny budżet", tempSaldo),
-            CreatePieSeries("Wydatki", tempExpenses),
+            DataContext = this,
+            DatabaseState = _isDatabaseOpen,
+            dateHandler = new DateHandler()
         };
-        DataContext = this;
-    }
-
-    private void UpdateTransactionPieChart()
-    {
-        SwitchVisibilityOfChart(TransactionPieChart, _isDatabaseOpen);
-        
-        var transactions = DbUtility.GetTransactionsFromDatabase(out _);
-        transactions.Sort((x, y) => x.CompareTo(y, ComparisonField.Kwota));
-        
-        TransactionPieChart.SeriesColors = Constants.COLORS;
-        TransactionPieSeries = new SeriesCollection();
-
-        AddTransactionsToPieSeries(transactions);
-        
-        TransactionPieChart.Series = TransactionPieSeries;
-        DataContext = this;
-    }
-
-    private void AddTransactionsToPieSeries(List<Transaction> transactions , int amount = 10)
-    {
-        foreach (var transaction in transactions.Take(amount))
-        {
-            string title = transaction.Nazwa;
-            
-            TransactionPieSeries.Add(new PieSeries
-            {
-                Title = title.Length <= Constants.SIZEOFLEGEND ? title : title.Substring(0, Constants.SIZEOFLEGEND) + "...",
-                Values = new ChartValues<double> { transaction.Kwota },
-                DataLabels = true
-            });
-        }
-    }
-
-    private void SwitchVisibilityOfChart(PieChart chart, bool visibility)
-    {
-        if (visibility == false)
-        {
-            chart.Visibility = Visibility.Collapsed;
-        }
-        else
-        {
-            chart.Visibility = Visibility.Visible;
-        }
-    }
-
-    private static PieSeries CreatePieSeries(string title, double value)
-    {
-        return new PieSeries
-        {
-            Title = title,
-            Values = new ChartValues<double> { Math.Round(value, 2) },
-            DataLabels = true
-        };
-    }
-    
-    //TODO: Remove and Rewrite
-    private double GetSaldoFromDatabase()
-    {
-        var returnValue = 0.0;
-        var transactions = _transactions;
-        transactions.Clear();
-        DataContext = null;
-        
-        transactions = DbUtility.GetTransactionsFromDatabase(out _);
-        foreach (var transaction in transactions) returnValue += transaction.Kwota;
-
-        DataContext = transactions;
-        return returnValue;
+        //displaying charts
+        chars.UpdateCharts(Pie , TransactionPieChart);
     }
 
     private void UpdateTextBoxes()
     {
-        string tempSaldo = Math.Round(Core.GlobalSaldo - GetSaldoFromDatabase(), 2) + CurrencySymbol.Currency[Core.GlobalCurrency];
-        string tempExpenses = Math.Round(GetSaldoFromDatabase(), 2) + CurrencySymbol.Currency[Core.GlobalCurrency];
+        CalculateValuesForChart(out var tempExpenses, out var tempSaldo);
 
         Saldo.Text = $"Wolny Budżet: {tempSaldo}";
         Wydatki.Text = $"Wydatki: {tempExpenses}";
+    }
+
+    private static void CalculateValuesForChart(out string tempExpenses, out string tempSaldo)
+    {
+        DateHandler.GetDatesFromRange(out var startDate, out var lastDate);
+        
+        string currencySymbol = CurrencySymbol.Currency[Core.GlobalCurrency];
+        string formattedStartDate = startDate.ToString(Constants.DATEFORMAT);
+        string formattedLastDate = lastDate.ToString(Constants.DATEFORMAT);
+        
+        double sum = DbUtility.GetSumOfKwotaInTimeRangeFromDatabase(out _, formattedStartDate, formattedLastDate);
+        
+        double expenses = Math.Round(sum, 2);
+        double saldo = Math.Round(Core.GlobalSaldo - expenses, 2);
+        
+        tempExpenses = expenses + currencySymbol;
+        tempSaldo = saldo + currencySymbol;
     }
 
     /***********************************************************************************************************************/
@@ -320,7 +268,6 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
     
-    //TODO: rewrite it
     private void DataGrid_MenuItem_Remove_OnClick(object sender, RoutedEventArgs e)
     {
         if (MainDataGrid.SelectedItems.Count <= 0)
@@ -350,6 +297,7 @@ public partial class MainWindow : Window
                 {
                     DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
                 }
+                
                 UpdateDataGrid();
                 UpdateCharts();
             }
@@ -364,7 +312,6 @@ public partial class MainWindow : Window
     private void MainDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         var dataGrid = sender as DataGrid;
-        object? dataItem;
         var selectedItem = dataGrid?.SelectedIndex;
         if (selectedItem != null && Convert.ToInt32(selectedItem) >= 0)
         {
@@ -372,7 +319,7 @@ public partial class MainWindow : Window
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                dataItem = MainDataGrid.Items[(int)selectedItem];
+                var dataItem = MainDataGrid.Items[(int)selectedItem];
                 DbUtility.DeleteFromDatabase((dataItem as Transaction)!.ID);
                 UpdateDataGrid();
                 UpdateCharts();
