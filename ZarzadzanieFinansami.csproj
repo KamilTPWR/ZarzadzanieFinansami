@@ -29,7 +29,6 @@
       <None Remove="Icons\OpenFile.png" />
       <None Remove="Icons\NewFile.png" />
       <None Remove="Icons\Bin.png" />
-      <None Remove="FinanseDataBase.db" />
       <None Remove="Icons\write_file.png" />
       <None Remove="Icons\settings_gear.png" />
       <None Remove="Icons\row.png" />
@@ -101,6 +100,13 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="FinanseDataBase.db" />
+      <Content Include="FinanseDataBase.db">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

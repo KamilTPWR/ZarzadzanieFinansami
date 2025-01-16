@@ -49,9 +49,9 @@ public abstract class DbUtility
     }
     public static double GetSumOfKwotaInTimeRangeFromDatabase(out bool success, string StartDate, string EndDate)
     {
-        string command = $"SELECT SUM(Kwota) FROM ListaTranzakcji WHERE date(Data) > '{StartDate}' AND date(Data) < '{EndDate}'";
         double transactions = 0;
         success = false;
+        string command = $"SELECT SUM(Kwota) FROM ListaTranzakcji WHERE date(Data) > '{StartDate}' AND date(Data) < '{EndDate}'";
         try
         {
             string dataBaseName = ReturnDataBasePath();
@@ -60,21 +60,12 @@ public abstract class DbUtility
             using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
             using (var reader = SqliteExecuteCommand(connection, command).ExecuteReader())
             {
-                success = true;
                 while (reader.Read())
                 {
-                    try
-                    {
-                        transactions = reader.GetDouble(0);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Nie spodziewany bład GetFromDatabase", MessageBoxButton.OK,
-                            MessageBoxImage.Error);
-                        success = false;
-                    }
+                    transactions = reader.GetDouble(0);
                 }
             }
+            success = true;
         }
         catch (Exception)
         {

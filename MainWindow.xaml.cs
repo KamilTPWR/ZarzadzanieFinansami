@@ -139,9 +139,17 @@ public partial class MainWindow : Window
     private void UpdateTextBoxes()
     {
         CalculateValuesForChart(out var tempExpenses, out var tempSaldo);
-
+        FormatDateString(out var _s, out var _l);
+        Date.Text = $"Zakres: {_s} — {_l}";
         Saldo.Text = $"Wolny Budżet: {tempSaldo}";
         Wydatki.Text = $"Wydatki: {tempExpenses}";
+    }
+
+    private static void FormatDateString(out string s, out string l)
+    {
+        DateHandler.GetDatesFromRange(out var ss , out var ll);
+        s = ss.ToString(Constants.DATEFORMAT);
+        l = ll.ToString(Constants.DATEFORMAT);
     }
 
     private static void CalculateValuesForChart(out string tempExpenses, out string tempSaldo)

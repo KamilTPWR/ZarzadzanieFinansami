@@ -136,6 +136,7 @@
             <StackPanel MinWidth="160">
                 <GroupBox Margin="5" MinHeight="80" Header="Finanse">
                     <StackPanel HorizontalAlignment="Left">
+                        <TextBlock x:Name="Date" FontSize="16" Padding="3"/>
                         <TextBlock x:Name="Saldo" FontSize="16" Padding="3"/>
                         <TextBlock x:Name="Wydatki" FontSize="16" Padding="3"/>
                         <lvc:PieChart MinHeight="200" 
