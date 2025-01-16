@@ -8,7 +8,6 @@ public class TransactionTests
 {
     private Transaction _transaction1;
     private Transaction _transaction2;
-
     [SetUp]
     public void SetUp()
     {
