@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using ZarzadzanieFinansami;
 
+namespace ZarzadzanieFinansami.Tests;
 [TestFixture]
 public class StrUtilityTests
 {
