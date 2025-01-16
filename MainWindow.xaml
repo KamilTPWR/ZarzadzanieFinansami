@@ -95,7 +95,7 @@
         </Grid>
 
         <!-- Prawy gorny -->
-        <TextBlock Grid.Column="1" Grid.Row="0" x:Name="SystemClock" />
+        <TextBlock Grid.Column="1" Grid.Row="0" x:Name="SystemClock" HorizontalAlignment="Center" FontSize="16"/>
 
         <!-- Lewy dolny -->
         <DataGrid ItemsSource="{Binding}" Grid.Row="1" Grid.Column="0" x:Name="MainDataGrid"
@@ -150,7 +150,7 @@
                         </lvc:PieChart>
                     </StackPanel>
                 </GroupBox>
-                
+                <GroupBox Margin="5" MinHeight="80" Header="Top 10 największych tranzakcji" x:Name="top10">
                 <lvc:PieChart MinHeight="200" MinWidth="160" 
                               Series="{Binding TransactionPieSeries}"  
                               StartingRotationAngle="0" 
@@ -158,6 +158,7 @@
                               DisableAnimations="False" 
                               x:Name="TransactionPieChart">
                 </lvc:PieChart>
+                </GroupBox>
             </StackPanel> 
             <Button Grid.Row="1"
                 Click="AddButton_OnClick" 

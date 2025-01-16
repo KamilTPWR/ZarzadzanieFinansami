@@ -134,6 +134,7 @@ public partial class MainWindow : Window
         };
         //displaying charts
         chars.UpdateCharts(Pie , TransactionPieChart);
+        top10.Visibility = _isDatabaseOpen ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void UpdateTextBoxes()
