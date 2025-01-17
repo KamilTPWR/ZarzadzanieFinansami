@@ -25,29 +25,46 @@
     <ItemGroup>
       <None Remove="Icons\kisspng-pixel-c-pixel-art-waste-openbsd-garbage-5ad101ddaa92a0.8790271015236469416987.png" />
       <None Remove="Icons\Excel File +.png" />
-      <Resource Include="Icons\MainIcon.png">
+      <None Remove="Icons\saveAs.png" />
+      <None Remove="Icons\OpenFile.png" />
+      <None Remove="Icons\NewFile.png" />
+      <None Remove="Icons\Bin.png" />
+      <None Remove="Icons\write_file.png" />
+      <None Remove="Icons\settings_gear.png" />
+      <None Remove="Icons\row.png" />
+      <None Remove="Icons\gears.png" />
+      <None Remove="Icons\save.png" />
+      <None Remove="Icons\save1.png" />
+      <Resource Include="Resources\Icons\Bin.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
-      <None Remove="Icons\saveAs.png" />
-      <Resource Include="Icons\saveAs.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Resource Include="Resources\Icons\gears.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
-      <None Remove="Icons\OpenFile.png" />
-      <Resource Include="Icons\OpenFile.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Resource Include="Resources\Icons\MainIcon.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
-      <None Remove="Icons\NewFile.png" />
-      <Resource Include="Icons\NewFile.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Resource Include="Resources\Icons\NewFile.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
-      <None Remove="Icons\Bin.png" />
-      <Resource Include="Icons\Bin.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Resource Include="Resources\Icons\OpenFile.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
-      <None Remove="FinanseDataBase.db" />
-      <Content Include="FinanseDataBase.db">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      <Resource Include="Resources\Icons\row.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\save1.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\saveAs.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\settings_gear.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="Resources\Icons\write_file.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
     <ItemGroup>
@@ -78,11 +95,22 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
-      <Page Update="Windows\MainWindow.xaml">
+      <Page Update="MainWindow.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
     </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="FinanseDataBase.db" />
+      <Content Include="FinanseDataBase.db">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <ApplicationIcon>Resources/Icons/MainIcon.ico</ApplicationIcon>
+    </PropertyGroup>
 
 </Project>

@@ -1,10 +1,18 @@
-﻿using LiveCharts;
+﻿using System.Globalization;
+using System.Media;
+using LiveCharts;
 using LiveCharts.Wpf;
+using System.Media;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using LiveCharts.Dtos;
+using Microsoft.VisualBasic;
+using ZarządzanieFinansami.Instances;
+using ZarządzanieFinansami.Utility;
+using ZarządzanieFinansami.Windows;
 
 namespace ZarzadzanieFinansami;
 
@@ -16,19 +24,23 @@ namespace ZarzadzanieFinansami;
 public partial class MainWindow : Window
 {
     private bool _isClosing = false;
-    private List<Transaction> _transactions = new();
-    private string? _columnHeader;
     private bool _sortDirection = true;
-    public required SeriesCollection PieSeries { get; set; }
-    public required SeriesCollection TransactionPieSeries { get; set; }
-
+    private bool _isDatabaseOpen = false;
+    
+    private List<Transaction> _transactions = new();
+    
+    private string? _columnHeader;
+    
     public MainWindow()
     {
         InitializeComponent();
         StartClock();
         UpdateDataGrid();
-        ChangeSaldoEvent();
+        UpdateCharts();
+        UpdateTextBoxes();
         SetConstants();
+        SettingsUtility.DebugLoadSettings();
+
     }
 
     /***********************************************************************************************************************/
@@ -39,41 +51,64 @@ public partial class MainWindow : Window
     {
         SystemClock.Text = Constants.DEFAULTCLOCK;
         PageTextBlock.Text = Constants.NULLPAGE;
-        ButtonNumberControll.Content = Constants.NULLROWNUMBER;
+        Button_NumberOfRows.Content = Constants.NULLROWNUMBER;
     }
 
     private void UpdateWindow()
     {
-        PageTextBlock.Text = " " + Core.Page + "-" + Core.PagesNumber() + " ";
-        ChangeSaldoEvent();
+        PageTextBlock.Text = PagesNumberFormat();
+        UpdateTextBoxes();
         UpdateDataGrid();
         UpdateCharts();
-        DataGridUtility.UpdateDataGridView(MyDataGridView);
-        ButtonNumberControll.Content = Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
+        DataGridUtility.UpdateDataGridView(MainDataGrid);
+        Button_NumberOfRows.Content = FormatNumberOfRows();
     }
-
+    
     private void UpdateDataGrid()
     {
-        MyDataGridView.ContextMenu!.Visibility = Visibility.Visible;
-        _transactions = DbUtility.GetFromDatabase();
+        MainDataGrid.ContextMenu!.Visibility = Visibility.Visible;
+        
+        _transactions = DbUtility.GetTransactionsFromDatabase(out var outCome);
+        
+        var transactions = _transactions;
+        
+        _isDatabaseOpen = outCome;
+        
+        ToggleButton(outCome);
+        
         if (Enum.TryParse<ComparisonField>(_columnHeader, out var field))
         {
-            var transactions = _transactions;
             transactions.Sort((x, y) => x.CompareTo(y, field));
-            if (_sortDirection)
-            {
-                transactions.Reverse();   
-            }
-            MyDataGridView.DataContext = CropTransactionsToPaginatedTransactions(transactions);
+            SetSortDirection(transactions, _sortDirection);
+            MainDataGrid.DataContext = CropTransactionsToPaginatedTransactions(transactions);
         }
         else
         {
-            MyDataGridView.DataContext = CropTransactionsToPaginatedTransactions(DbUtility.GetFromDatabase());
+            MainDataGrid.DataContext = CropTransactionsToPaginatedTransactions(transactions);
         }
-        MyDataGridView.ContextMenu!.Visibility = Visibility.Hidden;
-        UpdateCharts();
+        MainDataGrid.ContextMenu!.Visibility = Visibility.Hidden;
     }
-
+    
+    //extracted methods
+    private static string FormatNumberOfRows()
+    {
+        return Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
+    }
+    private static string PagesNumberFormat()
+    {
+        return " " + Core.Page + "-" + Core.PagesNumber() + " ";
+    }
+    private void SetSortDirection(List<Transaction> transactions, bool sortDirection)
+    {
+        if (sortDirection)
+        {
+            transactions.Reverse();   
+        }
+    }
+    private void ToggleButton(bool outCome)
+    {
+        AddButtonName.IsEnabled = outCome;
+    }
     private static List<Transaction> CropTransactionsToPaginatedTransactions(List<Transaction> transactions)
     {
         var paginatedTransactions = transactions
@@ -83,84 +118,62 @@ public partial class MainWindow : Window
         return paginatedTransactions;
     }
 
-    private void UpdatePieChart()
-    {
-        double x = GetSaldoFromDatabase() * 1.5;
-        double zostalo = GetSaldoFromDatabase();
-        double wydano = x - zostalo;
-        Pie.SeriesColors = Constants.COLORS;
-        PieSeries = new SeriesCollection
-        {
-            CreateSetupSeries(),
-            CreatePieSeries("Wolny budzet", wydano),
-            CreatePieSeries("Zostało", zostalo),
-        };
-        DataContext = this;
-    }
-
-    private void UpdateTransactionPieChart()
-    {
-        var transactions = _transactions;
-        transactions.Sort((x, y) => x.CompareTo(y, ComparisonField.Kwota));
-        TransactionPieSeries = new SeriesCollection
-        {
-            CreateSetupSeries(),
-        };
-        TransactionPieChart.SeriesColors = Constants.COLORS;
-        foreach (var transaction in transactions.Take(10))
-        {
-            TransactionPieSeries.Add(new PieSeries
-            {
-                Title = transaction.Nazwa,
-                Values = new ChartValues<double> { transaction.Kwota },
-                DataLabels = true
-            });
-        }
-        DataContext = this;
-    }
-
-    private static PieSeries CreatePieSeries(string title, double value)
-    {
-        return new PieSeries
-        {
-            Title = title,
-            Values = new ChartValues<double> { Math.Round(value, 2) },
-            DataLabels = true
-        };
-    }
-
-    private static PieSeries CreateSetupSeries()
-    {
-        return new PieSeries
-        {
-            Title = Constants.WHITESPACEPIECHART,
-            Values = new ChartValues<double> { 0 },
-            Opacity = 0.1,
-        };
-    }
+    
+    /***********************************************************************************************************************/
+    /*                                                 Charts and Display                                                  */
+    /***********************************************************************************************************************/
     
     private void UpdateCharts()
     {
-        UpdatePieChart();
-        UpdateTransactionPieChart();
+        //creating charts
+        PieCharsUtility chars = new()
+        {
+            DataContext = this,
+            DatabaseState = _isDatabaseOpen,
+            dateHandler = new DateHandler()
+        };
+        //displaying charts
+        chars.UpdateCharts(Pie , TransactionPieChart, CatPieChart);
+        SetVisibility();
     }
 
-    private double GetSaldoFromDatabase()
+    private void SetVisibility()
     {
-        var returnValue = 0.0;
-        _transactions.Clear();
-        DataContext = null;
-        _transactions = DbUtility.GetFromDatabase();
-        foreach (var transaction in _transactions) returnValue += transaction.Kwota;
-
-        DataContext = _transactions;
-        return returnValue;
+        Top10.Visibility = _isDatabaseOpen ? Visibility.Visible : Visibility.Collapsed;
+        TopCat.Visibility = _isDatabaseOpen ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void ChangeSaldoEvent()
+    private void UpdateTextBoxes()
     {
-        Saldo.Text = $"Saldo: {GetSaldoFromDatabase() * 0.5:F2} $";
-        Wydatki.Text = $"Wydatki: {GetSaldoFromDatabase():F2} $";
+        CalculateValuesForChart(out var tempExpenses, out var tempSaldo);
+        FormatDateString(out var _s, out var _l);
+        Date.Text = $"Zakres: {_s} — {_l}";
+        Saldo.Text = $"Wolny Budżet: {tempSaldo}";
+        Wydatki.Text = $"Wydatki: {tempExpenses}";
+    }
+
+    private static void FormatDateString(out string s, out string l)
+    {
+        DateHandler.GetDatesFromRange(out var ss , out var ll);
+        s = ss.ToString(Constants.DATEFORMAT);
+        l = ll.ToString(Constants.DATEFORMAT);
+    }
+
+    private static void CalculateValuesForChart(out string tempExpenses, out string tempSaldo)
+    {
+        DateHandler.GetDatesFromRange(out var startDate, out var lastDate);
+        
+        string currencySymbol = CurrencySymbol.Currency[Core.GlobalCurrency];
+        string formattedStartDate = startDate.ToString(Constants.DATEFORMAT);
+        string formattedLastDate = lastDate.ToString(Constants.DATEFORMAT);
+        
+        double sum = DbUtility.GetSumOfKwotaInTimeRangeFromDatabase(out _, formattedStartDate, formattedLastDate);
+        
+        double expenses = Math.Round(sum, 2);
+        double saldo = Math.Round(Core.GlobalSaldo - expenses, 2);
+        
+        tempExpenses = expenses + currencySymbol;
+        tempSaldo = saldo + currencySymbol;
     }
 
     /***********************************************************************************************************************/
@@ -174,7 +187,7 @@ public partial class MainWindow : Window
         timer.Tick += TickEvent;
         timer.Start();
     }
-
+    
     private void TickEvent(object? sender, EventArgs e)
     {
         SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
@@ -184,30 +197,33 @@ public partial class MainWindow : Window
     /*                                         Auto Events Handlers                                                        */
     /***********************************************************************************************************************/
 
-    private void MyDataGridView_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void MainDataGrid_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (Constants.STATICNUMBEROFCOLUMNS == MyDataGridView.Columns.Count)
-            DataGridUtility.UpdateDataGridView(MyDataGridView);
+        if (Constants.STATICNUMBEROFCOLUMNS == MainDataGrid.Columns.Count)
+            DataGridUtility.UpdateDataGridView(MainDataGrid);
     }
 
-    private void MyDataGridView_OnBeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
+    private void MainDataGrid_OnBeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
     {
         e.Cancel = true;
     }
 
-    private void MyDataGridView_Loaded(object sender, RoutedEventArgs e)
+    private void MainDataGrid_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateDataGrid();
-        DataGridUtility.UpdateDataGridView(MyDataGridView);
+        UpdateCharts();
+        DataGridUtility.UpdateDataGridView(MainDataGrid);
         UpdateWindow();
+        //SettingsUtility.LoadSettings();
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
         if (_isClosing) return;
+        SystemSounds.Exclamation.Play();
         MessageBoxResult result = MessageBox.Show(
-            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program",
-            MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            "Czy napewno chcesz zamknąć program? \n Dane zostaną zapisane.", "Zamknij program",
+            MessageBoxButton.YesNo, MessageBoxImage.Question);
         switch (result)
         {
             case MessageBoxResult.No:
@@ -267,9 +283,9 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
     
-    private void DataGrid_MenuItem_OnClick(object sender, RoutedEventArgs e)
+    private void DataGrid_MenuItem_Remove_OnClick(object sender, RoutedEventArgs e)
     {
-        if (MyDataGridView.SelectedItems.Count <= 0)
+        if (MainDataGrid.SelectedItems.Count <= 0)
         {
             MessageBox.Show("Nie wybrano żadnych tranzakcji do usunięcia.", "Błąd", MessageBoxButton.OK,
                 MessageBoxImage.Error);
@@ -278,7 +294,7 @@ public partial class MainWindow : Window
         {
             var columnValues = new List<object>();
 
-            foreach (var selectedItem in MyDataGridView.SelectedItems)
+            foreach (var selectedItem in MainDataGrid.SelectedItems)
             {
                 var item = selectedItem as dynamic;
                 if (item != null)
@@ -290,15 +306,15 @@ public partial class MainWindow : Window
             var message =
                 $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
 
-            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
-                MessageBoxResult.Yes)
+            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 foreach (var id in columnValues)
                 {
                     DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
                 }
-
+                
                 UpdateDataGrid();
+                UpdateCharts();
             }
         }
     }
@@ -308,10 +324,9 @@ public partial class MainWindow : Window
     /*                                                 ContextMenuLogic                                                    */
     /***********************************************************************************************************************/
 
-    private void MyDataGridView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    private void MainDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         var dataGrid = sender as DataGrid;
-        object? dataItem;
         var selectedItem = dataGrid?.SelectedIndex;
         if (selectedItem != null && Convert.ToInt32(selectedItem) >= 0)
         {
@@ -319,15 +334,16 @@ public partial class MainWindow : Window
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                dataItem = MyDataGridView.Items[(int)selectedItem];
+                var dataItem = MainDataGrid.Items[(int)selectedItem];
                 DbUtility.DeleteFromDatabase((dataItem as Transaction)!.ID);
                 UpdateDataGrid();
+                UpdateCharts();
             }
 
         }
     }
 
-    private void MyDataGridView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    private void MainDataGrid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         DataGrid dataGrid = (sender as DataGrid)!;
         if (dataGrid.ContextMenu != null && dataGrid.ContextMenu.Visibility == Visibility.Collapsed)
@@ -336,15 +352,15 @@ public partial class MainWindow : Window
             if (Application.Current.MainWindow != null)
             {
                 Point screenPoint = Application.Current.MainWindow.PointToScreen(mousePosition);
-                dataGrid.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Absolute;
+                dataGrid.ContextMenu.Placement = PlacementMode.Absolute;
                 dataGrid.ContextMenu.HorizontalOffset = screenPoint.X;
                 dataGrid.ContextMenu.VerticalOffset = screenPoint.Y;
             }
         }
 
-        if (dataGrid.ContextMenu != null && MyDataGridView.SelectedItems.Count > 0)
+        if (dataGrid.ContextMenu != null && MainDataGrid.SelectedItems.Count > 0)
         {
-            foreach (var selectedItem in MyDataGridView.SelectedItems)
+            foreach (var selectedItem in MainDataGrid.SelectedItems)
             {
                 var item = selectedItem as dynamic;
                 if (item != null && dataGrid.ContextMenu != null)
@@ -388,14 +404,60 @@ public partial class MainWindow : Window
 
     private void MenuItem_Wyjdz_OnClick(object sender, RoutedEventArgs e)
     {
+        SystemSounds.Exclamation.Play();
         MessageBoxResult result = MessageBox.Show(
-            "Na pewno chcesz zamknąć program? Niezapisane dane zostaną utracone.", "Zamknij program",
-            MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            "Czy napewno chcesz zamknąć program? \n Dane zostaną zapisane.", "Zamknij program", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (result == MessageBoxResult.Yes)
         {
             _isClosing = true;
             Application.Current.Shutdown();
         }
     }
-    
+
+    private void MenuItem_Usun_wszystkie_rekordy_OnClick(object sender, RoutedEventArgs e)
+    {
+        var IDs = new List<int>();
+        foreach (var transaction in _transactions)
+        {
+            IDs.Add(transaction.ID);
+        }
+
+        if (IDs.Count <= 0)
+        {
+            ShowNullDataBaseError();
+            return;
+        }
+        
+        SystemSounds.Exclamation.Play();
+        var message =
+            $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {IDs.Count} ?\nTej operacji nie da się odwrócić.";
+        if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+            MessageBoxResult.Yes)
+        {
+            foreach (var id in IDs)
+            {
+                DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
+            }
+            UpdateWindow();
+        }
+    }
+
+    private void ShowNullDataBaseError()
+    {
+        MessageBox.Show("Nie wybrano bazy danych.", "Brak bazy danych", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+
+    private void MenuItem_Ustawienia_OnClick(object sender, RoutedEventArgs e)
+    {
+        Settings setSettingsWindow = new Settings();
+        setSettingsWindow.ShowDialog();
+        UpdateWindow();
+    }
+
+    private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        var increaseSaldo = new IncreaseSaldo();
+        increaseSaldo.ShowDialog();
+        UpdateWindow();
+    }
 }

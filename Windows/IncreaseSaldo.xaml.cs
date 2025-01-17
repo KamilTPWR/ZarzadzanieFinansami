@@ -11,11 +11,13 @@ namespace ZarzadzanieFinansami;
 
 public partial class IncreaseSaldo
 {
-    protected string Pkwota = String.Empty;
+    private string _kwota = String.Empty;
+    
     private bool _fFirstTimeImput = true;
     private bool _fErrorInTextImput0 = false;
     private bool _fErrorInTextImput1 = false;
-    private List<string> _categories = new List<string>();
+    
+    private List<string> _categories = new();
 
     public IncreaseSaldo()
     {
@@ -30,7 +32,7 @@ public partial class IncreaseSaldo
         Cats.ItemsSource = _categories;
         foreach (Category category in temp)
         {
-            _categories.Add(category.ID + "." + category.Name);
+            _categories.Add(category.ID + ". " + category.Name);
         }
         Cats.ItemsSource = _categories;
     }
@@ -40,34 +42,43 @@ public partial class IncreaseSaldo
 /***********************************************************************************************************************/    
     private void DodajButton_Click(object sender, RoutedEventArgs e)
     {
-        // Get the values from TextBoxes
         var nazwa = NazwaTextBox.Text;
         var kwotaText = KwotaTextBox.Text;
         var uwagi = UwagiTextBox.Text;
-        var data = DateTime.Now.ToString("dd/MM/yyyy");
-        var kategoria = Convert.ToInt32(Cats.SelectedValue.ToString().Split(".")[0]);
-        DateTime? selectedDate = Datepicker.SelectedDate;
-        if (selectedDate.HasValue)
+        var data = DateTime.Now.ToString(Constants.DATEFORMAT);
+        var temp = Cats.SelectedValue;
+        
+        if (temp != null)
         {
-            data = selectedDate.Value.ToString("dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            Int32 kategoria = Convert.ToInt32(temp.ToString()!.Split(".")[0]);
+            DateTime? selectedDate = Datepicker.SelectedDate;
+            
+            if (selectedDate.HasValue)
+            {
+                data = selectedDate.Value.ToString(Constants.DATEFORMAT, System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            DbUtility.SaveTransaction(nazwa, kwotaText, data, uwagi, kategoria);
+            Close();
         }
-        DbUtility.SaveTransaction(nazwa, kwotaText, data, uwagi, kategoria);
-        Close();
+        else
+        {
+            MessageBox.Show("Nie wybrano Kategorii.", "Nie wybrano kategorii.", MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            e.Handled = true;
+        }
     }
     private void AnulujButton_Click(object sender, RoutedEventArgs e)
     {
         Close();
     }
-    private void ButtonToggle(bool a, bool b)
+    private void Dodaj_Kategorie_Button_Click(object sender, RoutedEventArgs e)
     {
-        if (a == false && b == false && NazwaTextBox.Text != "" && KwotaTextBox.Text != "0,00")
-        {
-            AddButton.IsEnabled = true;
-        }
-        else
-        {
-            AddButton.IsEnabled = false;
-        }
+        CategoryAdd window = new CategoryAdd();
+        window.ShowDialog();
+        UpdateCategories();
+        Cats.Dispatcher.BeginInvoke(new Action(() => Cats.ItemsSource = _categories));
+        Cats.Dispatcher.Invoke(delegate { Cats.Items.Refresh(); });
     }
     
 /***********************************************************************************************************************/
@@ -77,75 +88,95 @@ public partial class IncreaseSaldo
     private void NazwaTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
-        if (Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,30}$") && textBox.Text != "")
+        if (IsMatchTitleRegex(textBox))
         {
             ToolTipService.SetToolTip(textBox, null);
             textBox.Foreground = Brushes.Black;
+            
             _fErrorInTextImput1 = false;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+            
+            ButtonToggle(_fErrorInTextImput0 &&_fErrorInTextImput1);
         }
         else
         {
-            ToolTip tooltip = new ToolTip();
-            tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 30 znaków.";
+            var tooltip = ShowTitleTooltip();
+
             ToolTipService.SetToolTip(textBox, tooltip);
             textBox.Foreground = Brushes.Red;
+            
             _fErrorInTextImput1 = true;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+            
+            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
         }
     }
+
+    private static ToolTip ShowTitleTooltip()
+    {
+        ToolTip tooltip = new ToolTip();
+        tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 30 znaków.";
+        return tooltip;
+    }
+
+    private static bool IsMatchTitleRegex(TextBox textBox)
+    {
+        return Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,30}$") && textBox.Text != "";
+    }
+
     private void KwotaTextBox_OnGotFocus(object sender, RoutedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
         textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectAll()));
     }
+    
     private void KwotaTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
-        if (!StrUtility.IsNumberFormatValid(e.Text))
-        {
-            e.Handled = true;
-        }
         
-        ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+        if (!StrUtility.IsNumberFormatValid(e.Text)) e.Handled = true;
         
+        ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
+        
+        //A bit of Magic
+        //Made by trial and error
         if (_fFirstTimeImput)
         {
             textBox.Text = e.Text + ",00";
             _fFirstTimeImput = false;
-            Pkwota = textBox.Text;
+            _kwota = textBox.Text;
             e.Handled = true;
-            textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectionStart = Pkwota.Length - 1 - StrUtility.NumberOfDigitsAfterComa(Pkwota)));
+            textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectionStart = _kwota.Length - 1 - StrUtility.NumberOfDigitsAfterComa(_kwota)));
         }
         else
         {
-            Pkwota = textBox.Text;
+            _kwota = textBox.Text;
         }
 
         if (e.Text.ToCharArray()[0] == '.' || e.Text.ToCharArray()[0] == ',')
         {
-            if (!Pkwota.EndsWith(','))
+            if (!_kwota.EndsWith(','))
             {
-                Pkwota += ",";
-                textBox.Text = Pkwota;
+                _kwota += ",";
+                textBox.Text = _kwota;
             }
             textBox.SelectionStart = textBox.Text.Length - StrUtility.NumberOfDigitsAfterComa(textBox.Text);
             e.Handled = true;
         }
     }
+    
     private void KwotaTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
-        Pkwota = textBox.Text;
+        _kwota = textBox.Text;
         
-        if (!StrUtility.IsNumberFormatValid(textBox.Text) || Pkwota == "")
-        {
-            textBox.Text = "0,00";
-            Pkwota = String.Empty;
-            _fFirstTimeImput = true;
-        }
-
+        HandleInvalidFormat(textBox);
+        
         textBox.Text = textBox.Text.Trim();
+        
+        HandleToManySpacesAfterComa(textBox);
+    }
+
+    private static void HandleToManySpacesAfterComa(TextBox textBox)
+    {
         if (StrUtility.NumberOfDigitsAfterComa(textBox.Text) > 2)
         {
             var temp = textBox.SelectionStart;
@@ -153,34 +184,58 @@ public partial class IncreaseSaldo
             textBox.SelectionStart = temp;
         }
     }
-    private void UwagiTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+
+    private void HandleInvalidFormat(TextBox textBox)
     {
-        TextBox textBox = (sender as TextBox)!;
-        if (Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,220}$") && textBox.Text != "")
+        if (!StrUtility.IsNumberFormatValid(textBox.Text) || _kwota == "")
         {
-            ToolTipService.SetToolTip(textBox, null);
-            textBox.Foreground = Brushes.Black;
-            _fErrorInTextImput0 = false;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
-        }
-        else
-        {
-            ToolTip tooltip = new ToolTip();
-            tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 220 znaków.";
-            ToolTipService.SetToolTip(textBox, tooltip);
-            textBox.Foreground = Brushes.Red;
-            _fErrorInTextImput0 = true;
-            ButtonToggle(_fErrorInTextImput0,_fErrorInTextImput1);
+            textBox.Text = "0,00";
+            _kwota = String.Empty;
+            _fFirstTimeImput = true;
         }
     }
 
-/***********************************************************************************************************************/
-/*                                                    Set-Up                                                           */
-/***********************************************************************************************************************/   
+    private void UwagiTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        TextBox textBox = (sender as TextBox)!;
+        if (IsMatchNoteRegex(textBox))
+        {
+            ToolTipService.SetToolTip(textBox, null);
+            textBox.Foreground = Brushes.Black;
+            
+            _fErrorInTextImput0 = false;
+            
+            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
+        }
+        else
+        {
+            var tooltip = ShowNoteTooltip();
+            ToolTipService.SetToolTip(textBox, tooltip);
+            textBox.Foreground = Brushes.Red;
+            
+            _fErrorInTextImput0 = true;
+            
+            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
+        }
+    }
+
+    private static ToolTip ShowNoteTooltip()
+    {
+        ToolTip tooltip = new ToolTip();
+        tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 220 znaków.";
+        return tooltip;
+    }
+
+    private static bool IsMatchNoteRegex(TextBox textBox)
+    {
+        return Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,220}$") && textBox.Text != "";
+    }
+
     private void KwotaTextBox_OnLoaded(object sender, RoutedEventArgs e)
     {
         DataObject.AddPastingHandler(KwotaTextBox, OnPaste);
     }
+    
     private void OnPaste(object sender, DataObjectPastingEventArgs e)
     {
         try
@@ -192,7 +247,7 @@ public partial class IncreaseSaldo
                 if (string.IsNullOrWhiteSpace(clipboardText) || !StrUtility.IsNumberFormatValid(clipboardText)) e.CancelCommand();
                 else
                 {
-                    Pkwota = clipboardText;
+                    _kwota = clipboardText;
                     _fFirstTimeImput = false;
                     e.CancelCommand();
 
@@ -214,11 +269,19 @@ public partial class IncreaseSaldo
         }
     }
 
-    private void Button_Click(object sender, RoutedEventArgs e)
+/***********************************************************************************************************************/
+/*                                                    Set-Up                                                           */
+/***********************************************************************************************************************/   
+    
+    private void ButtonToggle(bool a)
     {
-        CategoryAdd window = new CategoryAdd();
-        window.ShowDialog();
-        UpdateCategories();
-        this.Close();
+        if (a == false && NazwaTextBox.Text != "" && KwotaTextBox.Text != "0,00")
+        {
+            AddButton.IsEnabled = true;
+        }
+        else
+        {
+            AddButton.IsEnabled = false;
+        }
     }
 }

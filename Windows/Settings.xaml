@@ -1,0 +1,69 @@
+﻿<Window x:Class="ZarządzanieFinansami.Windows.Settings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:ZarządzanieFinansami.Windows"
+        mc:Ignorable="d"
+        Title="Settings" Height="280" Width="400">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Zarządzanie budżetem -->
+        <GroupBox Header="Zarządzanie budżetem " Margin="0,0,0,10">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                    <TextBlock Text="Budżet" Margin="10,0,0,5" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Text="" Margin="10,0,10,5" VerticalAlignment="Center" x:Name="Box"
+                             GotFocus="Box_OnGotFocus"
+                             PreviewTextInput="Box_PreviewTextInput"
+                             TextChanged="Box_TextChanged"
+                             Loaded="Box_OnLoaded"
+                             />
+            </Grid>
+        </GroupBox>
+        
+        <!-- Wyśwetlanie -->
+        <GroupBox Header="Wyświetlanie" Grid.Row="1" Margin="0,0,0,10">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Waluta:" Margin="10,0,0,5" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="CurrencyPicker" Width="60" HorizontalAlignment="Left" Margin="10,0,10,5">
+                    <ComboBoxItem Content="PLN"/>
+                    <ComboBoxItem Content="USD"/>
+                    <ComboBoxItem Content="EUR"/>
+                    <ComboBoxItem Content="GPD"/>
+                    <ComboBoxItem Content="YEN"/>
+                </ComboBox>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Zakres:" Margin="10,0,0,5" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="1" Grid.Column="1" Name="DataRangePicker" Width="120" HorizontalAlignment="Left" Margin="10,0,10,5">
+                    <ComboBoxItem Content="Tygodniowy"/>
+                    <ComboBoxItem Content="Miesięczny"/>
+                    <ComboBoxItem Content="Roczny"/>
+                </ComboBox>
+            </Grid>
+        </GroupBox>
+        
+        <!-- Save Button -->
+        <Button Grid.Row="2" Content="Zapisz" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="100"
+                Click="SaveButton_OnClick" />
+    </Grid>
+</Window>

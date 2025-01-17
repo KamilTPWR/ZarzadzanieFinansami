@@ -5,14 +5,14 @@ namespace ZarzadzanieFinansami;
 
 public abstract class DataGridUtility
 {
-    public static void UpdateDataGridView(DataGrid myDataGridView)
+    public static void UpdateDataGridView(DataGrid MainDataGrid)
     {
         var scaleRation = 0.20;
         var NON = 0.01;
         var DEF = 1.0; //default
-        var gridView = myDataGridView;
+        var gridView = MainDataGrid;
         
-        var totalWidth = myDataGridView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+        var totalWidth = MainDataGrid.ActualWidth - SystemParameters.VerticalScrollBarWidth;
         if (gridView.Columns.Count == Constants.STATICNUMBEROFCOLUMNS)
         {
             gridView.Columns[0].Width = totalWidth * NON * scaleRation;         // "ID"
