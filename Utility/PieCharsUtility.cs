@@ -12,21 +12,18 @@ public class PieCharsUtility
     public bool DatabaseState { get; set; }
     public DateHandler dateHandler { get; set; }
     
-
-    public void UpdateCharts(PieChart pie, PieChart transactionPieChart)
+    public void UpdateCharts(PieChart pie, PieChart transactionPieChart, PieChart catPieChart)
     {
-        UpdatePieChart(pie);
+        UpdateSumPieChart(pie);
         UpdateTransactionPieChart(transactionPieChart);
+        UpdateCatPieChart(catPieChart);
     }
     
-    private void UpdatePieChart(PieChart pie)
+    //pie
+    private void UpdateSumPieChart(PieChart pie)
     {
         SwitchVisibilityOfChart(pie, DatabaseState);
-        UpdateValues(pie);
-    }
-    
-    private void UpdateValues(PieChart pie)
-    {
+        
         var startDate = dateHandler.GetStartDateFromRange(Core.GlobalDataRange).ToString(Constants.DATEFORMAT);
         var endDate = dateHandler.GetLastDateFromRange(Core.GlobalDataRange).ToString(Constants.DATEFORMAT);
 
@@ -51,8 +48,8 @@ public class PieCharsUtility
         
         DataContext = this;
     }
-
-
+    
+    //transactionPieChart
     private void UpdateTransactionPieChart(PieChart transactionPieChart)
     {
         SwitchVisibilityOfChart(transactionPieChart, DatabaseState);
@@ -68,7 +65,6 @@ public class PieCharsUtility
         transactionPieChart.Series = transactionPieSeries;
         DataContext = this;
     }
-
     private void AddTransactionsToPieSeries(SeriesCollection transactionPieSeries , List<Transaction> transactions , int amount = 10)
     {
         foreach (var transaction in transactions.Take(amount))
@@ -83,7 +79,39 @@ public class PieCharsUtility
             });
         }
     }
+    
+    //catPieChart
+    private void UpdateCatPieChart(PieChart catPieChart)
+    {
+        SwitchVisibilityOfChart(catPieChart, DatabaseState);
+        
+        var cat = DbUtility.GetSumByCategory(out _);
+        
+        catPieChart.SeriesColors = Constants.COLORS;
+        SeriesCollection transactionPieSeries = new();
 
+        AddCatToPieSeries(transactionPieSeries, cat);
+        
+        catPieChart.Series = transactionPieSeries;
+        DataContext = this;
+    }
+    private void AddCatToPieSeries(SeriesCollection cats , List<Tuple<double,string>> cat , int amount = 10)
+    {
+        foreach (var c in cat.Take(amount))
+        {
+            double sum = c.Item1;
+            string title = c.Item2; 
+            
+            cats.Add(new PieSeries
+            {
+                Title = title.Length <= Constants.SIZEOFLEGEND ? title : title.Substring(0, Constants.SIZEOFLEGEND) + "...",
+                Values = new ChartValues<double> { sum },
+                DataLabels = true
+            });
+        }
+    }
+    
+    //priv
     private void SwitchVisibilityOfChart(PieChart chart, bool visibility)
     {
         if (visibility == false)
@@ -95,7 +123,6 @@ public class PieCharsUtility
             chart.Visibility = Visibility.Visible;
         }
     }
-
     private static PieSeries CreatePieSeries(string title, double value)
     {
         return new PieSeries

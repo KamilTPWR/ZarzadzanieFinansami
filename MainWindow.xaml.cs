@@ -133,8 +133,14 @@ public partial class MainWindow : Window
             dateHandler = new DateHandler()
         };
         //displaying charts
-        chars.UpdateCharts(Pie , TransactionPieChart);
-        top10.Visibility = _isDatabaseOpen ? Visibility.Visible : Visibility.Collapsed;
+        chars.UpdateCharts(Pie , TransactionPieChart, CatPieChart);
+        SetVisibility();
+    }
+
+    private void SetVisibility()
+    {
+        Top10.Visibility = _isDatabaseOpen ? Visibility.Visible : Visibility.Collapsed;
+        TopCat.Visibility = _isDatabaseOpen ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void UpdateTextBoxes()

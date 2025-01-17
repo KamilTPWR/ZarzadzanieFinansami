@@ -73,6 +73,39 @@ public abstract class DbUtility
         }
         return transactions;
     }
+    public static List<Tuple<double, string>> GetSumByCategory(out bool success)
+    {
+        var results = new List<Tuple<double, string>>();
+        success = false;
+        string command = "SELECT ROUND(SUM(ListaTranzakcji.Kwota), 2) AS 'Suma Kwot', Kategorie.Nazwa FROM ListaTranzakcji JOIN Kategorie ON ListaTranzakcji.KategoriaID = Kategorie.ID GROUP BY Kategorie.Nazwa ORDER BY ROUND(SUM(ListaTranzakcji.Kwota), 2) DESC";
+        try
+        {
+            string dataBaseName = ReturnDataBasePath();
+            EnsureNotEmpty(dataBaseName);
+            SQLitePCL.Batteries.Init();
+
+            using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
+            {
+                connection.Open();
+                using (var cmd = new SqliteCommand(command, connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        double sum = reader.IsDBNull(0) ? 0 : reader.GetDouble(0);
+                        string category = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                        results.Add(new Tuple<double, string>(sum, category));
+                    }
+                }
+            }
+            success = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        return results;
+    }
 
     private static void AddTransactionsFromColumns(List<string> columns, SqliteDataReader reader, List<Transaction> transactions)
     {

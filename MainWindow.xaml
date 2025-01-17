@@ -150,7 +150,7 @@
                         </lvc:PieChart>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Margin="5" MinHeight="80" Header="Top 10 największych tranzakcji" x:Name="top10">
+                <GroupBox Margin="5" MinHeight="80" Header="Top 10 największych tranzakcji" x:Name="Top10">
                 <lvc:PieChart MinHeight="200" MinWidth="160" 
                               Series="{Binding TransactionPieSeries}"  
                               StartingRotationAngle="0" 
@@ -159,6 +159,16 @@
                               x:Name="TransactionPieChart">
                 </lvc:PieChart>
                 </GroupBox>
+                <GroupBox Margin="5" MinHeight="80" Header="Top 10 Najpopularniejszych kategorii" x:Name="TopCat">
+                    <lvc:PieChart MinHeight="200" MinWidth="160" 
+                                  Series="{Binding CatPieSeries}"  
+                                  StartingRotationAngle="0" 
+                                  LegendLocation="Right" 
+                                  DisableAnimations="False" 
+                                  x:Name="CatPieChart">
+                    </lvc:PieChart>
+                </GroupBox>
+                
             </StackPanel> 
             <Button Grid.Row="1"
                 Click="AddButton_OnClick" 

@@ -109,4 +109,8 @@
       </Content>
     </ItemGroup>
 
+    <PropertyGroup>
+        <ApplicationIcon>Resources/Icons/MainIcon.ico</ApplicationIcon>
+    </PropertyGroup>
+
 </Project>
