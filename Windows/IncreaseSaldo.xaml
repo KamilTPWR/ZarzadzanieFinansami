@@ -24,7 +24,7 @@
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Label Content="Nazwa:" />
-                <TextBox x:Name="NazwaTextBox" Width="320" Height="30" FontSize="20" TextChanged="NazwaTextBox_OnTextChanged"/>
+                <TextBox x:Name="NazwaTextBox" Width="320" Height="30" FontSize="20" TextChanged="TitleTextBox_OnTextChanged"/>
             </StackPanel>
         </Grid>
 
@@ -32,7 +32,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Label Content="Kwota:" />
                 <TextBox x:Name="KwotaTextBox" Text="0,00" Width="320" Height="30" FontSize="20" 
-                         GotFocus="KwotaTextBox_OnGotFocus"
+                         GotFocus="TitleTextBox_OnGotFocus"
                          PreviewTextInput="KwotaTextBox_PreviewTextInput"
                          TextChanged="KwotaTextBox_TextChanged"
                          Loaded="KwotaTextBox_OnLoaded"
@@ -59,7 +59,7 @@
         <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Label Content="Uwagi:" />
-                <TextBox x:Name="UwagiTextBox" AcceptsReturn="True" TextWrapping="Wrap" Width="320" TextChanged="UwagiTextBox_OnTextChanged"/>
+                <TextBox x:Name="UwagiTextBox" AcceptsReturn="True" TextWrapping="Wrap" Width="320" TextChanged="NoteTextBox_OnTextChanged"/>
             </StackPanel>
         </Grid>
 

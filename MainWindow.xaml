@@ -59,7 +59,7 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Narzędzia">
-                    <MenuItem Header="Dodaj Rekord" Click="MenuItem_OnClick">
+                    <MenuItem Header="Dodaj Rekord" Click="MenuItem_Addtransaction_OnClick">
                         <MenuItem.Icon>
                             <Image Source="/Resources/Icons/write_file.png" />
                         </MenuItem.Icon>
@@ -71,7 +71,7 @@
                     </MenuItem>
                         <Separator />
                     <MenuItem Header="Usuń wszystkie rekordy" 
-                              Click="MenuItem_Usun_wszystkie_rekordy_OnClick" >
+                              Click="MenuItem_RemoveAll_OnClick" >
                         <MenuItem.Icon>
                             <Image Source="/Resources/Icons/Bin.png" />
                         </MenuItem.Icon>
@@ -90,7 +90,7 @@
                 <TextBlock x:Name="PageTextBlock" Width="40" TextAlignment="Center" TextWrapping="NoWrap" />
                 <Button Width="20" Content="&gt;" Click="ButtonLeft_OnClick" />
                 <Button x:Name="Button_NumberOfRows" Background="White" BorderBrush="White"
-                        Click="ButtonNumberControll_OnClick" />
+                        Click="NumberControlButton_OnClick" />
             </StackPanel>
         </Grid>
 
@@ -171,7 +171,7 @@
                 
             </StackPanel> 
             <Button Grid.Row="1"
-                Click="AddButton_OnClick" 
+                Click="AddTransactionButton_OnClick" 
                 Height="20" 
                 Content="Dodaj Rekord" 
                 Margin="10" 

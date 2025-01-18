@@ -53,7 +53,6 @@ public partial class MainWindow : Window
         PageTextBlock.Text = Constants.NULLPAGE;
         Button_NumberOfRows.Content = Constants.NULLROWNUMBER;
     }
-
     private void UpdateWindow()
     {
         PageTextBlock.Text = PagesNumberFormat();
@@ -63,7 +62,6 @@ public partial class MainWindow : Window
         DataGridUtility.UpdateDataGridView(MainDataGrid);
         Button_NumberOfRows.Content = FormatNumberOfRows();
     }
-    
     private void UpdateDataGrid()
     {
         MainDataGrid.ContextMenu!.Visibility = Visibility.Visible;
@@ -89,7 +87,7 @@ public partial class MainWindow : Window
         MainDataGrid.ContextMenu!.Visibility = Visibility.Hidden;
     }
     
-    //extracted methods
+    //ex
     private static string FormatNumberOfRows()
     {
         return Core.NumberOfRows + "/" + DbUtility.GetNumberOfTransactions();
@@ -136,29 +134,27 @@ public partial class MainWindow : Window
         chars.UpdateCharts(Pie , TransactionPieChart, CatPieChart);
         SetVisibility();
     }
-
     private void SetVisibility()
     {
         Top10.Visibility = _isDatabaseOpen ? Visibility.Visible : Visibility.Collapsed;
         TopCat.Visibility = _isDatabaseOpen ? Visibility.Visible : Visibility.Collapsed;
     }
-
     private void UpdateTextBoxes()
     {
         CalculateValuesForChart(out var tempExpenses, out var tempSaldo);
-        FormatDateString(out var _s, out var _l);
-        Date.Text = $"Zakres: {_s} — {_l}";
+        FormatDateString(s: out var s, out var l);
+        Date.Text = $"Zakres: {s} — {l}";
         Saldo.Text = $"Wolny Budżet: {tempSaldo}";
         Wydatki.Text = $"Wydatki: {tempExpenses}";
     }
-
+    
+    //ex
     private static void FormatDateString(out string s, out string l)
     {
         DateHandler.GetDatesFromRange(out var ss , out var ll);
         s = ss.ToString(Constants.DATEFORMAT);
         l = ll.ToString(Constants.DATEFORMAT);
     }
-
     private static void CalculateValuesForChart(out string tempExpenses, out string tempSaldo)
     {
         DateHandler.GetDatesFromRange(out var startDate, out var lastDate);
@@ -187,7 +183,6 @@ public partial class MainWindow : Window
         timer.Tick += TickEvent;
         timer.Start();
     }
-    
     private void TickEvent(object? sender, EventArgs e)
     {
         SystemClock.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
@@ -202,21 +197,17 @@ public partial class MainWindow : Window
         if (Constants.STATICNUMBEROFCOLUMNS == MainDataGrid.Columns.Count)
             DataGridUtility.UpdateDataGridView(MainDataGrid);
     }
-
     private void MainDataGrid_OnBeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
     {
         e.Cancel = true;
     }
-
     private void MainDataGrid_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateDataGrid();
         UpdateCharts();
         DataGridUtility.UpdateDataGridView(MainDataGrid);
         UpdateWindow();
-        //SettingsUtility.LoadSettings();
     }
-
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
         if (_isClosing) return;
@@ -236,53 +227,37 @@ public partial class MainWindow : Window
     }
 
     /***********************************************************************************************************************/
-    /*                                              Events Handlers                                                        */
+    /*                                                ButtonsEvents                                                        */
     /***********************************************************************************************************************/
 
-    private void AddButton_OnClick(object sender, RoutedEventArgs e)
+    private void AddTransactionButton_OnClick(object sender, RoutedEventArgs e)
     {
         var increaseSaldo = new IncreaseSaldo();
         increaseSaldo.ShowDialog();
         UpdateWindow();
     }
-
-    private void ButtonNumberControll_OnClick(object sender, RoutedEventArgs e)
+    private void NumberControlButton_OnClick(object sender, RoutedEventArgs e)
     {
         var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
         numberOfRecordsOnPage.ShowDialog();
         UpdateWindow();
     }
-
     private void ButtonRight_OnClick(object sender, RoutedEventArgs e)
     {
-        if (Core.Page < Core.PagesNumber())
-        {
-            Core.Page = ++Core.Page;
-            UpdateWindow();
-        }
-
-        e.Handled = true;
+        Core.Navigate(1);
+        UpdateWindow();
     }
-
     private void ButtonLeft_OnClick(object sender, RoutedEventArgs e)
     {
-        if (Core.Page > 1)
-        {
-            Core.Page = --Core.Page;
-            UpdateWindow();
-        }
-
-        e.Handled = true;
+        Core.Navigate(-1);
+        UpdateWindow();
     }
-    
     private void GridViewOnSorting_OnClick(object sender, DataGridSortingEventArgs e)
     {
         _sortDirection = !_sortDirection;
         _columnHeader = e.Column.Header.ToString();
         UpdateDataGrid();
-        e.Handled = true;
     }
-    
     private void DataGrid_MenuItem_Remove_OnClick(object sender, RoutedEventArgs e)
     {
         if (MainDataGrid.SelectedItems.Count <= 0)
@@ -293,32 +268,42 @@ public partial class MainWindow : Window
         else
         {
             var columnValues = new List<object>();
-
-            foreach (var selectedItem in MainDataGrid.SelectedItems)
+            AddColumnValues(columnValues, MainDataGrid);
+            var message = DataGridMenuItemRemoveOnClickMessage(columnValues);
+            ShowDialogDataGridRemove(message, columnValues);
+        }
+    }
+    
+    //ex
+    private void ShowDialogDataGridRemove(string message, List<object> columnValues)
+    {
+        if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        {
+            foreach (var id in columnValues)
             {
-                var item = selectedItem as dynamic;
-                if (item != null)
-                {
-                    columnValues.Add(item.ID);
-                }
+                DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
             }
-
-            var message =
-                $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
-
-            if (MessageBox.Show(message, "Usuń tranzakcję.", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            UpdateDataGrid();
+            UpdateCharts();
+        }
+    }
+    private void AddColumnValues(List<object> columnValues,  DataGrid dataGrid)
+    {
+        foreach (var selectedItem in dataGrid.SelectedItems)
+        {
+            var item = selectedItem as dynamic;
+            if (item != null)
             {
-                foreach (var id in columnValues)
-                {
-                    DbUtility.DeleteFromDatabase(Convert.ToInt32(id));
-                }
-                
-                UpdateDataGrid();
-                UpdateCharts();
+                columnValues.Add(item.ID);
             }
         }
     }
-
+    private static string DataGridMenuItemRemoveOnClickMessage(List<object> columnValues)
+    {
+        var message =
+            $"Czy napewno chcesz usunąć następującą ilość tranzakcji: {columnValues.Count} ?\nTej operacji nie da się odwrócić.";
+        return message;
+    }
 
     /***********************************************************************************************************************/
     /*                                                 ContextMenuLogic                                                    */
@@ -342,7 +327,6 @@ public partial class MainWindow : Window
 
         }
     }
-
     private void MainDataGrid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         DataGrid dataGrid = (sender as DataGrid)!;
@@ -376,45 +360,57 @@ public partial class MainWindow : Window
     /***********************************************************************************************************************/
     /*                                           Menu Items Events Handlers                                                */
     /***********************************************************************************************************************/
-
+    
+    //FILE
     private void MenuItem_Otworz_OnClick(object sender, RoutedEventArgs e)
     {
         DbUtility.OpenDatabase();
         UpdateWindow();
     }
-
     private void MenuItem_Nowa_OnClick(object sender, RoutedEventArgs e)
     {
         DbUtility.CreateDatabase();
         UpdateWindow();
     }
-
     private void MenuItem_Zapisz_jako_OnClick(object sender, RoutedEventArgs e)
     {
         DbUtility.SaveDatabase();
         UpdateWindow();
     }
-
-    private void MenuItem_View_OnClick(object sender, RoutedEventArgs e)
+    private void MenuItem_Ustawienia_OnClick(object sender, RoutedEventArgs e)
     {
-        var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
-        numberOfRecordsOnPage.ShowDialog();
+        Settings setSettingsWindow = new Settings();
+        setSettingsWindow.ShowDialog();
         UpdateWindow();
     }
-
     private void MenuItem_Wyjdz_OnClick(object sender, RoutedEventArgs e)
     {
         SystemSounds.Exclamation.Play();
-        MessageBoxResult result = MessageBox.Show(
-            "Czy napewno chcesz zamknąć program? \n Dane zostaną zapisane.", "Zamknij program", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (result == MessageBoxResult.Yes)
+        string message = "Czy napewno chcesz zamknąć program? \n Dane zostaną zapisane.";
+        AppCloseDialog(message);
+    }
+    
+    //TOOLS
+    private void MenuItem_Addtransaction_OnClick(object sender, RoutedEventArgs e)
+    {
+        var increaseSaldo = new IncreaseSaldo();
+        increaseSaldo.ShowDialog();
+        UpdateWindow();
+    }
+    private void MenuItem_CatRemowe_OnClick(object sender, RoutedEventArgs e)
+    {
+        CategoryDeleter window = new CategoryDeleter();
+        try
         {
-            _isClosing = true;
-            Application.Current.Shutdown();
+            window.ShowDialog();
+            UpdateDataGrid();
+            UpdateCharts();
+        }
+        catch (Exception ex)
+        {
         }
     }
-
-    private void MenuItem_Usun_wszystkie_rekordy_OnClick(object sender, RoutedEventArgs e)
+    private void MenuItem_RemoveAll_OnClick(object sender, RoutedEventArgs e)
     {
         var IDs = new List<int>();
         foreach (var transaction in _transactions)
@@ -442,37 +438,27 @@ public partial class MainWindow : Window
         }
     }
 
+    //View
+    private void MenuItem_View_OnClick(object sender, RoutedEventArgs e)
+    {
+        var numberOfRecordsOnPage = new NumberOfRecordsOnPage(Core.NumberOfRows);
+        numberOfRecordsOnPage.ShowDialog();
+        UpdateWindow();
+    }
+    
+    
+    //ex
     private void ShowNullDataBaseError()
     {
         MessageBox.Show("Nie wybrano bazy danych.", "Brak bazy danych", MessageBoxButton.OK, MessageBoxImage.Error);
     }
-
-    private void MenuItem_Ustawienia_OnClick(object sender, RoutedEventArgs e)
+    private void AppCloseDialog(string message)
     {
-        Settings setSettingsWindow = new Settings();
-        setSettingsWindow.ShowDialog();
-        UpdateWindow();
-    }
-
-    private void MenuItem_OnClick(object sender, RoutedEventArgs e)
-    {
-        var increaseSaldo = new IncreaseSaldo();
-        increaseSaldo.ShowDialog();
-        UpdateWindow();
-    }
-    
-    private void MenuItem_CatRemowe_OnClick(object sender, RoutedEventArgs e)
-    {
-        CategoryDeleter window = new CategoryDeleter();
-        try
+        var result = MessageBox.Show(message, "Zamknij program", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (result == MessageBoxResult.Yes)
         {
-            window.ShowDialog();
-            UpdateDataGrid();
-            UpdateCharts();
-        }
-        catch (Exception ex)
-        {
+            _isClosing = true;
+            Application.Current.Shutdown();
         }
     }
-    
 }

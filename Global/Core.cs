@@ -13,4 +13,10 @@ public static class Core
     {
         return (int)Math.Ceiling((double)DbUtility.GetNumberOfTransactions() / NumberOfRows);
     }
+    public static void Navigate(int direction)
+    {
+        var newPage = Page + direction;
+        if (newPage < 1 || newPage > PagesNumber()) return;
+        Page = newPage;
+    }
 }

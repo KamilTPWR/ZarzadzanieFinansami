@@ -24,22 +24,6 @@ namespace ZarządzanieFinansami.Windows
             DbUtility.DeleteFromDatabase(kategoria, "Kategorie");
             Close();
         }
-
-        private static bool ShowMessageBox(string message)
-        {
-            if (MessageBox.Show(message, "Usuń kategorię.", MessageBoxButton.YesNo, MessageBoxImage.Question) !=
-                MessageBoxResult.Yes) return true;
-            return false;
-        }
-
-        private string SetMessageBoxMessage()
-        {
-            var message = $"Czy napewno chcesz usunąć kategorię: {Cats.Text.Split(". ")[1]} ?\n" +
-                          $"Wszystkie pozycje tej kategori zostaną usunięte\n" +
-                          $"Tej operacji nie da się odwrócić.";
-            return message;
-        }
-
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             _isClosing = true;
@@ -47,13 +31,9 @@ namespace ZarządzanieFinansami.Windows
         }
         private void UpdateComboBox()
         {
-            List<Category> temp = DbUtility.GetCategoriesFromDatabase();
+            var categories = DbUtility.GetCategoriesFromDatabase();
             _categories.Clear();
-            Cats.ItemsSource = _categories;
-            foreach (Category category in temp)
-            {
-                _categories.Add(category.ID + ". " + category.Name);
-            }
+            AddCategoriesToList(categories);
             Cats.ItemsSource = _categories;
             if (_categories.Count == 0)
             {
@@ -62,6 +42,30 @@ namespace ZarządzanieFinansami.Windows
                 Close();
             }
         }
+
+        
+        //ex
+        private static bool ShowMessageBox(string message)
+        {
+            if (MessageBox.Show(message, "Usuń kategorię.", MessageBoxButton.YesNo, MessageBoxImage.Question) !=
+                MessageBoxResult.Yes) return true;
+            return false;
+        }
+        private string SetMessageBoxMessage()
+        {
+            var message = $"Czy napewno chcesz usunąć kategorię: {Cats.Text.Split(". ")[1]} ?\n" +
+                          $"Wszystkie pozycje tej kategori zostaną usunięte\n" +
+                          $"Tej operacji nie da się odwrócić.";
+            return message;
+        }
+        private void AddCategoriesToList(List<Category> temp)
+        {
+            foreach (Category category in temp)
+            {
+                _categories.Add(category.ID + ". " + category.Name);
+            }
+        }
+
 
         /***********************************************************************************************************************/
         /*                                              Back Events Handlers                                                   */

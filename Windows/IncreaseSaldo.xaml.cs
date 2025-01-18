@@ -85,49 +85,33 @@ public partial class IncreaseSaldo
 /*                                                   TextBox Logic                                                     */
 /***********************************************************************************************************************/        
   
-    private void NazwaTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    //Title
+    private void TitleTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
+
         if (IsMatchTitleRegex(textBox))
         {
-            ToolTipService.SetToolTip(textBox, null);
-            textBox.Foreground = Brushes.Black;
-            
-            _fErrorInTextImput1 = false;
-            
-            ButtonToggle(_fErrorInTextImput0 &&_fErrorInTextImput1);
+            HandleValidInput(textBox);
         }
         else
         {
-            var tooltip = ShowTitleTooltip();
-
-            ToolTipService.SetToolTip(textBox, tooltip);
-            textBox.Foreground = Brushes.Red;
-            
-            _fErrorInTextImput1 = true;
-            
-            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
+            HandleInvalidInput(textBox);
         }
-    }
 
-    private static ToolTip ShowTitleTooltip()
-    {
-        ToolTip tooltip = new ToolTip();
-        tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 30 znaków.";
-        return tooltip;
+        ButtonToggle(_fErrorInTextImput0 && !_fErrorInTextImput1);;
     }
-
-    private static bool IsMatchTitleRegex(TextBox textBox)
-    {
-        return Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,30}$") && textBox.Text != "";
-    }
-
-    private void KwotaTextBox_OnGotFocus(object sender, RoutedEventArgs e)
+    private void TitleTextBox_OnGotFocus(object sender, RoutedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
         textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectAll()));
     }
     
+    //Price
+    private void KwotaTextBox_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        DataObject.AddPastingHandler(KwotaTextBox, OnPaste);
+    }
     private void KwotaTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
@@ -162,7 +146,6 @@ public partial class IncreaseSaldo
             e.Handled = true;
         }
     }
-    
     private void KwotaTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
@@ -174,28 +157,9 @@ public partial class IncreaseSaldo
         
         HandleToManySpacesAfterComa(textBox);
     }
-
-    private static void HandleToManySpacesAfterComa(TextBox textBox)
-    {
-        if (StrUtility.NumberOfDigitsAfterComa(textBox.Text) > 2)
-        {
-            var temp = textBox.SelectionStart;
-            textBox.Text = StrUtility.CropString(textBox.Text, textBox.Text.Length - StrUtility.NumberOfDigitsAfterComa(textBox.Text) + 2);
-            textBox.SelectionStart = temp;
-        }
-    }
-
-    private void HandleInvalidFormat(TextBox textBox)
-    {
-        if (!StrUtility.IsNumberFormatValid(textBox.Text) || _kwota == "")
-        {
-            textBox.Text = "0,00";
-            _kwota = String.Empty;
-            _fFirstTimeImput = true;
-        }
-    }
-
-    private void UwagiTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    
+    //Note
+    private void NoteTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
         if (IsMatchNoteRegex(textBox))
@@ -218,61 +182,129 @@ public partial class IncreaseSaldo
             ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
         }
     }
+    private void OnPaste(object sender, DataObjectPastingEventArgs eventArgs)
+    {
+        try
+        {
+            if (!IsClipboardText(eventArgs))
+            {
+                eventArgs.CancelCommand();
+                return;
+            }
 
+            string clipboardText = GetClipboardText(eventArgs);
+            
+            if (IsClipboardTextValid(clipboardText))
+            {
+                eventArgs.CancelCommand();
+                return;
+            }
+
+            ProcessClipboardText(sender, clipboardText);
+            eventArgs.CancelCommand();
+        }
+        catch (Exception exception)
+        {
+            HandlePasteException(exception, eventArgs);
+        }
+    }
+    
+    private bool IsClipboardText(DataObjectPastingEventArgs e)
+    {
+        return e.DataObject.GetDataPresent(DataFormats.Text);
+    }
+
+    private string GetClipboardText(DataObjectPastingEventArgs e)
+    {
+        return e.DataObject.GetData(DataFormats.Text) as string ?? throw new NullReferenceException();
+    }
+
+    private static bool IsClipboardTextValid(string text)
+    {
+        var isNullOrWhiteSpace = string.IsNullOrWhiteSpace(text) && StrUtility.IsNumberFormatValid(text);
+        return !isNullOrWhiteSpace;
+    }
+
+    private void ProcessClipboardText(object sender, string clipboardText)
+    {
+        _kwota = clipboardText;
+        _fFirstTimeImput = false;
+
+        if (sender is TextBox textBox)
+        {
+            UpdateTextBoxWithClipboardText(textBox, clipboardText);
+        }
+    }
+
+    private void UpdateTextBoxWithClipboardText(TextBox textBox, string clipboardText)
+    {
+        int selectionStart = textBox.SelectionStart;
+        int selectionLength = textBox.SelectionLength;
+
+        textBox.Text = textBox.Text.Remove(selectionStart, selectionLength);
+        textBox.Text = textBox.Text.Insert(selectionStart, clipboardText);
+        textBox.SelectionStart = selectionStart + clipboardText.Length;
+    }
+
+    private void HandlePasteException(Exception exception, DataObjectPastingEventArgs e)
+    {
+        Console.WriteLine(exception);
+        e.CancelCommand();
+    }
+    
+    
+    //ex
+    private void HandleValidInput(TextBox textBox)
+    {
+        ToolTipService.SetToolTip(textBox, null);
+        textBox.Foreground = Brushes.Black;
+        _fErrorInTextImput1 = false;
+    }
+    private void HandleInvalidInput(TextBox textBox)
+    {
+        var tooltip = ShowTitleTooltip();
+        ToolTipService.SetToolTip(textBox, tooltip);
+        textBox.Foreground = Brushes.Red;
+        _fErrorInTextImput1 = true;
+    }
+    private static ToolTip ShowTitleTooltip()
+    {
+        ToolTip tooltip = new ToolTip();
+        tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 30 znaków.";
+        return tooltip;
+    }
+    private static bool IsMatchTitleRegex(TextBox textBox)
+    {
+        return Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,30}$") && textBox.Text != "";
+    }
+    private static void HandleToManySpacesAfterComa(TextBox textBox)
+    {
+        if (StrUtility.NumberOfDigitsAfterComa(textBox.Text) > 2)
+        {
+            var temp = textBox.SelectionStart;
+            textBox.Text = StrUtility.CropString(textBox.Text, textBox.Text.Length - StrUtility.NumberOfDigitsAfterComa(textBox.Text) + 2);
+            textBox.SelectionStart = temp;
+        }
+    }
+    private void HandleInvalidFormat(TextBox textBox)
+    {
+        if (!StrUtility.IsNumberFormatValid(textBox.Text) || _kwota == "")
+        {
+            textBox.Text = "0,00";
+            _kwota = String.Empty;
+            _fFirstTimeImput = true;
+        }
+    } 
     private static ToolTip ShowNoteTooltip()
     {
         ToolTip tooltip = new ToolTip();
         tooltip.Content = "Proszę wprowadzić tekst, który zawiera tylko litery lub cyfry. Długość tekstu nie może przekraczać 220 znaków.";
         return tooltip;
     }
-
     private static bool IsMatchNoteRegex(TextBox textBox)
     {
         return Regex.IsMatch(textBox.Text, @"^[A-Za-z0-9ąĄęĘóÓśŚłŁżŻźŹćĆńŃ ]{1,220}$") && textBox.Text != "";
     }
-
-    private void KwotaTextBox_OnLoaded(object sender, RoutedEventArgs e)
-    {
-        DataObject.AddPastingHandler(KwotaTextBox, OnPaste);
-    }
-    
-    private void OnPaste(object sender, DataObjectPastingEventArgs e)
-    {
-        try
-        {
-            if (!e.DataObject.GetDataPresent(DataFormats.Text)) e.CancelCommand();
-            else
-            {
-                string clipboardText = e.DataObject.GetData(DataFormats.Text) as string ?? throw new NullReferenceException();
-                if (string.IsNullOrWhiteSpace(clipboardText) || !StrUtility.IsNumberFormatValid(clipboardText)) e.CancelCommand();
-                else
-                {
-                    _kwota = clipboardText;
-                    _fFirstTimeImput = false;
-                    e.CancelCommand();
-
-                    if (sender is TextBox textBox)
-                    {
-                        int selectionStart = textBox.SelectionStart;
-                        int selectionLength = textBox.SelectionLength;
-                        textBox.Text = textBox.Text.Remove(selectionStart, selectionLength);
-                        textBox.Text = textBox.Text.Insert(selectionStart, clipboardText);
-                        textBox.SelectionStart = selectionStart + clipboardText.Length;
-                    }
-                }
-            }
-        }
-        catch (Exception exception)
-        {
-            Console.WriteLine(exception);
-            e.CancelCommand();
-        }
-    }
-
-/***********************************************************************************************************************/
-/*                                                    Set-Up                                                           */
-/***********************************************************************************************************************/   
-    
     private void ButtonToggle(bool a)
     {
         if (a == false && NazwaTextBox.Text != "" && KwotaTextBox.Text != "0,00")
