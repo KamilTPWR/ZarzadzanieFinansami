@@ -64,7 +64,7 @@
                             <Image Source="/Resources/Icons/write_file.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Zarządzaj Kategoriami" >
+                    <MenuItem Header="Zarządzaj Kategoriami" Click="MenuItem_CatRemowe_OnClick">
                         <MenuItem.Icon>
                             <Image Source="/Resources/Icons/settings_gear.png" />
                         </MenuItem.Icon>

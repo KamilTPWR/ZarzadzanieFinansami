@@ -460,4 +460,19 @@ public partial class MainWindow : Window
         increaseSaldo.ShowDialog();
         UpdateWindow();
     }
+    
+    private void MenuItem_CatRemowe_OnClick(object sender, RoutedEventArgs e)
+    {
+        CategoryDeleter window = new CategoryDeleter();
+        try
+        {
+            window.ShowDialog();
+            UpdateDataGrid();
+            UpdateCharts();
+        }
+        catch (Exception ex)
+        {
+        }
+    }
+    
 }

@@ -18,10 +18,26 @@ namespace ZarządzanieFinansami.Windows
 
         private void AcceptButton_Click(object sender, RoutedEventArgs e)
         {
+            var message = SetMessageBoxMessage();
+            if (ShowMessageBox(message)) return;
             int kategoria = Convert.ToInt32(Cats.SelectedItem.ToString()!.Split(".")[0]);
             DbUtility.DeleteFromDatabase(kategoria, "Kategorie");
-            MessageBox.Show(_categories.Count.ToString());
             Close();
+        }
+
+        private static bool ShowMessageBox(string message)
+        {
+            if (MessageBox.Show(message, "Usuń kategorię.", MessageBoxButton.YesNo, MessageBoxImage.Question) !=
+                MessageBoxResult.Yes) return true;
+            return false;
+        }
+
+        private string SetMessageBoxMessage()
+        {
+            var message = $"Czy napewno chcesz usunąć kategorię: {Cats.Text.Split(". ")[1]} ?\n" +
+                          $"Wszystkie pozycje tej kategori zostaną usunięte\n" +
+                          $"Tej operacji nie da się odwrócić.";
+            return message;
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -56,7 +72,6 @@ namespace ZarządzanieFinansami.Windows
             base.OnSourceInitialized(e);
             var hwndSource = System.Windows.Interop.HwndSource.FromHwnd(new System.Windows.Interop.WindowInteropHelper(this).Handle);
             if (hwndSource != null) hwndSource.AddHook(HwndMessageHook);
-            //hehe
         }
 
         private IntPtr HwndMessageHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
