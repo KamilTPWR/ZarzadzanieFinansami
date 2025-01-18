@@ -33,9 +33,9 @@
                 <Label Content="Kwota:" />
                 <TextBox x:Name="KwotaTextBox" Text="0,00" Width="320" Height="30" FontSize="20" 
                          GotFocus="TitleTextBox_OnGotFocus"
-                         PreviewTextInput="KwotaTextBox_PreviewTextInput"
-                         TextChanged="KwotaTextBox_TextChanged"
-                         Loaded="KwotaTextBox_OnLoaded"
+                         PreviewTextInput="ValueTextBox_PreviewTextInput"
+                         TextChanged="ValueTextBox_TextChanged"
+                         Loaded="ValueTextBox_OnLoaded"
                          />
             </StackPanel>
         </Grid>

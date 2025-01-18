@@ -11,7 +11,7 @@ namespace ZarzadzanieFinansami;
 
 public partial class IncreaseSaldo
 {
-    private string _kwota = String.Empty;
+    private string _Value = String.Empty;
     
     private bool _fFirstTimeImput = true;
     private bool _fErrorInTextImput0 = false;
@@ -92,11 +92,11 @@ public partial class IncreaseSaldo
 
         if (IsMatchTitleRegex(textBox))
         {
-            HandleValidInput(textBox);
+            HandleValidInput(textBox, out _fErrorInTextImput0);
         }
         else
         {
-            HandleInvalidInput(textBox);
+            HandleInvalidInput(textBox , out _fErrorInTextImput0, ShowTitleTooltip());
         }
 
         ButtonToggle(_fErrorInTextImput0 && !_fErrorInTextImput1);;
@@ -108,11 +108,11 @@ public partial class IncreaseSaldo
     }
     
     //Price
-    private void KwotaTextBox_OnLoaded(object sender, RoutedEventArgs e)
+    private void ValueTextBox_OnLoaded(object sender, RoutedEventArgs e)
     {
         DataObject.AddPastingHandler(KwotaTextBox, OnPaste);
     }
-    private void KwotaTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    private void ValueTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
         
@@ -126,30 +126,30 @@ public partial class IncreaseSaldo
         {
             textBox.Text = e.Text + ",00";
             _fFirstTimeImput = false;
-            _kwota = textBox.Text;
+            _Value = textBox.Text;
             e.Handled = true;
-            textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectionStart = _kwota.Length - 1 - StrUtility.NumberOfDigitsAfterComa(_kwota)));
+            textBox.Dispatcher.BeginInvoke(new Action(() => textBox.SelectionStart = _Value.Length - 1 - StrUtility.NumberOfDigitsAfterComa(_Value)));
         }
         else
         {
-            _kwota = textBox.Text;
+            _Value = textBox.Text;
         }
 
         if (e.Text.ToCharArray()[0] == '.' || e.Text.ToCharArray()[0] == ',')
         {
-            if (!_kwota.EndsWith(','))
+            if (!_Value.EndsWith(','))
             {
-                _kwota += ",";
-                textBox.Text = _kwota;
+                _Value += ",";
+                textBox.Text = _Value;
             }
             textBox.SelectionStart = textBox.Text.Length - StrUtility.NumberOfDigitsAfterComa(textBox.Text);
             e.Handled = true;
         }
     }
-    private void KwotaTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    private void ValueTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         TextBox textBox = (sender as TextBox)!;
-        _kwota = textBox.Text;
+        _Value = textBox.Text;
         
         HandleInvalidFormat(textBox);
         
@@ -164,24 +164,15 @@ public partial class IncreaseSaldo
         TextBox textBox = (sender as TextBox)!;
         if (IsMatchNoteRegex(textBox))
         {
-            ToolTipService.SetToolTip(textBox, null);
-            textBox.Foreground = Brushes.Black;
-            
-            _fErrorInTextImput0 = false;
-            
-            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
+            HandleValidInput(textBox, out _fErrorInTextImput1);
         }
         else
         {
-            var tooltip = ShowNoteTooltip();
-            ToolTipService.SetToolTip(textBox, tooltip);
-            textBox.Foreground = Brushes.Red;
-            
-            _fErrorInTextImput0 = true;
-            
-            ButtonToggle(_fErrorInTextImput0 && _fErrorInTextImput1);
+            HandleInvalidInput(textBox , out _fErrorInTextImput1, ShowNoteTooltip());
         }
     }
+    
+    //Paste Event
     private void OnPaste(object sender, DataObjectPastingEventArgs eventArgs)
     {
         try
@@ -193,79 +184,39 @@ public partial class IncreaseSaldo
             }
 
             string clipboardText = GetClipboardText(eventArgs);
-            
+
             if (IsClipboardTextValid(clipboardText))
             {
+                ProcessClipboardText(sender, clipboardText);
                 eventArgs.CancelCommand();
-                return;
             }
-
-            ProcessClipboardText(sender, clipboardText);
-            eventArgs.CancelCommand();
         }
         catch (Exception exception)
         {
-            HandlePasteException(exception, eventArgs);
+            Console.WriteLine(exception);
+            eventArgs.CancelCommand();
         }
-    }
-    
-    private bool IsClipboardText(DataObjectPastingEventArgs e)
-    {
-        return e.DataObject.GetDataPresent(DataFormats.Text);
-    }
-
-    private string GetClipboardText(DataObjectPastingEventArgs e)
-    {
-        return e.DataObject.GetData(DataFormats.Text) as string ?? throw new NullReferenceException();
-    }
-
-    private static bool IsClipboardTextValid(string text)
-    {
-        var isNullOrWhiteSpace = string.IsNullOrWhiteSpace(text) && StrUtility.IsNumberFormatValid(text);
-        return !isNullOrWhiteSpace;
-    }
-
-    private void ProcessClipboardText(object sender, string clipboardText)
-    {
-        _kwota = clipboardText;
-        _fFirstTimeImput = false;
-
-        if (sender is TextBox textBox)
+        finally
         {
-            UpdateTextBoxWithClipboardText(textBox, clipboardText);
+            eventArgs.CancelCommand();
         }
     }
 
-    private void UpdateTextBoxWithClipboardText(TextBox textBox, string clipboardText)
-    {
-        int selectionStart = textBox.SelectionStart;
-        int selectionLength = textBox.SelectionLength;
-
-        textBox.Text = textBox.Text.Remove(selectionStart, selectionLength);
-        textBox.Text = textBox.Text.Insert(selectionStart, clipboardText);
-        textBox.SelectionStart = selectionStart + clipboardText.Length;
-    }
-
-    private void HandlePasteException(Exception exception, DataObjectPastingEventArgs e)
-    {
-        Console.WriteLine(exception);
-        e.CancelCommand();
-    }
-    
-    
+/***********************************************************************************************************************/
+/*                                                  PrivateMethods                                                     */
+/***********************************************************************************************************************/     
     //ex
-    private void HandleValidInput(TextBox textBox)
+    private void HandleValidInput(TextBox textBox ,out bool flag)
     {
         ToolTipService.SetToolTip(textBox, null);
         textBox.Foreground = Brushes.Black;
-        _fErrorInTextImput1 = false;
+        flag = false;
     }
-    private void HandleInvalidInput(TextBox textBox)
+    private void HandleInvalidInput(TextBox textBox,out bool flag, ToolTip tooltip)
     {
-        var tooltip = ShowTitleTooltip();
         ToolTipService.SetToolTip(textBox, tooltip);
         textBox.Foreground = Brushes.Red;
-        _fErrorInTextImput1 = true;
+        flag = true;
     }
     private static ToolTip ShowTitleTooltip()
     {
@@ -288,10 +239,10 @@ public partial class IncreaseSaldo
     }
     private void HandleInvalidFormat(TextBox textBox)
     {
-        if (!StrUtility.IsNumberFormatValid(textBox.Text) || _kwota == "")
+        if (!StrUtility.IsNumberFormatValid(textBox.Text) || _Value == "")
         {
             textBox.Text = "0,00";
-            _kwota = String.Empty;
+            _Value = String.Empty;
             _fFirstTimeImput = true;
         }
     } 
@@ -315,5 +266,37 @@ public partial class IncreaseSaldo
         {
             AddButton.IsEnabled = false;
         }
+    }
+    private bool IsClipboardText(DataObjectPastingEventArgs e)
+    {
+        return e.DataObject.GetDataPresent(DataFormats.Text);
+    }
+    private string GetClipboardText(DataObjectPastingEventArgs e)
+    {
+        return e.DataObject.GetData(DataFormats.Text) as string ?? throw new NullReferenceException();
+    }
+    private static bool IsClipboardTextValid(string text)
+    {
+        var isNullOrWhiteSpace = string.IsNullOrWhiteSpace(text) && StrUtility.IsNumberFormatValid(text);
+        return !isNullOrWhiteSpace;
+    }
+    private void ProcessClipboardText(object sender, string clipboardText)
+    {
+        _Value = clipboardText;
+        _fFirstTimeImput = false;
+
+        if (sender is TextBox textBox)
+        {
+            UpdateTextBoxWithClipboardText(textBox, clipboardText);
+        }
+    }
+    private void UpdateTextBoxWithClipboardText(TextBox textBox, string clipboardText)
+    {
+        int selectionStart = textBox.SelectionStart;
+        int selectionLength = textBox.SelectionLength;
+
+        textBox.Text = textBox.Text.Remove(selectionStart, selectionLength);
+        textBox.Text = textBox.Text.Insert(selectionStart, clipboardText);
+        textBox.SelectionStart = selectionStart + clipboardText.Length;
     }
 }
