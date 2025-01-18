@@ -87,8 +87,7 @@ public abstract class DbUtility
             using (var connection = new SqliteConnection($"Data Source={dataBaseName}"))
             {
                 connection.Open();
-                using (var cmd = new SqliteCommand(command, connection))
-                using (var reader = cmd.ExecuteReader())
+                using (var reader = SqliteExecuteCommand(connection, command).ExecuteReader())
                 {
                     while (reader.Read())
                     {
