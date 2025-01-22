@@ -73,13 +73,13 @@ public class PieCharsUtility
             
             transactionPieSeries.Add(new PieSeries
             {
-                Title = title.Length <= Constants.SIZEOFLEGEND ? title : title.Substring(0, Constants.SIZEOFLEGEND) + "...",
+                Title = FormatTitle(title),
                 Values = new ChartValues<double> { transaction.Kwota },
                 DataLabels = true
             });
         }
     }
-    
+
     //catPieChart
     private void UpdateCatPieChart(PieChart catPieChart)
     {
@@ -97,21 +97,18 @@ public class PieCharsUtility
     }
     private void AddCatToPieSeries(SeriesCollection cats , List<Tuple<double,string>> cat , int amount = 10)
     {
-        foreach (var c in cat.Take(amount))
+        foreach (var (sum, title) in cat.Take(amount))
         {
-            double sum = c.Item1;
-            string title = c.Item2; 
-            
             cats.Add(new PieSeries
             {
-                Title = title.Length <= Constants.SIZEOFLEGEND ? title : title.Substring(0, Constants.SIZEOFLEGEND) + "...",
+                Title = FormatTitle(title),
                 Values = new ChartValues<double> { sum },
                 DataLabels = true
             });
         }
     }
     
-    //priv
+    //ex
     private void SwitchVisibilityOfChart(PieChart chart, bool visibility)
     {
         if (visibility == false)
@@ -131,5 +128,9 @@ public class PieCharsUtility
             Values = new ChartValues<double> { Math.Round(value, 2) },
             DataLabels = true
         };
+    }
+    private static string FormatTitle(string title)
+    {
+        return title.Length <= Constants.SIZEOFLEGEND ? title : title.Substring(0, Constants.SIZEOFLEGEND) + "...";
     }
 }

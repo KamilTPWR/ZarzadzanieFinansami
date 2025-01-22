@@ -257,6 +257,7 @@ public partial class MainWindow : Window
         _sortDirection = !_sortDirection;
         _columnHeader = e.Column.Header.ToString();
         UpdateDataGrid();
+        e.Handled = true;
     }
     private void DataGrid_MenuItem_Remove_OnClick(object sender, RoutedEventArgs e)
     {
